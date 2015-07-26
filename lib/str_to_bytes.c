@@ -43,11 +43,7 @@
  *
  ****************************************************************************/
 
-#if linux
-#define B_MULT	DEV_BSIZE	/* block size */
-#endif
-
-
+#define B_MULT	512		/* sector size */
 #define K_MULT	1024		/* Kilo or 2^10 */
 #define M_MULT	1048576		/* Mega or 2^20 */
 #define G_MULT	1073741824	/* Giga or 2^30 */

@@ -61,11 +61,7 @@
 #include "write_log.h"
 
 #ifndef BSIZE
-#ifdef linux
-#define BSIZE DEV_BSIZE
-#else
-#define BSIZE BBSIZE
-#endif
+#define BSIZE 512
 #endif
 
 #ifndef PATH_MAX
