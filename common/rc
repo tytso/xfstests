@@ -2866,6 +2866,11 @@ _require_xfs_io_command()
 	local opts=""
 	local attr_info=""
 
+	if echo "$XFS_IO_AVOID" | grep -wq -- "$command"
+	then
+		_notrun "Avoiding xfs_io $command"
+	fi
+
 	local testfile=$TEST_DIR/$$.xfs_io
 	local testio
 	case $command in
