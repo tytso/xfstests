@@ -371,6 +371,10 @@ Misc:
  - set CANON_DEVS=yes to canonicalize device symlinks. This will let you
    for example use something like TEST_DEV/dev/disk/by-id/nvme-* so the
    device remains persistent between reboots. This is disabled by default.
+ - setenv XFS_IO_AVOID, which may contain a list of space separated
+   xfs_io commands which will be avoided in case you want to exclude
+   tests that require the use of certain file system operations such
+   as "fpunch", "fcollapse", "finsert", or "zero".
 
 ______________________
 USING THE FSQA SUITE
