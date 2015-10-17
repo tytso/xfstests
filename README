@@ -100,6 +100,10 @@ Preparing system for tests:
                that relevant results are compared.  For example 'spinningrust'
                for configurations that use spinning disks and 'nvme' for tests
                using nvme drives.
+             - setenv XFS_IO_AVOID, which may contain a list of space separated
+               xfs_io commands which will be avoided in case you want to
+               exclude tests that require the use of certain file system
+               operations such as "fpunch", "fcollapse", "finsert", or "zero".
 
         - or add a case to the switch in common/config assigning
           these variables based on the hostname of your test
