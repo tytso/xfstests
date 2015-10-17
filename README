@@ -241,6 +241,10 @@ Misc:
    this option is supported for all filesystems currently only -overlay is
    expected to run without issues. For other filesystems additional patches
    and fixes to the test suite might be needed.
+ - setenv XFS_IO_AVOID, which may contain a list of space separated
+   xfs_io commands which will be avoided in case you want to exclude
+   tests that require the use of certain file system operations such
+   as "fpunch", "fcollapse", "finsert", or "zero".
 
 ______________________
 USING THE FSQA SUITE
