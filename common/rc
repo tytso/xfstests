@@ -1916,6 +1916,10 @@ _require_xfs_db_command()
 # check that kernel and filesystem support direct I/O
 _require_odirect()
 {
+       if [ $FSTYP = "ext4" ] &&
+	  echo "$MOUNT_OPTIONS" | grep -q "test_dummy_encryption" ; then
+		_notrun "ext4 encryption doesn't support O_DIRECT"
+       fi
        testfile=$TEST_DIR/$$.direct
        $XFS_IO_PROG -F -f -d -c "pwrite 0 20k" $testfile > /dev/null 2>&1
        if [ $? -ne 0 ]; then
