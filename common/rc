@@ -432,6 +432,18 @@ _supports_filetype()
 	esac
 }
 
+_local_validate_mount_opt()
+{
+    case "$*" in
+	ro|ro,*|*,ro) _notrun "ro mount option not supported" ;;
+	*nosuid*) _notrun "nosuid mount option not supported" ;;
+	*noatime*) _notrun "noatime mount option not supported" ;;
+	*relatime*) _notrun "relatime mount option not supported" ;;
+	*diratime*) _notrun "diratime mount option not supported" ;;
+	*strictatime*) _notrun "strictatime mount option not supported" ;;
+    esac
+}
+
 # mount scratch device with given options but don't check mount status
 _try_scratch_mount()
 {
@@ -522,6 +534,9 @@ _scratch_unmount()
 	tmpfs)
 		_unmount $SCRATCH_MNT
 		;;
+	local)
+		rm -rf $SCRATCH_MNT/*
+		;;
 	*)
 		_unmount $SCRATCH_DEV
 		;;
@@ -537,6 +552,10 @@ _scratch_remount()
 {
     local opts="$1"
 
+    if [ "$FSTYP" = "local" ]; then
+	_local_validate_mount_opt "$*"
+	return 0;
+    fi
     if test -n "$opts"; then
 	_try_scratch_mount "-o remount,$opts"
     fi
@@ -548,7 +567,7 @@ _scratch_cycle_mount()
     local unmounted
 
     case "$FSTYP" in
-    tmpfs)
+    tmpfs|local)
         _scratch_remount "$opts"
         return
         ;;
@@ -656,8 +675,10 @@ _test_mount()
     elif [ "$FSTYP" == "overlay" ]; then
         _overlay_test_mount $*
         return $?
+    elif [ "$FSTYP" == "local" ]; then
+        mkdir -p $TEST_DIR
+	return $?
     fi
-
     _test_options mount
     _mount -t $FSTYP$FUSE_SUBTYP $TEST_OPTIONS $TEST_FS_MOUNT_OPTS $SELINUX_MOUNT_OPTIONS $* $TEST_DEV $TEST_DIR
     mount_ret=$?
@@ -671,7 +692,7 @@ _test_unmount()
 {
 	if [ "$FSTYP" == "overlay" ]; then
 		_overlay_test_unmount
-	else
+	elif [ "$FSTYP" != "local" ]; then
 		_unmount $TEST_DEV
 	fi
 }
@@ -943,7 +964,7 @@ _scratch_mkfs()
 	local mkfs_status
 
 	case $FSTYP in
-	nfs*|afs|cifs|ceph|overlay|glusterfs|pvfs2|9p|fuse|virtiofs)
+	nfs*|afs|cifs|ceph|overlay|glusterfs|pvfs2|9p|fuse|virtiofs|local)
 		# unable to re-create this fstyp, just remove all files in
 		# $SCRATCH_MNT to avoid EEXIST caused by the leftover files
 		# created in previous runs
@@ -1890,6 +1911,10 @@ _check_if_dev_already_mounted()
 	local dev=$1
 	local mnt=$2
 
+	if [ "$FSTYP" == "local" ]; then
+		return 0
+	fi
+
 	# find $dev as the source, and print result in "$dev $mnt" format
 	local mount_rec=`findmnt -rncv -S $dev -o SOURCE,TARGET`
 	[ -n "$mount_rec" ] || return 1 # 1 = not mounted
@@ -1915,6 +1940,10 @@ _check_mounted_on()
 	local mntname=$3
 	local mnt=$4
 	local type=$5
+
+	if [ "$FSTYP" == "local" ]; then
+		return 0
+	fi
 
 	# this check doesn't work on ceph-fuse
 	if [ "$dev" != "ceph-fuse" ]; then
@@ -2030,6 +2059,13 @@ _require_scratch_nocheck()
 		if [ ! -d "$SCRATCH_MNT" ]; then
 			_notrun "this test requires a valid \$SCRATCH_MNT"
 		fi
+		;;
+	local)
+		if [ -z "$SCRATCH_DEV" -o ! -d "$SCRATCH_MNT" ];
+		then
+		    _notrun "this test requires a valid \$SCRATCH_MNT and unique $SCRATCH_DEV"
+		fi
+		return 0
 		;;
 	*)
 		 if [ -z "$SCRATCH_DEV" -o "`_is_block_dev "$SCRATCH_DEV"`" = "" ]
@@ -2254,6 +2290,13 @@ _require_test()
 		if [ ! -d "$TEST_DIR" ]; then
 			_notrun "this test requires a valid \$TEST_DIR"
 		fi
+		;;
+	local)
+		if [ -z "$TEST_DEV" -o ! -d "$TEST_DIR" ];
+		then
+		    _notrun "this test requires a valid \$TEST_DIR and unique $TEST_DEV"
+		fi
+		return 0
 		;;
 	*)
 		 if [ -z "$TEST_DEV" ] || [ "`_is_block_dev "$TEST_DEV"`" = "" ]
@@ -3396,6 +3439,10 @@ _remount()
     local device=$1
     local mode=$2
 
+    if [ "$FSTYP" == "local" ] ; then
+       return 0
+    fi
+
     if ! mount -o remount,$mode $device
     then
         echo "_remount: failed to remount filesystem on $device as $mode"
@@ -3440,6 +3487,10 @@ _mount_or_remount_rw()
 	local mount_opts=$1
 	local device=$2
 	local mountpoint=$3
+
+	if [ "$FSTYP" == "local" ] ; then
+	    return 0
+	fi
 
 	if [ $USE_REMOUNT -eq 0 ]; then
 		if [ "$FSTYP" != "overlay" ]; then
@@ -3675,6 +3726,9 @@ _check_test_fs()
     f2fs)
         _check_f2fs_filesystem $TEST_DEV
         ;;
+    local)
+	# no way to check consistency for local
+	;;
     *)
 	_check_generic_filesystem $TEST_DEV
 	;;
@@ -3734,6 +3788,9 @@ _check_scratch_fs()
     f2fs)
         _check_f2fs_filesystem $device
         ;;
+    local)
+	# no way to check consistency for local
+	;;
     *)
 	_check_generic_filesystem $device
 	;;
@@ -4052,6 +4109,9 @@ _require_fio()
 # Does freeze work on this fs?
 _require_freeze()
 {
+	if [ "$FSTYP" == "local" ]; then
+		_notrun "local does not support freeze"
+	fi
 	xfs_freeze -f "$TEST_DIR" >/dev/null 2>&1
 	local result=$?
 	xfs_freeze -u "$TEST_DIR" >/dev/null 2>&1
@@ -4081,6 +4141,9 @@ _require_scratch_shutdown()
 {
 	[ -x $here/src/godown ] || _notrun "src/godown executable not found"
 
+	if [ "$FSTYP" == "local" ]; then
+		_notrun "local does not support shutdown"
+	fi
 	_scratch_mkfs > /dev/null 2>&1 || _notrun "_scratch_mkfs failed on $SCRATCH_DEV"
 	_scratch_mount
 
@@ -4189,6 +4252,9 @@ _check_scratch_dax_mountopt()
 {
 	local option=$1
 
+	if [ "$FSTYP" == "local" ]; then
+		_notrun "local does not support dax"
+	fi
 	_require_scratch
 	_scratch_mkfs > /dev/null 2>&1
 
@@ -4223,6 +4289,9 @@ _require_dax_iflag()
 # Does norecovery support by this fs?
 _require_norecovery()
 {
+	if [ "$FSTYP" == "local" ]; then
+		_notrun "local does not support norecovery"
+	fi
 	_try_scratch_mount -o ro,norecovery || \
 		_notrun "$FSTYP does not support norecovery"
 	_scratch_unmount
