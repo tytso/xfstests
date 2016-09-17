@@ -340,8 +340,23 @@ _overlay_scratch_unmount()
 	$UMOUNT_PROG $SCRATCH_MNT
 }
 
+_local_validate_mount_opt()
+{
+    case "$*" in
+	ro|ro,*|*,ro) _notrun "ro mount option not supported" ;;
+	*nosuid*) _notrun "nosuid mount option not supported" ;;
+	*noatime*) _notrun "noatime mount option not supported" ;;
+	*relatime*) _notrun "relatime mount option not supported" ;;
+	*diratime*) _notrun "diratime mount option not supported" ;;
+	*strictatime*) _notrun "strictatime mount option not supported" ;;
+    esac
+}
+
 _scratch_mount()
 {
+    if [ "$FSTYP" == "local" ]; then
+        return 0
+    fi
     if [ "$FSTYP" == "overlay" ]; then
         _overlay_scratch_mount $*
         return $?
@@ -358,6 +373,9 @@ _scratch_unmount()
 	btrfs)
 		$UMOUNT_PROG $SCRATCH_MNT
 		;;
+	local)
+                rm -rf $SCRATCH_MNT/*
+                ;;
 	*)
 		$UMOUNT_PROG $SCRATCH_DEV
 		;;
@@ -368,6 +386,10 @@ _scratch_remount()
 {
     local opts="$1"
 
+    if [ "$FSTYP" = "local" ]; then
+	_local_validate_mount_opt "$*"
+	return 0;
+    fi
     if test -n "$opts"; then
 	mount -o "remount,$opts" $SCRATCH_MNT
     fi
@@ -377,7 +399,7 @@ _scratch_cycle_mount()
 {
     local opts="$1"
 
-    if [ "$FSTYP" = tmpfs ]; then
+    if [ "$FSTYP" = "tmpfs" -o "$FSTYP" = "local" ] ; then
 	_scratch_remount "$opts"
 	return
     fi
@@ -394,6 +416,10 @@ _test_mount()
         _overlay_test_mount $*
         return $?
     fi
+    if [ "$FSTYP" == "local" ]; then
+        mkdir -p $TEST_DIR
+	return $?
+    fi
     _test_options mount
     _mount -t $FSTYP $TEST_OPTIONS $TEST_FS_MOUNT_OPTS $SELINUX_MOUNT_OPTIONS $* $TEST_DEV $TEST_DIR
 }
@@ -402,7 +428,7 @@ _test_unmount()
 {
 	if [ "$FSTYP" == "overlay" ]; then
 		_overlay_test_unmount
-	else
+	elif [ "$FSTYP" != "local" ]; then
 		$UMOUNT_PROG $TEST_DEV
 	fi
 }
@@ -659,7 +685,7 @@ _scratch_mkfs()
 	local mkfs_status
 
 	case $FSTYP in
-	nfs*|cifs|ceph|overlay)
+	nfs*|cifs|ceph|overlay|local)
 		# unable to re-create this fstyp, just remove all files in
 		# $SCRATCH_MNT to avoid EEXIST caused by the leftover files
 		# created in previous runs
@@ -1356,6 +1382,13 @@ _require_scratch_nocheck()
 		    _notrun "this test requires a valid \$SCRATCH_MNT and unique $SCRATCH_DEV"
 		fi
 		;;
+	local)
+		if [ -z "$SCRATCH_DEV" -o ! -d "$SCRATCH_MNT" ];
+		then
+		    _notrun "this test requires a valid \$SCRATCH_MNT and unique $SCRATCH_DEV"
+		fi
+		return 0
+		;;
 	*)
 		 if [ -z "$SCRATCH_DEV" -o "`_is_block_dev "$SCRATCH_DEV"`" = "" ]
 		 then
@@ -1440,6 +1473,13 @@ _require_test()
 		then
 		    _notrun "this test requires a valid \$TEST_DIR and unique $TEST_DEV"
 		fi
+		;;
+	local)
+		if [ -z "$TEST_DEV" -o ! -d "$TEST_DIR" ];
+		then
+		    _notrun "this test requires a valid \$TEST_DIR and unique $TEST_DEV"
+		fi
+		return 0
 		;;
 	*)
 		 if [ -z "$TEST_DEV" ] || [ "`_is_block_dev "$TEST_DEV"`" = "" ]
@@ -2082,6 +2122,10 @@ _remount()
     device=$1
     mode=$2
 
+    if [ "$FSTYP" == "local" ] ; then
+       return 0
+    fi
+
     if ! mount -o remount,$mode $device
     then
         echo "_remount: failed to remount filesystem on $device as $mode"
@@ -2126,6 +2170,10 @@ _mount_or_remount_rw()
 	mount_opts=$1
 	device=$2
 	mountpoint=$3
+
+	if [ "$FSTYP" == "local" ] ; then
+	    return 0
+	fi
 
 	if [ $USE_REMOUNT -eq 0 ]; then
 		if [ "$FSTYP" != "overlay" ]; then
@@ -2272,6 +2320,9 @@ _check_test_fs()
     tmpfs)
 	# no way to check consistency for tmpfs
 	;;
+    local)
+	# no way to check consistency for local
+	;;
     *)
 	_check_generic_filesystem $TEST_DEV
 	;;
@@ -2315,6 +2366,9 @@ _check_scratch_fs()
 	;;
     tmpfs)
 	# no way to check consistency for tmpfs
+	;;
+    local)
+	# no way to check consistency for local
 	;;
     *)
 	_check_generic_filesystem $device
@@ -2619,6 +2673,9 @@ _require_fio()
 # Does freeze work on this fs?
 _require_freeze()
 {
+	if [ "$FSTYP" == "local" ]; then
+		_notrun "local does not support freeze"
+	fi
 	xfs_freeze -f "$TEST_DIR" >/dev/null 2>&1
 	result=$? 
 	xfs_freeze -u "$TEST_DIR" >/dev/null 2>&1
@@ -3070,7 +3127,7 @@ init_rc()
 		fi
 	fi
 
-	if [ "`_fs_type $TEST_DEV`" != "$FSTYP" ]
+	if [ "$FSTYP" != "local" -a "`_fs_type $TEST_DEV`" != "$FSTYP" ]
 	then
 		echo "common/rc: Error: \$TEST_DEV ($TEST_DEV) is not a MOUNTED $FSTYP filesystem"
 		# raw $DF_PROG cannot handle NFS/CIFS/overlay correctly
