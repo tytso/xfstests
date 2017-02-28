@@ -1,4 +1,8 @@
 QA output created by 352
 Format and populate
 Fuzz AGF
+scrub didn't fail with lsn = zeroes.
+scrub didn't fail with lsn = ones.
+scrub didn't fail with lsn = lastbit.
+scrub didn't fail with lsn = sub.
 Done fuzzing AGF

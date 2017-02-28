@@ -2,4 +2,37 @@ QA output created by 498
 Format and populate
 Find single-leafn-format dir block
 Fuzz single-leafn-format dir block
+online re-scrub (1) with lhdr.info.hdr.forw = ones.
+re-repair failed (1) with lhdr.info.hdr.forw = ones.
+online re-scrub (1) with lhdr.info.hdr.forw = firstbit.
+re-repair failed (1) with lhdr.info.hdr.forw = firstbit.
+online re-scrub (1) with lhdr.info.hdr.forw = middlebit.
+re-repair failed (1) with lhdr.info.hdr.forw = middlebit.
+online re-scrub (1) with lhdr.info.hdr.forw = lastbit.
+re-repair failed (1) with lhdr.info.hdr.forw = lastbit.
+online re-scrub (1) with lhdr.info.hdr.forw = add.
+re-repair failed (1) with lhdr.info.hdr.forw = add.
+online re-scrub (1) with lhdr.info.hdr.forw = sub.
+re-repair failed (1) with lhdr.info.hdr.forw = sub.
+online re-scrub (1) with lhdr.info.hdr.back = ones.
+re-repair failed (1) with lhdr.info.hdr.back = ones.
+online re-scrub (1) with lhdr.info.hdr.back = firstbit.
+re-repair failed (1) with lhdr.info.hdr.back = firstbit.
+online re-scrub (1) with lhdr.info.hdr.back = middlebit.
+re-repair failed (1) with lhdr.info.hdr.back = middlebit.
+online re-scrub (1) with lhdr.info.hdr.back = lastbit.
+re-repair failed (1) with lhdr.info.hdr.back = lastbit.
+online re-scrub (1) with lhdr.info.hdr.back = add.
+re-repair failed (1) with lhdr.info.hdr.back = add.
+online re-scrub (1) with lhdr.info.hdr.back = sub.
+re-repair failed (1) with lhdr.info.hdr.back = sub.
+scrub didn't fail with lhdr.info.lsn = zeroes.
+scrub didn't fail with lhdr.info.lsn = ones.
+online re-scrub (1) with lhdr.info.lsn = firstbit.
+online re-scrub (1) with lhdr.info.lsn = middlebit.
+scrub didn't fail with lhdr.info.lsn = lastbit.
+scrub didn't fail with lhdr.info.lsn = add.
+scrub didn't fail with lhdr.info.lsn = sub.
+scrub didn't fail with lhdr.count = zeroes.
+scrub didn't fail with lhdr.count = middlebit.
 Done fuzzing single-leafn-format dir block
