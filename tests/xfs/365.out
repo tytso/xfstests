@@ -1,4 +1,12 @@
 QA output created by 365
 Format and populate
 Fuzz inobt
+scrub didn't fail with lsn = zeroes.
+scrub didn't fail with lsn = ones.
+scrub didn't fail with lsn = firstbit.
+scrub didn't fail with lsn = middlebit.
+scrub didn't fail with lsn = lastbit.
+scrub didn't fail with lsn = add.
+scrub didn't fail with lsn = sub.
+scrub didn't fail with lsn = random.
 Done fuzzing inobt

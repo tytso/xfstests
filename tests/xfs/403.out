@@ -2,4 +2,10 @@ QA output created by 403
 Format and populate
 Find node-format attr block
 Fuzz node-format attr block
+scrub didn't fail with hdr.info.lsn = zeroes.
+scrub didn't fail with hdr.info.lsn = ones.
+scrub didn't fail with hdr.info.lsn = lastbit.
+scrub didn't fail with hdr.info.lsn = add.
+scrub didn't fail with hdr.info.lsn = sub.
+scrub didn't fail with btree[0].hashval = add.
 Done fuzzing node-format attr block
