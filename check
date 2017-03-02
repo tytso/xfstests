@@ -476,7 +476,12 @@ _summary()
 _check_filesystems()
 {
 	if [ -f ${RESULT_DIR}/require_test ]; then
-		_check_test_fs || err=true
+		if ! _check_test_fs ; then
+			err=true
+			echo "Trying to repair broken TEST_DEV file system"
+			_repair_test_fs
+			_test_mount
+		fi
 		rm -f ${RESULT_DIR}/require_test*
 	fi
 	if [ -f ${RESULT_DIR}/require_scratch ]; then
