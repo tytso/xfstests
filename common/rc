@@ -1181,6 +1181,28 @@ _repair_scratch_fs()
     esac
 }
 
+_repair_test_fs()
+{
+    case $FSTYP in
+    ext2|ext3|ext4)
+        fsck -t $FSTYP -fy $TEST_DEV >$tmp.repair 2>&1
+	if test $? -ge 4 ; then
+	    echo "_repair_test_fs: couldn't repair filesystem on $device (see $seqres.full)"
+
+	    echo "_repair_test_fs: couldn't repair filesystem on $device" >>$seqres.full
+	    echo "*** fsck.$FSTYP output ***"	>>$seqres.full
+            cat $tmp.repair			>>$seqres.full
+	    echo "*** end fsck.$FSTYP output"	>>$seqres.full
+	    return 1
+	fi
+	return 0
+	;;
+    *)
+	return 1
+	;;
+    esac
+}
+
 _get_pids_by_name()
 {
     if [ $# -ne 1 ]
