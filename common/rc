@@ -3515,6 +3515,17 @@ _mount_or_remount_rw()
 	return 1 # ok=1
 }
 
+_pre_fsck_prepare()
+{
+    device=$1
+
+    case $FSTYP in
+    ext4)
+	$E2FSCK_PROG -E journal_only -p $device > /dev/null
+	;;
+    esac
+}
+
 # Check a generic filesystem in no-op mode; this assumes that the
 # underlying fsck program accepts "-n" for a no-op (check-only) run,
 # and that it will still return an errno for corruption in this mode.
@@ -3536,6 +3547,7 @@ _check_generic_filesystem()
         local mountpoint=`_umount_or_remount_ro $device`
     fi
 
+    _pre_fsck_prepare $device
     fsck -t $FSTYP $FSCK_OPTIONS $device >$tmp.fsck 2>&1
     if [ $? -ne 0 ]
     then
