@@ -160,7 +160,8 @@ static int run_test(const char *filename, int n_child, int blksz, off_t offset,
 	/* seek, write, read and verify */
 	for (i = 0; i < nr_iter; i++) {
 		memset(buf_wr, i + 1, blksz);
-		log("pwrite(fd_wr, %p, %d, %lu)\n", buf_wr, blksz, seekoff);
+		log("pwrite(fd_wr, %p, %d, %llu)\n", buf_wr, blksz,
+		    (unsigned long long) seekoff);
 		if (pwrite(fd_wr, buf_wr, blksz, seekoff) != blksz) {
 			perror("direct write");
 			exit(EXIT_FAILURE);
@@ -174,7 +175,8 @@ static int run_test(const char *filename, int n_child, int blksz, off_t offset,
 			}
 		}
 
-		log("pread(fd_rd, %p, %d, %lu)\n", buf_rd, blksz, seekoff);
+		log("pread(fd_rd, %p, %d, %llu)\n", buf_rd, blksz,
+		    (unsigned long long) seekoff);
 		if (pread(fd_rd, buf_rd, blksz, seekoff) != blksz) {
 			perror("buffer read");
 			exit(EXIT_FAILURE);
