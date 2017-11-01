@@ -1,0 +1,21 @@
+QA output created by 030
++ create scratch fs of size 128 MB
++ mount scratch fs
++ resize fs to 1024 MB
++ umount fs
++ check fs
++ create scratch fs of size 1024 MB
++ mount scratch fs
++ resize fs to 2048 MB
++ umount fs
++ check fs
++ create scratch fs of size 1024 MB
++ mount scratch fs
++ resize fs to 4096 MB
++ umount fs
++ check fs
++ create scratch fs of size 1024 MB
++ mount scratch fs
++ resize fs to 5120 MB
++ umount fs
++ check fs

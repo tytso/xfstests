@@ -1,0 +1,93 @@
+#! /bin/bash
+# FS QA Test ext4/030
+#
+# Ext4 online resize test.
+#
+#-----------------------------------------------------------------------
+# Copyright (c) 2017 Google, Inc.  All Rights Reserved.
+#
+# Author: Harshad Shirwadkar <harshads@google.com>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it would be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write the Free Software Foundation,
+# Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+#-----------------------------------------------------------------------
+
+seq=`basename $0`
+seqres=$RESULT_DIR/$seq
+echo "QA output created by $seq"
+
+here=`pwd`
+tmp=/tmp/$$
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+	cd /
+	rm -f $tmp.*
+}
+
+# get standard environment and checks
+. ./common/rc
+
+# remove previous $seqres.full before test
+rm -f $seqres.full
+
+# real QA test starts here
+_supported_fs ext4
+_supported_os Linux
+
+_require_scratch
+rm -f $seqres.full
+TESTDIR="${SCRATCH_MNT}/scratchdir"
+TESTFILE="${TESTDIR}/testfile"
+
+mb2bytes()
+{
+	expr $1 \* 1024 \* 1024
+}
+
+# Takes two arguments: $1 = initial size (mb), $2 = new size (mb).
+work()
+{
+	local original_size=$1
+	local final_size=$2
+
+	echo "+ create scratch fs of size $original_size MB"
+	_scratch_mkfs_sized $(mb2bytes $original_size) 4096 > /dev/null 2>&1
+	dumpe2fs -g "${SCRATCH_DEV}" > /dev/null 2>&1 || \
+		_notrun "dumpe2fs -g not supported"
+
+	echo "+ mount scratch fs"
+	_scratch_mount > /dev/null 2>&1
+
+	echo "+ resize fs to $final_size MB"
+	resize2fs -f "${SCRATCH_DEV}" ${final_size}M >> $seqres.full 2>&1 || \
+		_fail "resize2fs failed"
+
+	echo "+ umount fs"
+	umount "${SCRATCH_MNT}"
+
+	echo "+ check fs"
+	e2fsck -fn "${SCRATCH_DEV}" >> $seqres.full 2>&1 || \
+		_fail "fsck should not fail"
+}
+
+## Try resizing to different sizes.
+work 128 1024
+work 1024 2048
+work 1024 4096
+work 1024 5120
+
+status=0
+exit
