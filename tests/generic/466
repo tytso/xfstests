@@ -23,7 +23,11 @@ unset MKFS_OPTIONS
 
 echo "Starting test" > $seqres.full
 devsize=$(blockdev --getsize64 $SCRATCH_DEV)
-for blocksize in 512 1024 2048 4096 8192 16384 32768 65536; do
+min_blocksize=$(_fs_min_blocksize)
+max_blocksize=$(_fs_max_blocksize)
+
+for (( blocksize = min_blocksize ; blocksize <= max_blocksize ;
+       blocksize = blocksize * 2)); do
 	echo "+ Format blocksize $blocksize and mount" >> $seqres.full
 	_scratch_unmount > /dev/null 2>&1
 	# Try to format and mount with the given blocksize.  If they don't
