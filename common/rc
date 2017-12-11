@@ -1406,6 +1406,29 @@ _scratch_mkfs_blocksized()
 	esac
 }
 
+_fs_min_blocksize()
+{
+    case $FSTYP in
+    ext4)
+	if echo "$MOUNT_OPTIONS" | grep -q "test_dummy_encryption"; then
+	    _get_page_size
+	else
+            echo 1024
+	fi
+       ;;
+    btrfs)
+	_get_page_size
+	;;
+    *)
+	echo 512
+    esac
+}
+
+_fs_max_blocksize()
+{
+    _get_page_size
+}
+
 _scratch_resvblks()
 {
 	case $FSTYP in
