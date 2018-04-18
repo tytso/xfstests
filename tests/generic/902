@@ -1,0 +1,285 @@
+#! /bin/bash
+# FS QA Test generic/902
+#
+# Test fs-verity footer validation
+#
+#-----------------------------------------------------------------------
+# Copyright (c) 2018 Google, Inc.  All Rights Reserved.
+#
+# Author: Eric Biggers <ebiggers@google.com>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it would be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write the Free Software Foundation,
+# Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+#-----------------------------------------------------------------------
+
+seq=`basename $0`
+seqres=$RESULT_DIR/$seq
+echo "QA output created by $seq"
+
+here=`pwd`
+tmp=/tmp/$$
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+	cd /
+	rm -f $tmp.*
+}
+
+# get standard environment, filters and checks
+. ./common/rc
+. ./common/filter
+. ./common/verity
+
+# remove previous $seqres.full before test
+rm -f $seqres.full
+
+# real QA test starts here
+_supported_fs generic
+_supported_os Linux
+_require_scratch_verity
+
+_scratch_mkfs_verity &>> $seqres.full
+_scratch_mount
+fsv_orig_file=$SCRATCH_MNT/file
+fsv_file=$SCRATCH_MNT/file.fsv
+
+ORIG_FILE_SIZE=150000
+FULL_FILE_SIZE=155716
+FOOTER_FIXED_SIZE=64
+FOOTER_START=$((FULL_FILE_SIZE - 4 - FOOTER_FIXED_SIZE))
+EXT_COUNT_OFFSET=$((FOOTER_START + 33))
+
+make_test_file()
+{
+	head -c $ORIG_FILE_SIZE /dev/zero > $fsv_orig_file
+	_fsv_setup_file $fsv_orig_file $fsv_file >> $seqres.full
+	local full_isize=$(stat -c %s $fsv_file)
+	if (( full_isize != FULL_FILE_SIZE )); then
+		_fail "Unexpected full_isize ($full_isize)"
+	fi
+}
+
+num_to_hex()
+{
+	local value=$1
+	local nbytes=$2
+	local i
+
+	for (( i = 0; i < nbytes; i++, value >>= 8 )); do
+		printf '\\x%02x' $((value & 0xff))
+	done
+}
+
+num_to_bin()
+{
+	echo -n -e "$(num_to_hex "$@")"
+}
+
+invalid_footer_test()
+{
+	local description=$1
+	local offset=$2
+	local value=$3
+	local value_len=$(echo -n -e "$value" | wc -c)
+
+	_fsv_begin_subtest "$description"
+	make_test_file
+
+	echo -n -e "$value" | dd conv=notrunc bs=1 count=$value_len \
+		seek=$((FOOTER_START + offset)) of=$fsv_file 2>/dev/null
+
+	$FSVERITY_PROG enable $fsv_file
+}
+
+invalid_extensions_test()
+{
+	local description=$1
+	local extcount=$2
+	local extlist=$3
+	local extlist_len=$(echo -n -e "$extlist" | wc -c)
+
+	_fsv_begin_subtest "$description"
+	make_test_file
+
+	num_to_bin $extcount 1 | dd conv=notrunc bs=1 \
+		seek=$EXT_COUNT_OFFSET of=$fsv_file 2>/dev/null
+	echo -n -e "$extlist" | dd conv=notrunc bs=1 \
+		seek=$((FULL_FILE_SIZE - 4)) of=$fsv_file 2>/dev/null
+	local ftr_reverse_offset=$((FOOTER_FIXED_SIZE + 4 + extlist_len))
+	num_to_bin $ftr_reverse_offset 4 >> $fsv_file
+
+	$FSVERITY_PROG enable $fsv_file
+}
+
+# struct fsverity_extension {
+#	__le16 length;
+#	u8 type;
+#	u8 reserved[5];
+# } __packed;
+EXT_HDR_LEN=8
+__create_exthdr()
+{
+	local length=$1
+	local type=$2
+	if [ $# -ge 3 ]; then
+		local reserved=$3
+	else
+		local reserved=0
+	fi
+
+	num_to_hex $length 2
+	num_to_hex $type 1
+	num_to_hex $reserved 5
+}
+
+# struct fsverity_extension_elide {
+#	__le64 offset;
+#	__le64 length;
+# } __packed;
+EXT_ELIDE=0
+EXT_ELIDE_LEN=$((EXT_HDR_LEN + 16))
+__create_elision()
+{
+	local offset=$1
+	local length=$2
+
+	num_to_hex $offset 8
+	num_to_hex $length 8
+}
+
+create_elision()
+{
+	local offset=$1
+	local length=$2
+
+	__create_exthdr $EXT_ELIDE_LEN $EXT_ELIDE
+	__create_elision $offset $length
+}
+
+# struct fsverity_extension_patch {
+#	__le64 offset;
+#	u8 databytes[];
+# } __packed;
+EXT_PATCH=1
+EXT_PATCH_LEN=$((EXT_HDR_LEN + 8))
+__create_patch()
+{
+	num_to_hex $offset 8
+	num_to_hex 0 $length
+}
+
+create_patch()
+{
+	local offset=$1
+	local length=$2
+
+	__create_exthdr $((EXT_PATCH_LEN + length)) $EXT_PATCH
+	__create_patch $offset $length
+	num_to_hex 0 $((-length & 7))
+}
+
+# Fixed-size portion of footer
+invalid_footer_test "good magic"			0 "TrueBrew"
+invalid_footer_test "bad magic"				0 "TrueBlue"
+invalid_footer_test "bad major_version"			8 "\xff"
+invalid_footer_test "bad minor_version"			9 "\xff"
+invalid_footer_test "bad log_blocksize: 0x00"		10 "\x00"
+invalid_footer_test "bad log_blocksize: 0xff"		10 "\xff"
+invalid_footer_test "bad log_arity: 0x00"		11 "\x00"
+invalid_footer_test "bad log_arity: 0xff"		11 "\xff"
+invalid_footer_test "bad meta_algorithm: 0x0000"	12 "\x00\x00"
+invalid_footer_test "bad meta_algorithm: 0xffff"	12 "\xff\xff"
+invalid_footer_test "bad data_algorithm: 0x0000"	14 "\x00\x00"
+invalid_footer_test "bad data_algorithm: 0xffff"	14 "\xff\xff"
+invalid_footer_test "bad algorithms: 0x00000000"	12 "\x00\x00\x00\x00"
+invalid_footer_test "bad algorithms: 0xffffffff"	12 "\xff\xff\xff\xff"
+invalid_footer_test "mismatched algorithms"		12 "\x01\x00\x02\x00"
+invalid_footer_test "bad flags"				16 "\xff\xff\xff\xff"
+invalid_footer_test "bad reserved1"			20 "\xff\xff\xff\xff"
+invalid_footer_test "bad size: 0"			24 "$(num_to_hex 0 8)"
+invalid_footer_test "bad size: > full_isize" \
+	24 "$(num_to_hex $((FULL_FILE_SIZE + 1)) 8)"
+invalid_footer_test "bad size: UINT64_MAX" \
+	24 "\xff\xff\xff\xff\xff\xff\xff\xff"
+invalid_footer_test "bad auth_blk_offset"		32 "\xff"
+invalid_footer_test "bad extension_count"		33 "\xff"
+invalid_footer_test "bad reserved2" \
+	42 "$(perl -e 'print "\\xff" x 22')"
+invalid_footer_test "bad ftr_reverse_offset: 0"		64 "$(num_to_hex 0 4)"
+invalid_footer_test "bad ftr_reverse_offset: 64"	64 "$(num_to_hex 64 4)"
+invalid_footer_test "bad ftr_reverse_offset: 69"	64 "$(num_to_hex 69 4)"
+invalid_footer_test "bad ftr_reverse_offset: > full_isize" \
+	64 "$(num_to_hex $((FULL_FILE_SIZE + 1)) 4)"
+invalid_footer_test "bad ftr_reverse_offset: UINT32_MAX" 64 "\xff\xff\xff\xff"
+
+# Extensions
+
+# Before getting too far with checking for invalid extensions, verify that our
+# test code works to generate valid extensions.
+echo -e "\n### Good extensions"
+invalid_extensions_test "good elision" \
+	1 "$(create_elision 0 $FSV_BLOCK_SIZE)"
+invalid_extensions_test "good elisions" \
+	2 "$(create_elision 0 $FSV_BLOCK_SIZE)$(create_elision $FSV_BLOCK_SIZE $((2 * FSV_BLOCK_SIZE)))"
+invalid_extensions_test "good patch" \
+	1 "$(create_patch 0 100)"
+invalid_extensions_test "good patches" \
+	2 "$(create_patch 0 100)$(create_patch $((2 * FSV_BLOCK_SIZE - 33)) 52)"
+
+echo -e "\n### Invalid generic extensions"
+invalid_extensions_test "not enough room for extension header" \
+	1 "\x08\x00"
+invalid_extensions_test "unknown extension type" \
+	1 "$(__create_exthdr 8 255)"
+invalid_extensions_test "length in extension header smaller than header" \
+	1 "$(__create_exthdr 0 $EXT_ELIDE)$(__create_elision 0 $FSV_BLOCK_SIZE)"
+invalid_extensions_test "extension length overflows buffer" \
+	1 "$(__create_exthdr 256 $EXT_ELIDE)$(__create_elision 0 $FSV_BLOCK_SIZE)"
+invalid_extensions_test "extension length overflows buffer after rounding" \
+	1 "$(__create_exthdr $((EXT_ELIDE_LEN + 1)) $EXT_ELIDE)$(__create_elision 0 $FSV_BLOCK_SIZE)\x00"
+invalid_extensions_test "reserved bits set in extension header" \
+	1 "$(__create_exthdr $EXT_ELIDE_LEN $EXT_ELIDE 255)$(__create_elision 0 $FSV_BLOCK_SIZE)"
+
+echo -e "\n### Invalid elide extensions"
+invalid_extensions_test "elide item length too short" \
+	1 "$(__create_exthdr 8 $EXT_ELIDE)"
+invalid_extensions_test "empty elision" \
+	1 "$(create_elision 0 0)"
+invalid_extensions_test "misaligned elision length" \
+	1 "$(create_elision 0 1)"
+invalid_extensions_test "misaligned elision offset" \
+	1 "$(create_elision 1 0)"
+invalid_extensions_test "elision extends past EOF" \
+	1 "$(create_elision 0 $(((ORIG_FILE_SIZE + FSV_BLOCK_SIZE) & ~(FSV_BLOCK_SIZE - 1))))"
+invalid_extensions_test "overlapping elisions" \
+	2 "$(create_elision 0 $FSV_BLOCK_SIZE)$(create_elision 0 $((2 * FSV_BLOCK_SIZE)))"
+
+echo -e "\n### Invalid patch extensions"
+invalid_extensions_test "patch item length too short" \
+	1 "$(__create_exthdr 8 $EXT_PATCH)"
+invalid_extensions_test "empty patch" \
+	1 "$(create_patch 0 0)"
+invalid_extensions_test "patch too long" \
+	1 "$(create_patch 0 500)"
+invalid_extensions_test "patch extends past EOF" \
+	1 "$(create_patch $((ORIG_FILE_SIZE - 8)) 16)"
+invalid_extensions_test "overlapping patches" \
+	2 "$(create_patch 0 100)$(create_patch 50 100)"
+invalid_extensions_test "multiple patches per page" \
+	2 "$(create_patch 0 100)$(create_patch 3900 100)"
+
+# success, all done
+status=0
+exit
