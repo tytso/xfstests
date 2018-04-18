@@ -204,6 +204,11 @@ export UBIUPDATEVOL_PROG="`set_prog_path ubiupdatevol`"
 export THIN_CHECK_PROG="$(set_prog_path thin_check)"
 export PYTHON2_PROG="`set_prog_path python2`"
 export SQLITE3_PROG="`set_prog_path sqlite3`"
+export FSVERITY_PROG="`set_prog_path fsverity`"
+export FSVERITYSETUP_PROG="`set_prog_path fsveritysetup`"
+if [ -n "$FSVERITYSETUP_PROG" ] && [ -z "`set_prog_path veritysetup`" ]; then
+	FSVERITYSETUP_PROG="FSVERITYSETUP_PROG --builtin-veritysetup"
+fi
 
 # use 'udevadm settle' or 'udevsettle' to wait for lv to be settled.
 # newer systems have udevadm command but older systems like RHEL5 don't.
