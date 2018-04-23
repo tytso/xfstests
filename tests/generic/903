@@ -1,0 +1,150 @@
+#! /bin/bash
+# FS QA Test generic/903
+#
+# Test corrupting fs-verity files
+#
+#-----------------------------------------------------------------------
+# Copyright (c) 2018 Google, Inc.  All Rights Reserved.
+#
+# Author: Eric Biggers <ebiggers@google.com>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it would be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write the Free Software Foundation,
+# Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+#-----------------------------------------------------------------------
+
+seq=`basename $0`
+seqres=$RESULT_DIR/$seq
+echo "QA output created by $seq"
+
+here=`pwd`
+tmp=/tmp/$$
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+	cd /
+	rm -f $tmp.*
+}
+
+# get standard environment, filters and checks
+. ./common/rc
+. ./common/filter
+. ./common/verity
+
+# remove previous $seqres.full before test
+rm -f $seqres.full
+
+# real QA test starts here
+_supported_fs generic
+_supported_os Linux
+_require_scratch_verity
+
+_scratch_mkfs_verity &>> $seqres.full
+_scratch_mount
+fsv_orig_file=$SCRATCH_MNT/file
+fsv_file=$SCRATCH_MNT/file.fsv
+
+setup_zeroed_file()
+{
+	local len=$1
+	local measurement
+
+	head -c $len /dev/zero > $fsv_orig_file
+	measurement=$(_fsv_setup_file $fsv_orig_file $fsv_file)
+	$FSVERITY_PROG enable $fsv_file
+	$FSVERITY_PROG set_measurement $fsv_file $measurement
+	md5sum $fsv_file |& _filter_scratch 1>&2
+	echo $measurement
+}
+
+filter_sigbus()
+{
+	sed -e 's/.*Bus error.*/Bus error/'
+}
+
+page_boundary()
+{
+	local n=$1
+	local page_size=$(getconf PAGE_SIZE)
+
+	echo $(( (n + page_size - 1) & ~(page_size - 1) ))
+}
+
+corruption_test()
+{
+	local file_len=$1
+	local zap_offset=$2
+	local zap_len=$3
+	local metadata_offset=$(page_boundary $file_len)
+	local measurement
+
+	_fsv_begin_subtest "Corruption test: file_len=$file_len zap_offset=$zap_offset zap_len=$zap_len"
+	measurement=$(setup_zeroed_file $file_len)
+	cmp $fsv_file $fsv_orig_file
+	echo "Corrupting bytes..."
+	head -c $zap_len /dev/zero | tr '\0' X \
+		| _fsv_corrupt_bytes $fsv_file $zap_offset
+
+	echo "Validating corruption (reading full file)..."
+	_scratch_cycle_mount
+	$FSVERITY_PROG set_measurement $fsv_file $measurement
+	md5sum $fsv_file |& _filter_scratch
+
+	echo "Validating corruption (direct I/O)..."
+	_scratch_cycle_mount
+	$FSVERITY_PROG set_measurement $fsv_file $measurement
+	dd if=$fsv_file bs=$FSV_BLOCK_SIZE iflag=direct status=none \
+		of=/dev/null |& _filter_scratch
+
+	if (( zap_offset < metadata_offset )); then
+		echo "Validating corruption (reading just corrupted part)..."
+		_scratch_cycle_mount
+		$FSVERITY_PROG set_measurement $fsv_file $measurement
+		dd if=$fsv_file bs=1 skip=$zap_offset count=$zap_len \
+			of=/dev/null status=none |& _filter_scratch
+	fi
+
+	echo "Validating corruption (reading full file via mmap)..."
+	_scratch_cycle_mount
+	$FSVERITY_PROG set_measurement $fsv_file $measurement
+	bash -c "trap '' SIGBUS; $XFS_IO_PROG -r $fsv_file \
+		-c 'mmap -r 0 $metadata_offset' \
+		-c 'mread 0 $file_len'" |& filter_sigbus
+
+	if (( zap_offset < metadata_offset )); then
+		echo "Validating corruption (reading just corrupted part via mmap)..."
+		_scratch_cycle_mount
+		$FSVERITY_PROG set_measurement $fsv_file $measurement
+		bash -c "trap '' SIGBUS; $XFS_IO_PROG -r $fsv_file \
+			-c 'mmap -r 0 $metadata_offset' \
+			-c 'mread $zap_offset $zap_len'" |& filter_sigbus
+	fi
+}
+
+corruption_test 131072 0 1
+corruption_test 131072 4095 1
+corruption_test 131072 65536 65536
+corruption_test 131072 131071 1
+
+# Non-zeroed bytes in the final partial block beyond EOF should cause reads to
+# fail too.  Such bytes would be visible via mmap().
+corruption_test 129999 131000 72
+
+# Hash tree corruption
+corruption_test 1048576 1052672 4096
+corruption_test 1048576 1056767 1
+
+# success, all done
+status=0
+exit
