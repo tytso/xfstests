@@ -1,0 +1,78 @@
+#! /bin/bash
+# FS QA Test generic/907
+#
+# Test that fs-verity inodes are unpinned on deletion
+#
+#-----------------------------------------------------------------------
+# Copyright (c) 2018 Google, Inc.  All Rights Reserved.
+#
+# Author: Eric Biggers <ebiggers@google.com>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it would be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write the Free Software Foundation,
+# Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+#-----------------------------------------------------------------------
+
+seq=`basename $0`
+seqres=$RESULT_DIR/$seq
+echo "QA output created by $seq"
+
+here=`pwd`
+tmp=/tmp/$$
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+	cd /
+	rm -f $tmp.*
+}
+
+# get standard environment, filters and checks
+. ./common/rc
+. ./common/filter
+. ./common/verity
+
+# remove previous $seqres.full before test
+rm -f $seqres.full
+
+# real QA test starts here
+_supported_fs generic
+_supported_os Linux
+_require_scratch_verity
+
+_scratch_mkfs_verity &>> $seqres.full
+_scratch_mount
+
+fsv_orig_file=$tmp.file
+fsv_file=$SCRATCH_MNT/file.fsv
+blocks=1024
+
+# Set up an fs-verity file within the encrypted directory.
+# Verity that it actually has an encryption policy.
+head -c $(( 1024 * blocks )) /dev/zero > $fsv_orig_file
+measurement=$(_fsv_setup_file $fsv_orig_file $fsv_file)
+$FSVERITY_PROG enable $fsv_file
+$FSVERITY_PROG set_measurement $fsv_file $measurement
+
+space_before=$(df -P $SCRATCH_DEV | awk 'END {print $4}')
+rm $fsv_file
+space_after=$(df -P $SCRATCH_DEV | awk 'END {print $4}')
+
+if (( space_after - space_before < blocks )); then
+	_fail "Space wasn't freed! space_before=$space_before, space_after=$space_after, blocks=$blocks"
+fi
+
+# success, all done
+echo "Silence is golden"
+status=0
+exit
