@@ -1,0 +1,8 @@
+QA output created by 901
+
+# Enabling fs-verity as regular user fails with EACCES
+FS_IOC_ENABLE_VERITY: Permission denied
+
+# Setting measurement as regular user fails with EACCES
+FS_IOC_SET_VERITY_MEASUREMENT: Permission denied
+md5sum: SCRATCH_MNT/file.fsv: Input/output error
