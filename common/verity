@@ -1,0 +1,197 @@
+#-----------------------------------------------------------------------
+#
+# Common functions for testing fs-verity
+#
+#-----------------------------------------------------------------------
+# Copyright (c) 2018 Google, Inc.  All Rights Reserved.
+#
+# Author: Eric Biggers <ebiggers@google.com>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it would be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write the Free Software Foundation,
+# Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+#-----------------------------------------------------------------------
+
+FSV_BLOCK_SIZE=4096
+
+_require_scratch_verity()
+{
+	_require_scratch
+	_require_command "$FSVERITY_PROG" fsverity
+	_require_command "$FSVERITYSETUP_PROG" fsveritysetup
+
+	if ! _scratch_mkfs_verity &>>$seqres.full; then
+		_notrun "$FSTYP userspace tools don't support fs-verity"
+	fi
+
+	# Try to mount the filesystem.  If this fails, then the filesystem is
+	# unaware of the fs-verity feature.
+	if ! _try_scratch_mount &>>$seqres.full; then
+		_notrun "kernel doesn't know about $FSTYP verity feature"
+	fi
+	_scratch_unmount
+
+	# The filesystem may be aware of fs-verity but have it disabled, e.g.
+	# CONFIG_F2FS_FS_VERITY=n for f2fs.  Detect support via sysfs.
+	if [ ! -e /sys/fs/$FSTYP/features/verity ]; then
+		_notrun "kernel $FSTYP isn't configured with verity support"
+	fi
+
+	# fs-verity with block_size != PAGE_SIZE isn't implemented yet.
+	if [ "$(getconf PAGE_SIZE)" != $FSV_BLOCK_SIZE ]; then
+		_notrun "fs-verity not yet supported for PAGE_SIZE != $FSV_BLOCK_SIZE"
+	fi
+}
+
+_scratch_mkfs_verity()
+{
+	case $FSTYP in
+	f2fs)
+		_scratch_mkfs -O verity
+		;;
+	*)
+		_notrun "No verity support for $FSTYP"
+		;;
+	esac
+}
+
+_scratch_mkfs_encrypted_verity()
+{
+	case $FSTYP in
+	f2fs)
+		_scratch_mkfs -O encrypt -O verity
+		;;
+	*)
+		_notrun "$FSTYP not supported in _scratch_mkfs_encrypted_verity"
+		;;
+	esac
+}
+
+_fsv_randstring()
+{
+	local nchars=$1
+
+	tr -d -C 0-9a-f < /dev/urandom | head -c "$nchars"
+}
+
+_fsv_begin_subtest()
+{
+	local msg=$1
+
+	rm -rf "${SCRATCH_MNT:?}"/*
+	echo -e "\n# $msg"
+}
+
+_fsv_setup_file()
+{
+	$FSVERITYSETUP_PROG "$@" | awk '/^fs-verity measurement: /{print $3}'
+}
+
+# Generate a file with fs-verity metadata, but don't actually enable verity yet
+_fsv_create_setup_file()
+{
+	local file=$1
+
+	head -c $((FSV_BLOCK_SIZE * 2)) /dev/zero > $tmp.file
+	_fsv_setup_file $tmp.file "$file"
+}
+
+# Generate a file with fs-verity metadata, then enable verity
+_fsv_create_enable_file()
+{
+	local file=$1
+
+	_fsv_create_setup_file "$file"
+	$FSVERITY_PROG enable "$file"
+}
+
+#
+# _fsv_corrupt_bytes - Write some bytes to a file, bypassing the filesystem
+#
+# Write the bytes sent on stdin to the given offset in the given file, but
+# writing directly to the extents on the block device, with the filesystem
+# unmounted.  This is necessary because the filesystem (by design) forbids
+# writing to fs-verity files and also hides their metadata.
+#
+# The file is assumed to be located on $SCRATCH_DEV.
+#
+_fsv_corrupt_bytes()
+{
+	local file=$1
+	local offset=$2
+	local lstarts=() # extent logical starts, in bytes
+	local pstarts=() # extent physical starts, in bytes
+	local lens=() # extent lengths, in bytes
+	local line
+	local cmd
+	local dd_cmds=()
+	local eidx=0
+
+	sync	# Sync to avoid unwritten extents
+
+	cat > $tmp.bytes
+	local end=$(( offset + $(stat -c %s $tmp.bytes ) ))
+
+	# Get the list of extents that intersect the requested range
+	while read -r line; do \
+		local fields=($line)
+		local lstart=${fields[0]}
+		local lend=${fields[1]}
+		local pstart=${fields[2]}
+		local pend=${fields[3]}
+		local llen=$((lend + 1 - lstart))
+		local plen=$((pend + 1 - pstart))
+		if (( llen != plen )); then
+			_fail "Logical and physical extent lengths differ! $line"
+		fi
+		lstarts+=( $((lstart * 512)) )
+		pstarts+=( $((pstart * 512)) )
+		lens+=( $((llen * 512)) )
+	done < <($XFS_IO_PROG -r -c "fiemap $offset $((end - offset))" "$file" \
+		 | grep -E '^[[:space:]]+[0-9]+:' \
+		 | grep -v '\<hole\>' \
+		 | sed -E 's/^[[:space:]]+[0-9]+://' \
+		 | tr '][.:' ' ')
+
+	while (( offset < end )); do
+		# Find the next extent to write to
+		while true; do
+			if (( eidx >= ${#lstarts[@]} )); then
+				_fail "Extents ended before byte $offset"
+			fi
+			if (( offset < ${lstarts[$eidx]} )); then
+				_fail "Hole in file at byte $offset"
+			fi
+			local lend=$(( ${lstarts[$eidx]} + ${lens[$eidx]} ))
+			if (( offset < lend )); then
+				break
+			fi
+			(( eidx += 1 ))
+		done
+		# Add a command that writes to the next extent
+		local len=$((lend - offset))
+		local seek=$(( offset + ${pstarts[$eidx]} - ${lstarts[$eidx]} ))
+		if (( len > end - offset )); then
+			len=$((end - offset))
+		fi
+		dd_cmds+=("head -c $len | dd of=$SCRATCH_DEV oflag=seek_bytes seek=$seek status=none")
+		(( offset += len ))
+	done
+
+	# Execute the commands to write the data
+	_scratch_unmount
+	for cmd in "${dd_cmds[@]}"; do
+		eval "$cmd"
+	done < $tmp.bytes
+	sync	# Sync to flush the block device's pagecache
+	_scratch_mount
+}
