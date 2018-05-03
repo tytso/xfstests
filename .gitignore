@@ -24,7 +24,6 @@
 
 # libtool
 /libtool
-/install-sh
 /ltmain.sh
 
 # build system
