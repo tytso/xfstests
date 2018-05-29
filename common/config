@@ -193,6 +193,11 @@ export GETCAP_PROG="$(type -P getcap)"
 export CHECKBASHISMS_PROG="$(type -P checkbashisms)"
 export XFS_INFO_PROG="$(type -P xfs_info)"
 export DUPEREMOVE_PROG="$(type -P duperemove)"
+export FSVERITY_PROG="$(type -P fsverity)"
+export FSVERITYSETUP_PROG="$(type -P fsveritysetup)"
+if [ -n "$FSVERITYSETUP_PROG" ] && [ -z "$(type -P veritysetup)" ]; then
+	FSVERITYSETUP_PROG="$FSVERITYSETUP_PROG --builtin-veritysetup"
+fi
 
 # use 'udevadm settle' or 'udevsettle' to wait for lv to be settled.
 # newer systems have udevadm command but older systems like RHEL5 don't.
