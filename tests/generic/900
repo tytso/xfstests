@@ -1,0 +1,218 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (c) 2018 Google, Inc.  All Rights Reserved.
+#
+# FS QA Test generic/900
+#
+# Test general semantics of fs-verity files.
+#
+seq=`basename $0`
+seqres=$RESULT_DIR/$seq
+echo "QA output created by $seq"
+
+here=`pwd`
+tmp=/tmp/$$
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+	cd /
+	rm -f $tmp.*
+}
+
+# get standard environment, filters and checks
+. ./common/rc
+. ./common/filter
+. ./common/verity
+
+# remove previous $seqres.full before test
+rm -f $seqres.full
+
+# real QA test starts here
+_supported_fs generic
+_supported_os Linux
+_require_scratch_verity
+
+_scratch_mkfs_verity &>> $seqres.full
+_scratch_mount
+fsv_orig_file=$SCRATCH_MNT/file
+fsv_file=$SCRATCH_MNT/file.fsv
+
+verify_data_readable()
+{
+	local file=$1
+
+	md5sum $file > /dev/null
+}
+
+verify_data_unreadable()
+{
+	local file=$1
+
+	# try both reading just the first data block, and reading until EOF
+	head -c $FSV_BLOCK_SIZE $file 2>&1 >/dev/null | _filter_scratch
+	md5sum $file |& _filter_scratch
+}
+
+_fsv_begin_subtest "Enabling fs-verity on directory fails with EISDIR"
+mkdir $SCRATCH_MNT/dir
+$FSVERITY_PROG enable $SCRATCH_MNT/dir
+
+_fsv_begin_subtest "Enabling fs-verity on file open for writing fails with ETXTBSY"
+_fsv_create_setup_file $fsv_file >> $seqres.full
+exec 3<> "$fsv_file"
+$FSVERITY_PROG enable $fsv_file
+exec 3<&-
+verify_data_readable $fsv_file
+
+_fsv_begin_subtest "Enabling fs-verity on read-only filesystem fails with EROFS"
+_fsv_create_setup_file $fsv_file >> $seqres.full
+_scratch_remount ro
+$FSVERITY_PROG enable $fsv_file
+_scratch_remount rw
+
+_fsv_begin_subtest "Enabling fs-verity twice fails with EEXIST"
+_fsv_create_setup_file $fsv_file >> $seqres.full
+$FSVERITY_PROG enable $fsv_file
+echo "(trying again)"
+$FSVERITY_PROG enable $fsv_file
+
+_fsv_begin_subtest "fs-verity file can't be opened for writing"
+_fsv_create_enable_file $fsv_file >> $seqres.full
+echo "* reading"
+$XFS_IO_PROG -r $fsv_file -c ''
+echo "* xfs_io writing, should be O_RDWR"
+$XFS_IO_PROG $fsv_file |& _filter_scratch
+echo "* bash >>, should be O_APPEND"
+bash -c "echo >> $fsv_file" |& _filter_scratch
+echo "* bash >, should be O_WRONLY|O_CREAT|O_TRUNC"
+bash -c "echo > $fsv_file" |& _filter_scratch
+
+_fsv_begin_subtest "fs-verity file can be read prior to SET_MEASUREMENT"
+_fsv_create_enable_file $fsv_file >> $seqres.full
+verify_data_readable $fsv_file
+
+_fsv_begin_subtest "fs-verity file can be read after SET_MEASUREMENT"
+head -c 100000 /dev/urandom > $fsv_orig_file
+measurement=$(_fsv_setup_file $fsv_orig_file $fsv_file)
+$FSVERITY_PROG enable $fsv_file
+$FSVERITY_PROG set_measurement $fsv_file $measurement
+cmp $fsv_file $fsv_orig_file
+
+_fsv_begin_subtest "Setting measurement on file without fs-verity enabled fails with EINVAL"
+_fsv_create_setup_file $fsv_file >> $seqres.full
+$FSVERITY_PROG set_measurement $fsv_file $(_fsv_randstring 64)
+verify_data_readable $fsv_file
+
+_fsv_begin_subtest "Setting measurement with mismatched hash value fails with EBADMSG"
+measurement=$(_fsv_create_enable_file $fsv_file) >> $seqres.full
+verify_data_readable $fsv_file
+$FSVERITY_PROG set_measurement $fsv_file $(_fsv_randstring 64)
+verify_data_unreadable $fsv_file
+# Mutate each character of the hash to verify that all are being compared.
+for i in `seq 0 63`; do
+	$FSVERITY_PROG set_measurement $fsv_file \
+		"${measurement:0:$i}$(echo ${measurement:$i:1} | tr 0-9a-f 1-9a-f0)${measurement:$((i+1)):$((64-i+1))}"
+done
+verify_data_unreadable $fsv_file
+
+_fsv_begin_subtest "Setting measurement with mismatched hash algorithm fails with EBADMSG"
+_fsv_create_enable_file $fsv_file >> $seqres.full
+verify_data_readable $fsv_file
+$FSVERITY_PROG set_measurement --hash=crc32 $fsv_file $(_fsv_randstring 8)
+verify_data_unreadable $fsv_file
+
+_fsv_begin_subtest "Setting matching measurement again is a no-op"
+head -c 100000 /dev/urandom > $fsv_orig_file
+measurement=$(_fsv_setup_file $fsv_orig_file $fsv_file)
+$FSVERITY_PROG enable $fsv_file
+$FSVERITY_PROG set_measurement $fsv_file $measurement
+$FSVERITY_PROG set_measurement $fsv_file $measurement
+cmp $fsv_file $fsv_orig_file
+
+_fsv_begin_subtest "Setting mismatched hash value after correct one fails with EBADMSG and revokes access"
+measurement=$(_fsv_create_enable_file $fsv_file) >> $seqres.full
+$FSVERITY_PROG set_measurement $fsv_file $measurement
+verify_data_readable $fsv_file
+echo "(setting mismatched measurement)"
+$FSVERITY_PROG set_measurement $fsv_file $(_fsv_randstring 64)
+verify_data_unreadable $fsv_file
+
+_fsv_begin_subtest "Setting mismatched hash algorithm after correct one fails with EBADMSG and revokes access"
+measurement=$(_fsv_create_enable_file $fsv_file) >> $seqres.full
+$FSVERITY_PROG set_measurement $fsv_file $measurement
+verify_data_readable $fsv_file
+echo "(setting mismatched measurement)"
+$FSVERITY_PROG set_measurement --hash=crc32 $fsv_file $(_fsv_randstring 8)
+verify_data_unreadable $fsv_file
+
+_fsv_begin_subtest "Setting matching measurement pins inode into memory"
+measurement=$(_fsv_create_enable_file $fsv_file) >> $seqres.full
+$FSVERITY_PROG set_measurement $fsv_file $measurement
+verify_data_readable $fsv_file
+echo "(dropping caches)"
+sync
+echo 2 > /proc/sys/vm/drop_caches
+echo "(reading file again)"
+verify_data_readable $fsv_file
+
+_fsv_begin_subtest "fs-verity file has adjusted i_size"
+head -c 100000 /dev/zero > $fsv_orig_file
+measurement=$(_fsv_setup_file $fsv_orig_file $fsv_file)
+stat -c %s $fsv_file
+$FSVERITY_PROG enable $fsv_file
+stat -c %s $fsv_file
+$FSVERITY_PROG set_measurement $fsv_file $measurement
+stat -c %s $fsv_file
+_scratch_cycle_mount
+stat -c %s $fsv_file
+$FSVERITY_PROG set_measurement $fsv_file $measurement
+stat -c %s $fsv_file
+
+# This verifies that the adjusted i_size is not written to the real on-disk
+# i_size, preventing the fs-verity header from being found again.
+_fsv_begin_subtest "fs-verity file can still be read after mount cycle"
+head -c 100000 /dev/urandom > $fsv_orig_file
+measurement=$(_fsv_setup_file $fsv_orig_file $fsv_file)
+$FSVERITY_PROG enable $fsv_file
+$FSVERITY_PROG set_measurement $fsv_file $measurement
+cmp $fsv_file $fsv_orig_file
+echo "(chmod file)"
+# make the inode dirty, so it gets written
+chmod 444 $fsv_file
+chmod 400 $fsv_file
+echo "(cycle mount)"
+_scratch_cycle_mount
+echo "(read file)"
+cmp $fsv_file $fsv_orig_file
+
+# Test files <= 1 block in size.  These are a bit of a special case since there
+# are no hash blocks, so the root hash has to be calculated over the data block.
+for size in 1 4095 4096; do
+	_fsv_begin_subtest "fs-verity on $size-byte file"
+	head -c $size /dev/urandom > $fsv_orig_file
+	measurement=$(_fsv_setup_file $fsv_orig_file $fsv_file)
+	$FSVERITY_PROG enable $fsv_file
+	$FSVERITY_PROG set_measurement $fsv_file $measurement
+	cmp $fsv_orig_file $fsv_file && echo "Files matched"
+
+	# Make sure the lone data page doesn't get left in the cache when a
+	# mismatched measurement is provided.
+	_scratch_cycle_mount
+	$FSVERITY_PROG set_measurement $fsv_file $(_fsv_randstring 64)
+	verify_data_unreadable $fsv_file
+
+	rm -f $fsv_file
+done
+
+_fsv_begin_subtest "fs-verity on 100M file (multiple levels in hash tree)"
+head -c 100000000 /dev/urandom > $fsv_orig_file
+measurement=$(_fsv_setup_file $fsv_orig_file $fsv_file)
+$FSVERITY_PROG enable $fsv_file
+$FSVERITY_PROG set_measurement $fsv_file $measurement
+cmp $fsv_orig_file $fsv_file && echo "Files matched"
+
+# success, all done
+status=0
+exit

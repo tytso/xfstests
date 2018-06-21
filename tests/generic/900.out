@@ -1,0 +1,157 @@
+QA output created by 900
+
+# Enabling fs-verity on directory fails with EISDIR
+FS_IOC_ENABLE_VERITY: Is a directory
+
+# Enabling fs-verity on file open for writing fails with ETXTBSY
+FS_IOC_ENABLE_VERITY: Text file busy
+
+# Enabling fs-verity on read-only filesystem fails with EROFS
+FS_IOC_ENABLE_VERITY: Read-only file system
+
+# Enabling fs-verity twice fails with EEXIST
+(trying again)
+FS_IOC_ENABLE_VERITY: File exists
+
+# fs-verity file can't be opened for writing
+* reading
+* xfs_io writing, should be O_RDWR
+SCRATCH_MNT/file.fsv: Operation not permitted
+* bash >>, should be O_APPEND
+bash: SCRATCH_MNT/file.fsv: Operation not permitted
+* bash >, should be O_WRONLY|O_CREAT|O_TRUNC
+bash: SCRATCH_MNT/file.fsv: Operation not permitted
+
+# fs-verity file can be read prior to SET_MEASUREMENT
+
+# fs-verity file can be read after SET_MEASUREMENT
+
+# Setting measurement on file without fs-verity enabled fails with EINVAL
+FS_IOC_SET_VERITY_MEASUREMENT: Invalid argument
+
+# Setting measurement with mismatched hash value fails with EBADMSG
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+head: error reading 'SCRATCH_MNT/file.fsv': Input/output error
+md5sum: SCRATCH_MNT/file.fsv: Input/output error
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+head: error reading 'SCRATCH_MNT/file.fsv': Input/output error
+md5sum: SCRATCH_MNT/file.fsv: Input/output error
+
+# Setting measurement with mismatched hash algorithm fails with EBADMSG
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+head: error reading 'SCRATCH_MNT/file.fsv': Input/output error
+md5sum: SCRATCH_MNT/file.fsv: Input/output error
+
+# Setting matching measurement again is a no-op
+
+# Setting mismatched hash value after correct one fails with EBADMSG and revokes access
+(setting mismatched measurement)
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+head: error reading 'SCRATCH_MNT/file.fsv': Input/output error
+md5sum: SCRATCH_MNT/file.fsv: Input/output error
+
+# Setting mismatched hash algorithm after correct one fails with EBADMSG and revokes access
+(setting mismatched measurement)
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+head: error reading 'SCRATCH_MNT/file.fsv': Input/output error
+md5sum: SCRATCH_MNT/file.fsv: Input/output error
+
+# Setting matching measurement pins inode into memory
+(dropping caches)
+(reading file again)
+
+# fs-verity file has adjusted i_size
+106564
+100000
+100000
+100000
+100000
+
+# fs-verity file can still be read after mount cycle
+(chmod file)
+(cycle mount)
+(read file)
+
+# fs-verity on 1-byte file
+Files matched
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+head: error reading 'SCRATCH_MNT/file.fsv': Input/output error
+md5sum: SCRATCH_MNT/file.fsv: Input/output error
+
+# fs-verity on 4095-byte file
+Files matched
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+head: error reading 'SCRATCH_MNT/file.fsv': Input/output error
+md5sum: SCRATCH_MNT/file.fsv: Input/output error
+
+# fs-verity on 4096-byte file
+Files matched
+FS_IOC_SET_VERITY_MEASUREMENT: Bad message
+head: error reading 'SCRATCH_MNT/file.fsv': Input/output error
+md5sum: SCRATCH_MNT/file.fsv: Input/output error
+
+# fs-verity on 100M file (multiple levels in hash tree)
+Files matched
