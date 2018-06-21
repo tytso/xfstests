@@ -309,7 +309,6 @@ mount failed (32) with fllast = random.
 offline re-scrub (1) with fllast = random.
 re-mount failed (32) with fllast = random.
 re-repair failed (1) with fllast = random.
-scrub didn't fail with flcount = zeroes.
 offline re-scrub (1) with flcount = zeroes.
 online re-scrub (1) with flcount = zeroes.
 re-repair failed (1) with flcount = zeroes.
