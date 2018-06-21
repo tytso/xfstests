@@ -1,0 +1,52 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (c) 2018 Google, Inc.  All Rights Reserved.
+#
+# FS QA Test generic/901
+#
+# Test fs-verity access control.
+#
+seq=`basename $0`
+seqres=$RESULT_DIR/$seq
+echo "QA output created by $seq"
+
+here=`pwd`
+tmp=/tmp/$$
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+	cd /
+	rm -f $tmp.*
+}
+
+# get standard environment, filters and checks
+. ./common/rc
+. ./common/filter
+. ./common/verity
+
+# remove previous $seqres.full before test
+rm -f $seqres.full
+
+# real QA test starts here
+_supported_fs generic
+_supported_os Linux
+_require_scratch_verity
+_require_user
+
+_scratch_mkfs_verity &>> $seqres.full
+_scratch_mount
+fsv_file=$SCRATCH_MNT/file.fsv
+
+_fsv_begin_subtest "Enabling fs-verity as regular user fails with EACCES"
+_fsv_create_setup_file $fsv_file >> $seqres.full
+su $qa_user -c "$FSVERITY_PROG enable $fsv_file"
+
+_fsv_begin_subtest "Setting measurement as regular user fails with EACCES"
+_fsv_create_enable_file $fsv_file >> $seqres.full
+su $qa_user -c "$FSVERITY_PROG set_measurement $fsv_file $(_fsv_randstring 64)"
+
+# success, all done
+status=0
+exit
