@@ -1,0 +1,179 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (c) 2018 Google, Inc.  All Rights Reserved.
+#
+# FS QA Test generic/905
+#
+# Test fs-verity elide and patch extensions.
+#
+seq=`basename $0`
+seqres=$RESULT_DIR/$seq
+echo "QA output created by $seq"
+
+here=`pwd`
+tmp=/tmp/$$
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+	cd /
+	rm -f $tmp.*
+}
+
+# get standard environment, filters and checks
+. ./common/rc
+. ./common/filter
+. ./common/verity
+
+# remove previous $seqres.full before test
+rm -f $seqres.full
+
+# real QA test starts here
+_supported_fs generic
+_supported_os Linux
+_require_scratch_verity
+
+_scratch_mkfs_verity &>> $seqres.full
+_scratch_mount
+fsv_orig_file=$SCRATCH_MNT/file
+fsv_file=$SCRATCH_MNT/file.fsv
+
+extension_test()
+{
+	local file_size=$1
+	local -n extensions=$2
+	local offsets=()
+	local lengths=()
+	local i
+	local args=()
+
+	for i in ${!extensions[@]}; do
+		local ext=${extensions[$i]}
+		local type=$(echo $ext | cut -d, -f1)
+		local offset=$(echo $ext | cut -d, -f2)
+		local length=$(echo $ext | cut -d, -f3)
+		case $type in
+		elide)
+			args+=("--elide=$offset,$length")
+			;;
+		patch)
+			head -c $length /dev/zero | tr '\0' A > $tmp.patch$i
+			args+=("--patch=$offset,$tmp.patch$i")
+			;;
+		*)
+			_fail "Unknown extension type: $type"
+		esac
+		offsets+=($offset)
+		lengths+=($length)
+	done
+
+	head -c $file_size /dev/zero > $fsv_orig_file
+	local measurement=$(_fsv_setup_file "${args[@]}" \
+			    $fsv_orig_file $fsv_file)
+	$FSVERITY_PROG enable $fsv_file
+	$FSVERITY_PROG set_measurement $fsv_file $measurement
+	cmp $fsv_orig_file $fsv_file && echo "Files matched"
+
+	echo "Modifying elided/patched region(s)..."
+	for i in ${!extensions[@]}; do
+		local offset=${offsets[$i]}
+		local length=${lengths[$i]}
+		head -c $length /dev/zero | tr '\0' 'X' \
+			| _fsv_corrupt_bytes $fsv_file $offset
+	done
+
+	echo "Comparing modified data..."
+	local cur_pos=0
+	echo -n > $tmp.data
+	for i in ${!extensions[@]}; do
+		local offset=${offsets[$i]}
+		local length=${lengths[$i]}
+		head -c $((offset - cur_pos)) /dev/zero >> $tmp.data
+		head -c $length /dev/zero | tr '\0' 'X' >> $tmp.data
+		cur_pos=$((offset + length))
+	done
+	head -c $((file_size - cur_pos)) /dev/zero >> $tmp.data
+	$FSVERITY_PROG set_measurement $fsv_file $measurement
+	cmp $tmp.data $fsv_file && echo "Files matched"
+
+	echo "Modifying unelided/unpatched regions..."
+	local cur_pos=0
+	for i in ${!extensions[@]}; do
+		local offset=${offsets[$i]}
+		local length=${lengths[$i]}
+
+		if (( cur_pos != offset )); then
+			echo -n X | _fsv_corrupt_bytes $fsv_file $((offset - 1))
+		fi
+		cur_pos=$((offset + length))
+	done
+	if (( cur_pos != file_size )); then
+		echo -n X | _fsv_corrupt_bytes $fsv_file $((cur_pos + 1))
+	fi
+
+	echo "Checking for I/O errors when reading from unelided/unpatched regions..."
+	$FSVERITY_PROG set_measurement $fsv_file $measurement
+	local cur_pos=0
+	for i in ${!extensions[@]}; do
+		local offset=${offsets[$i]}
+		local length=${lengths[$i]}
+
+		if (( cur_pos != offset )); then
+			dd if=$fsv_file bs=1 skip=$cur_pos \
+				count=$((offset - cur_pos)) status=none \
+				2>&1 >/dev/null | _filter_scratch
+		fi
+		cur_pos=$((offset + length))
+	done
+	if (( cur_pos != file_size )); then
+		dd if=$fsv_file bs=1 skip=$cur_pos \
+			count=$((file_size - cur_pos)) status=none \
+			2>&1 >/dev/null | _filter_scratch
+	fi
+}
+
+_fsv_begin_subtest "Test elision"
+EXTENSIONS=("elide,$FSV_BLOCK_SIZE,$((2 * FSV_BLOCK_SIZE))")
+extension_test $((4 * FSV_BLOCK_SIZE)) EXTENSIONS
+
+_fsv_begin_subtest "Test elision (from start of file)"
+EXTENSIONS=("elide,0,$((2 * FSV_BLOCK_SIZE))")
+extension_test $((4 * FSV_BLOCK_SIZE)) EXTENSIONS
+
+_fsv_begin_subtest "Test elision (to EOF)"
+EXTENSIONS=("elide,$((2 * FSV_BLOCK_SIZE)),$((2 * FSV_BLOCK_SIZE))")
+extension_test $((4 * FSV_BLOCK_SIZE)) EXTENSIONS
+
+_fsv_begin_subtest "Test patch"
+EXTENSIONS=("patch,$((2 * FSV_BLOCK_SIZE - 7)),13")
+extension_test $((4 * FSV_BLOCK_SIZE)) EXTENSIONS
+
+_fsv_begin_subtest "Test patch (from start of file)"
+EXTENSIONS=("patch,0,100")
+extension_test $((4 * FSV_BLOCK_SIZE)) EXTENSIONS
+
+_fsv_begin_subtest "Test patch (to EOF)"
+EXTENSIONS=("patch,$((4 * FSV_BLOCK_SIZE - 100)),100")
+extension_test $((4 * FSV_BLOCK_SIZE)) EXTENSIONS
+
+_fsv_begin_subtest "Test multiple elisions"
+EXTENSIONS=("elide,$((2 * FSV_BLOCK_SIZE)),$FSV_BLOCK_SIZE"
+	    "elide,$((4 * FSV_BLOCK_SIZE)),$((2 * FSV_BLOCK_SIZE))")
+extension_test $((7 * FSV_BLOCK_SIZE)) EXTENSIONS
+
+_fsv_begin_subtest "Test multiple patches"
+EXTENSIONS=("patch,$((FSV_BLOCK_SIZE - 1000)),13"
+	    "patch,$((3 * FSV_BLOCK_SIZE - 20)),40")
+extension_test $((4 * FSV_BLOCK_SIZE)) EXTENSIONS
+
+_fsv_begin_subtest "Test multiple elisions and patches"
+EXTENSIONS=("elide,$FSV_BLOCK_SIZE,$FSV_BLOCK_SIZE"
+	    "patch,$((2 * FSV_BLOCK_SIZE + 999)),33"
+	    "elide,$((4 * FSV_BLOCK_SIZE)),$((4 * FSV_BLOCK_SIZE))"
+	    "patch,$((9 * FSV_BLOCK_SIZE)),18")
+extension_test $((11 * FSV_BLOCK_SIZE)) EXTENSIONS
+
+# success, all done
+status=0
+exit
