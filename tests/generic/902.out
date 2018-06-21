@@ -1,0 +1,163 @@
+QA output created by 902
+
+# good magic
+
+# bad magic
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# bad major_version
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# bad minor_version
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# bad log_blocksize: 0x00
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# bad log_blocksize: 0xff
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# bad log_arity: 0x00
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# bad log_arity: 0xff
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# bad meta_algorithm: 0x0000
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# bad meta_algorithm: 0xffff
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# bad data_algorithm: 0x0000
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# bad data_algorithm: 0xffff
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# bad algorithms: 0x00000000
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# bad algorithms: 0xffffffff
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# mismatched algorithms
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# bad flags
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# bad reserved1
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# bad size: 0
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# bad size: > full_isize
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# bad size: UINT64_MAX
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# bad authenticated_ext_count
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# bad unauthenticated_ext_count
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# bad reserved2
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# bad ftr_reverse_offset: 0
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# bad ftr_reverse_offset: 64
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# bad ftr_reverse_offset: 69
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# bad ftr_reverse_offset: > full_isize
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# bad ftr_reverse_offset: UINT32_MAX
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+### Good extensions
+
+# good elision
+
+# good elisions
+
+# good patch
+
+# good patches
+
+### Invalid generic extensions
+
+# not enough room for extension header
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# unknown extension type
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# length in extension header smaller than header
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# extension length overflows buffer
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# extension length overflows buffer after rounding
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# extension length wraps to 0 after rounding
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# reserved bits set in extension header
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+### Invalid elide extensions
+
+# elision not authenticated
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# elide item length too short
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# empty elision
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# misaligned elision length
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# misaligned elision offset
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# elision extends past EOF
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# overlapping elisions
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+### Invalid patch extensions
+
+# patch not authenticated
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# patch item length too short
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# empty patch
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# patch too long
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# patch extends past EOF
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# overlapping patches
+FS_IOC_ENABLE_VERITY: Invalid argument
+
+# multiple patches per page
+FS_IOC_ENABLE_VERITY: Invalid argument
