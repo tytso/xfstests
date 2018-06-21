@@ -1,0 +1,57 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (c) 2018 Google, Inc.  All Rights Reserved.
+#
+# FS QA Test generic/904
+#
+# Test that fs-verity is using the correct measurement values.
+#
+seq=`basename $0`
+seqres=$RESULT_DIR/$seq
+echo "QA output created by $seq"
+
+here=`pwd`
+tmp=/tmp/$$
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+	cd /
+	rm -f $tmp.*
+}
+
+# get standard environment, filters and checks
+. ./common/rc
+. ./common/filter
+. ./common/verity
+
+# remove previous $seqres.full before test
+rm -f $seqres.full
+
+# real QA test starts here
+_supported_fs generic
+_supported_os Linux
+_require_scratch_verity
+
+_scratch_mkfs_verity &>> $seqres.full
+_scratch_mount
+fsv_orig_file=$SCRATCH_MNT/file
+fsv_file=$SCRATCH_MNT/file.fsv
+
+_fsv_begin_subtest "Check for expected measurement values"
+for size in 4096 65536 100000000; do
+	head -c $size /dev/zero > $fsv_orig_file
+	for arg in '' '--hash=sha256' '--hash=crc32'; do
+		measurement=$(_fsv_setup_file $arg $fsv_orig_file $fsv_file)
+		echo "size=$size arg=$arg measurement=$measurement"
+		$FSVERITY_PROG enable $fsv_file
+		$FSVERITY_PROG set_measurement $arg $fsv_file $measurement
+		cmp $fsv_orig_file $fsv_file
+		rm -f $fsv_file
+	done
+done
+
+# success, all done
+status=0
+exit
