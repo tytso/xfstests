@@ -1,0 +1,12 @@
+QA output created by 904
+
+# Check for expected measurement values
+size=4096 arg= measurement=00204029c8d1a12801763ba469148858aafb996792242f1195b6749ec7ba7f15
+size=4096 arg=--hash=sha256 measurement=00204029c8d1a12801763ba469148858aafb996792242f1195b6749ec7ba7f15
+size=4096 arg=--hash=crc32 measurement=9bd17e38
+size=65536 arg= measurement=0e94867e9ad82022caa0fdd323a5079b2f2be0a53377faee501eb3a392fb8d25
+size=65536 arg=--hash=sha256 measurement=0e94867e9ad82022caa0fdd323a5079b2f2be0a53377faee501eb3a392fb8d25
+size=65536 arg=--hash=crc32 measurement=e9e3f0cb
+size=100000000 arg= measurement=7b3673f480b6837073813e519daf3055159d6c6f9d4d9bda142962d9acddf419
+size=100000000 arg=--hash=sha256 measurement=7b3673f480b6837073813e519daf3055159d6c6f9d4d9bda142962d9acddf419
+size=100000000 arg=--hash=crc32 measurement=fdbc5495
