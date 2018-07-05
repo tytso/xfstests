@@ -1,0 +1,30 @@
+QA output created by 717
+Spaces in the middle of a section name
+TEST_DIR/a:1: line not recognized as a section header or a key/value pair.
+TEST_DIR/a:1: line not recognized as a section header or a key/value pair.
+Spaces in the middle of a key name
+TEST_DIR/a:2: line not recognized as a section header or a key/value pair.
+Invalid value
+TEST_DIR/a:2: could not interpret value 'waffles'.
+Nonexistent sections
+TEST_DIR/a:1: section 'goober' not recognized.
+Nonexistent keys
+TEST_DIR/a:2: key 'goober' is not a part of section 'metadata'.
+Strictly base-10 numbers for booleans only
+Only zero or one
+TEST_DIR/a:2: metadata.crc value '50' must be 0 or 1.
+TEST_DIR/a:2: metadata.crc value '-1' must be 0 or 1.
+sysctl style files
+TEST_DIR/a:1: key 'metadata.crc' is not in a section.
+binaries
+MKFS_XFS_PROG:1: line not recognized as a section header or a key/value pair.
+respecified options
+TEST_DIR/a:3: section 'metadata' key 'crc' already seen.
+respecified sections
+TEST_DIR/a:3: section 'metadata' already seen.
+ambiguous comment/section names
+TEST_DIR/a:1: line not recognized as a section header or a key/value pair.
+ambiguous comment/variable names
+TEST_DIR/a:2: line not recognized as a section header or a key/value pair.
+TEST_DIR/a:2: line not recognized as a section header or a key/value pair.
+TEST_DIR/a:2: line not recognized as a section header or a key/value pair.

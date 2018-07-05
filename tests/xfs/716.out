@@ -1,0 +1,20 @@
+QA output created by 716
+Simplest config file
+Piped-in config file
+Full line comment
+End of line comment
+Multiple directives
+Multiple sections
+No directives at all
+Single space around the section name
+Two spaces around the section name
+Three spaces
+Four spaces
+Mix of spaces and tabs
+Single space around the key/value directive
+Two spaces around the key/value directive
+Three spaces around the key/value directive
+Four spaces around the key/value directive
+Arbitrary spaces and tabs
+ambiguous comment/section names
+ambiguous comment/variable names
