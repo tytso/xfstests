@@ -1,4 +1,26 @@
 QA output created by 286
 Format and populate
+Error: filesystem summary counters: Repairs are required. (scrub.c line 269)
+/opt: errors found: 1
+/opt: Re-run xfs_scrub without -n.
 Concurrent repair
+Repaired: AG 0 free space header: Repairs successful. (scrub.c line 866)
+Repaired: AG 1 superblock: Repairs successful. (scrub.c line 866)
+Repaired: AG 0 free list: Repairs successful. (scrub.c line 866)
+Repaired: AG 1 free space header: Repairs successful. (scrub.c line 866)
+Repaired: AG 0 inode header: Repairs successful. (scrub.c line 866)
+Repaired: AG 1 free list: Repairs successful. (scrub.c line 866)
+Repaired: AG 1 inode header: Repairs successful. (scrub.c line 866)
+Repaired: AG 1 inode btree: Repairs successful. (scrub.c line 866)
+Repaired: AG 0 inode btree: Repairs successful. (scrub.c line 866)
+Repaired: AG 1 free inode btree: Repairs successful. (scrub.c line 866)
+Repaired: AG 0 free inode btree: Repairs successful. (scrub.c line 866)
+Repaired: AG 3 superblock: Repairs successful. (scrub.c line 866)
+Repaired: AG 2 superblock: Repairs successful. (scrub.c line 866)
+Repaired: AG 3 free space header: Repairs successful. (scrub.c line 866)
+Repaired: AG 2 free space header: Repairs successful. (scrub.c line 866)
+Repaired: AG 3 free list: Repairs successful. (scrub.c line 866)
+Repaired: AG 2 free list: Repairs successful. (scrub.c line 866)
+Repaired: AG 3 inode header: Repairs successful. (scrub.c line 866)
+Repaired: AG 2 inode header: Repairs successful. (scrub.c line 866)
 Test done

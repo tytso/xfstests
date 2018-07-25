@@ -9,7 +9,6 @@ online re-scrub (1) with fhdr.hdr.lsn = middlebit.
 scrub didn't fail with fhdr.hdr.lsn = lastbit.
 scrub didn't fail with fhdr.hdr.lsn = add.
 scrub didn't fail with fhdr.hdr.lsn = sub.
-online re-scrub (1) with fhdr.hdr.lsn = random.
 scrub didn't fail with fhdr.hdr.owner = zeroes.
 scrub didn't fail with fhdr.hdr.owner = ones.
 scrub didn't fail with fhdr.hdr.owner = firstbit.
@@ -17,5 +16,4 @@ scrub didn't fail with fhdr.hdr.owner = middlebit.
 scrub didn't fail with fhdr.hdr.owner = lastbit.
 scrub didn't fail with fhdr.hdr.owner = add.
 scrub didn't fail with fhdr.hdr.owner = sub.
-scrub didn't fail with fhdr.hdr.owner = random.
 Done fuzzing freeindex-format dir block
