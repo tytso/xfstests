@@ -1,0 +1,6 @@
+QA output created by 901
+
+# Enabling fs-verity as regular user fails with EACCES
+ERROR: FS_IOC_ENABLE_VERITY failed on 'SCRATCH_MNT/file.fsv': Permission denied
+
+# Regular user can measure an fs-verity file
