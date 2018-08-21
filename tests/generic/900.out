@@ -1,0 +1,54 @@
+QA output created by 900
+
+# Enabling fs-verity on directory fails with EISDIR
+ERROR: FS_IOC_ENABLE_VERITY failed on 'SCRATCH_MNT/dir': Is a directory
+
+# Enabling fs-verity on file open for writing fails with ETXTBSY
+ERROR: FS_IOC_ENABLE_VERITY failed on 'SCRATCH_MNT/file.fsv': Text file busy
+
+# Enabling fs-verity on file on read-only filesystem fails with EROFS
+ERROR: FS_IOC_ENABLE_VERITY failed on 'SCRATCH_MNT/file.fsv': Read-only file system
+
+# Enabling fs-verity on a file twice fails with EEXIST
+(trying again)
+ERROR: FS_IOC_ENABLE_VERITY failed on 'SCRATCH_MNT/file.fsv': File exists
+
+# fs-verity file can't be opened for writing
+* reading
+* xfs_io writing, should be O_RDWR
+SCRATCH_MNT/file.fsv: Operation not permitted
+* bash >>, should be O_APPEND
+bash: SCRATCH_MNT/file.fsv: Operation not permitted
+* bash >, should be O_WRONLY|O_CREAT|O_TRUNC
+bash: SCRATCH_MNT/file.fsv: Operation not permitted
+
+# fs-verity file can be read
+
+# fs-verity file reports measurement calculated earlier
+
+# fs-verity file has correct contents
+
+# Trying to measure non-verity file fails with ENODATA
+ERROR: FS_IOC_MEASURE_VERITY failed on 'SCRATCH_MNT/file.fsv': No data available
+
+# fs-verity file has adjusted i_size
+106620
+100000
+100000
+
+# fs-verity file can still be read after mount cycle
+(chmod file)
+(cycle mount)
+(read file)
+
+# fs-verity on 1-byte file
+Files matched
+
+# fs-verity on 4095-byte file
+Files matched
+
+# fs-verity on 4096-byte file
+Files matched
+
+# fs-verity on 100M file (multiple levels in hash tree)
+Files matched
