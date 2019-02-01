@@ -529,3 +529,5 @@
 524 auto quick
 525 auto quick rw
 709 auto quick
+710 auto quick unlink
+711 auto quick unlink
