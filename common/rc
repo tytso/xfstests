@@ -3942,6 +3942,12 @@ _require_fibmap()
 	rm -f $file
 }
 
+_try_wipe_scratch_devs()
+{
+	_scratch_unmount
+	test -x "$WIPEFS_PROG" && $WIPEFS_PROG -a $SCRATCH_DEV_POOL $SCRATCH_DEV $SCRATCH_LOGDEV $SCRATCH_RTDEV
+}
+
 init_rc
 
 ################################################################################
