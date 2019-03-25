@@ -502,6 +502,7 @@
 502 auto quick unlink
 503 auto copy metadump
 739 auto quick mkfs label
+741 auto quick rw
 742 auto quick spaceman
 743 auto quick health
 907 clone

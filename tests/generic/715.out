@@ -1,0 +1,28 @@
+QA output created by 715
+*** checking rw open
+TEST_DIR/715.txt: Operation not permitted
+ce6c1b3863d0495541b38a794f62dd81  TEST_DIR/715.txt
+*** checking ro open
+ce6c1b3863d0495541b38a794f62dd81  TEST_DIR/715.txt
+*** write to immutable
+write immutable: Operation not permitted
+*** write to clean mmap
+signal 7 received!
+*** write to dirty mmap
+signal 7 received!
+*** truncate
+ftruncate: Operation not permitted
+*** fallocate
+fallocate: Operation not permitted
+*** fchmod dirty mmap
+fchmod: Operation not permitted
+*** copy_file_range
+copy_file_range: Operation not permitted
+*** reflink
+ficlonerange: Operation not permitted
+*** futimes
+futimes: Invalid argument
+*** read files with a readonly fd
+read 65536/65536 bytes at offset 0
+XXX Bytes, X ops; XX:XX:XX.X (XXX YYY/sec and XXX ops/sec)
+*** try chattr program
