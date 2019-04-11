@@ -502,3 +502,5 @@
 502 auto quick unlink
 503 auto copy metadump
 739 auto quick mkfs label
+742 auto quick spaceman
+743 auto quick health

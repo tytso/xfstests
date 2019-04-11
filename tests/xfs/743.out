@@ -1,0 +1,4 @@
+QA output created by 743
+Health status has not been collected for this filesystem.
+Please run xfs_scrub(8) to remedy this situation.
+Silence is golden
