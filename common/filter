@@ -550,10 +550,10 @@ _filter_aiodio_dmesg()
 	local warn2="WARNING:.*fs/xfs/xfs_file\.c:.*xfs_file_dio_aio_read.*"
 	local warn3="WARNING:.*fs/xfs/xfs_file\.c:.*xfs_file_read_iter.*"
 	local warn4="WARNING:.*fs/xfs/xfs_file\.c:.*xfs_file_aio_read.*"
-	local warn5="WARNING:.*fs/iomap\.c:.*iomap_dio_rw.*"
+	local warn5="WARNING:.*fs/iomap.*:.*iomap_dio_rw.*"
 	local warn6="WARNING:.*fs/xfs/xfs_aops\.c:.*__xfs_get_blocks.*"
-	local warn7="WARNING:.*fs/iomap\.c:.*iomap_dio_actor.*"
-	local warn8="WARNING:.*fs/iomap\.c:.*iomap_dio_complete.*"
+	local warn7="WARNING:.*fs/iomap.*:.*iomap_dio_actor.*"
+	local warn8="WARNING:.*fs/iomap.*:.*iomap_dio_complete.*"
 	local warn9="WARNING:.*fs/direct-io\.c:.*dio_complete.*"
 	sed -e "s#$warn1#Intentional warnings in xfs_file_dio_aio_write#" \
 	    -e "s#$warn2#Intentional warnings in xfs_file_dio_aio_read#" \
@@ -563,7 +563,8 @@ _filter_aiodio_dmesg()
 	    -e "s#$warn6#Intentional warnings in __xfs_get_blocks#" \
 	    -e "s#$warn7#Intentional warnings in iomap_dio_actor#" \
 	    -e "s#$warn8#Intentional warnings in iomap_dio_complete#" \
-	    -e "s#$warn9#Intentional warnings in dio_complete#"
+	    -e "s#$warn9#Intentional warnings in dio_complete#" \
+	    -e "s#$warn10#Intentional warnings in iomap_dio_actor#"
 }
 
 # We generate assert related WARNINGs on purpose and make sure test doesn't fail
