@@ -52,7 +52,9 @@ echo "Corrupt fs"
 _scratch_xfs_db -x -c 'sb 0' -c "write rrmapino $ino" >> $seqres.full
 _try_scratch_mount 2>&1 | _filter_error_mount
 
-echo "Test done, mount should have failed"
+echo "Repair, mount again"
+_repair_scratch_fs >> $seqres.full
+_scratch_mount 2>&1 | _filter_scratch
 
 # success, all done
 status=0
