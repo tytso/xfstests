@@ -1,0 +1,5 @@
+QA output created by 748
+Scrub for injected media error
+Corruption: disk offset NNN: media error in inodes. (!)
+SCRATCH_MNT: Unmount and run xfs_repair.
+Scrub after removing injected media error
