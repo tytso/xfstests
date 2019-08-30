@@ -2,4 +2,9 @@ QA output created by 381
 Format and populate
 Find bmbt block
 Fuzz bmbt
+scrub didn't fail with lsn = zeroes.
+scrub didn't fail with lsn = ones.
+scrub didn't fail with lsn = lastbit.
+scrub didn't fail with lsn = add.
+scrub didn't fail with lsn = sub.
 Done fuzzing bmbt
