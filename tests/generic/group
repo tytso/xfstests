@@ -594,5 +594,7 @@
 589 auto mount
 590 auto prealloc preallocrw
 591 auto quick rw pipe splice
+715 auto quick rw
+716 auto quick rw
 720 auto quick rw pipe splice
 721 auto quick atime

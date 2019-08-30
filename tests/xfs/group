@@ -508,6 +508,7 @@
 509 auto ioctl
 510 auto ioctl quick
 511 auto quick quota
+741 auto quick rw
 747 auto quick scrub
 748 auto quick scrub
 751 auto quick
