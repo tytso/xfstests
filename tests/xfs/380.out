@@ -9,6 +9,4 @@ online re-scrub (1) with lsn = middlebit.
 scrub didn't fail with lsn = lastbit.
 scrub didn't fail with lsn = add.
 scrub didn't fail with lsn = sub.
-offline re-scrub (1) with recs[1].startblock = lastbit.
-re-repair failed (1) with recs[1].startblock = lastbit.
 Done fuzzing bmbt

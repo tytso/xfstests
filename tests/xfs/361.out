@@ -3,13 +3,8 @@ Format and populate
 Fuzz bnobt keyptr
 scrub didn't fail with lsn = zeroes.
 scrub didn't fail with lsn = ones.
-scrub didn't fail with lsn = firstbit.
-scrub didn't fail with lsn = middlebit.
 scrub didn't fail with lsn = lastbit.
-scrub didn't fail with lsn = add.
-offline re-scrub (1) with lsn = add.
 scrub didn't fail with lsn = sub.
-scrub didn't fail with lsn = random.
 scrub didn't fail with keys[1].blockcount = zeroes.
 scrub didn't fail with keys[1].blockcount = ones.
 scrub didn't fail with keys[1].blockcount = firstbit.
@@ -17,5 +12,4 @@ scrub didn't fail with keys[1].blockcount = middlebit.
 scrub didn't fail with keys[1].blockcount = lastbit.
 scrub didn't fail with keys[1].blockcount = add.
 scrub didn't fail with keys[1].blockcount = sub.
-scrub didn't fail with keys[1].blockcount = random.
 Done fuzzing bnobt keyptr

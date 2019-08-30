@@ -8,11 +8,9 @@ scrub didn't fail with hdr.lsn = middlebit.
 scrub didn't fail with hdr.lsn = lastbit.
 scrub didn't fail with hdr.lsn = add.
 scrub didn't fail with hdr.lsn = sub.
-scrub didn't fail with hdr.lsn = random.
 scrub didn't fail with data = zeroes.
 scrub didn't fail with data = ones.
 scrub didn't fail with data = firstbit.
 scrub didn't fail with data = middlebit.
 scrub didn't fail with data = lastbit.
-scrub didn't fail with data = random.
 Done fuzzing external attr block

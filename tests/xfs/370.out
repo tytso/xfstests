@@ -3,19 +3,14 @@ Format and populate
 Fuzz rmapbt keyptr
 scrub didn't fail with lsn = zeroes.
 scrub didn't fail with lsn = ones.
-scrub didn't fail with lsn = firstbit.
-scrub didn't fail with lsn = middlebit.
 scrub didn't fail with lsn = lastbit.
-scrub didn't fail with lsn = add.
 scrub didn't fail with lsn = sub.
-scrub didn't fail with lsn = random.
 scrub didn't fail with keys[1].attrfork = ones.
 scrub didn't fail with keys[1].attrfork = firstbit.
 scrub didn't fail with keys[1].attrfork = middlebit.
 scrub didn't fail with keys[1].attrfork = lastbit.
 scrub didn't fail with keys[1].attrfork = add.
 scrub didn't fail with keys[1].attrfork = sub.
-scrub didn't fail with keys[1].attrfork = random.
 scrub didn't fail with keys[1].bmbtblock = ones.
 scrub didn't fail with keys[1].bmbtblock = firstbit.
 scrub didn't fail with keys[1].bmbtblock = middlebit.
@@ -28,12 +23,10 @@ scrub didn't fail with keys[1].attrfork_hi = middlebit.
 scrub didn't fail with keys[1].attrfork_hi = lastbit.
 scrub didn't fail with keys[1].attrfork_hi = add.
 scrub didn't fail with keys[1].attrfork_hi = sub.
-scrub didn't fail with keys[1].attrfork_hi = random.
 scrub didn't fail with keys[1].bmbtblock_hi = ones.
 scrub didn't fail with keys[1].bmbtblock_hi = firstbit.
 scrub didn't fail with keys[1].bmbtblock_hi = middlebit.
 scrub didn't fail with keys[1].bmbtblock_hi = lastbit.
 scrub didn't fail with keys[1].bmbtblock_hi = add.
 scrub didn't fail with keys[1].bmbtblock_hi = sub.
-scrub didn't fail with keys[1].bmbtblock_hi = random.
 Done fuzzing rmapbt keyptr

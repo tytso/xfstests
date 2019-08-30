@@ -9,7 +9,6 @@ online re-scrub (1) with lsn = middlebit.
 scrub didn't fail with lsn = lastbit.
 scrub didn't fail with lsn = add.
 scrub didn't fail with lsn = sub.
-online re-scrub (1) with lsn = random.
 scrub didn't fail with data = ones.
 scrub didn't fail with data = firstbit.
 scrub didn't fail with data = middlebit.
