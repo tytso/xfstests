@@ -2,4 +2,21 @@ QA output created by 392
 Format and populate
 Find leafn-format dir block
 Fuzz leafn-format dir block
+scrub didn't fail with lhdr.info.lsn = zeroes.
+scrub didn't fail with lhdr.info.lsn = ones.
+online re-scrub (1) with lhdr.info.lsn = firstbit.
+online re-scrub (1) with lhdr.info.lsn = middlebit.
+scrub didn't fail with lhdr.info.lsn = lastbit.
+scrub didn't fail with lhdr.info.lsn = add.
+scrub didn't fail with lhdr.info.lsn = sub.
+online re-scrub (1) with lhdr.info.lsn = random.
+online re-scrub (1) with lents[0].hashval = zeroes.
+online re-scrub (1) with lents[0].hashval = middlebit.
+scrub didn't fail with lents[0].hashval = lastbit.
+online re-scrub (1) with lents[0].hashval = sub.
+online re-scrub (1) with lents[0].hashval = random.
+scrub didn't fail with lents[2].hashval = lastbit.
+scrub didn't fail with lents[4].hashval = lastbit.
+scrub didn't fail with lents[6].hashval = lastbit.
+scrub didn't fail with lents[8].hashval = lastbit.
 Done fuzzing leafn-format dir block

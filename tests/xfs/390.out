@@ -2,4 +2,13 @@ QA output created by 390
 Format and populate
 Find leaf1-format dir block
 Fuzz leaf1-format dir block
+scrub didn't fail with lhdr.info.lsn = zeroes.
+scrub didn't fail with lhdr.info.lsn = ones.
+online re-scrub (1) with lhdr.info.lsn = firstbit.
+online re-scrub (1) with lhdr.info.lsn = middlebit.
+scrub didn't fail with lhdr.info.lsn = lastbit.
+scrub didn't fail with lhdr.info.lsn = add.
+scrub didn't fail with lhdr.info.lsn = sub.
+scrub didn't fail with lhdr.count = zeroes.
+scrub didn't fail with lbests[0] = ones.
 Done fuzzing leaf1-format dir block

@@ -2,4 +2,20 @@ QA output created by 394
 Format and populate
 Find node-format dir block
 Fuzz node-format dir block
+online re-scrub (1) with nhdr.info.hdr.back = ones.
+online re-scrub (1) with nhdr.info.hdr.back = firstbit.
+online re-scrub (1) with nhdr.info.hdr.back = middlebit.
+online re-scrub (1) with nhdr.info.hdr.back = lastbit.
+online re-scrub (1) with nhdr.info.hdr.back = add.
+online re-scrub (1) with nhdr.info.hdr.back = sub.
+online re-scrub (1) with nhdr.info.hdr.back = random.
+scrub didn't fail with nhdr.info.lsn = zeroes.
+scrub didn't fail with nhdr.info.lsn = ones.
+online re-scrub (1) with nhdr.info.lsn = firstbit.
+online re-scrub (1) with nhdr.info.lsn = middlebit.
+scrub didn't fail with nhdr.info.lsn = lastbit.
+scrub didn't fail with nhdr.info.lsn = add.
+scrub didn't fail with nhdr.info.lsn = sub.
+online re-scrub (1) with nhdr.info.lsn = random.
+scrub didn't fail with nbtree[0].hashval = add.
 Done fuzzing node-format dir block

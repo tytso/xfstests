@@ -1,6 +1,20 @@
 QA output created by 354
 Format and populate
 Fuzz AGFL
+scrub didn't fail with lsn = zeroes.
+scrub didn't fail with lsn = ones.
+scrub didn't fail with lsn = lastbit.
+scrub didn't fail with lsn = sub.
+scrub didn't fail with bno[0] = zeroes.
+scrub didn't fail with bno[0] = ones.
+scrub didn't fail with bno[0] = middlebit.
+scrub didn't fail with bno[0] = lastbit.
+scrub didn't fail with bno[0] = add.
 Done fuzzing AGFL
 Fuzz AGFL flfirst
+scrub didn't fail with bno[1] = zeroes.
+scrub didn't fail with bno[1] = ones.
+scrub didn't fail with bno[1] = middlebit.
+scrub didn't fail with bno[1] = lastbit.
+scrub didn't fail with bno[1] = add.
 Done fuzzing AGFL flfirst

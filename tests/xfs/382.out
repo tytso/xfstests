@@ -2,4 +2,16 @@ QA output created by 382
 Format and populate
 Find symlink remote block
 Fuzz symlink remote block
+scrub didn't fail with lsn = zeroes.
+scrub didn't fail with lsn = ones.
+online re-scrub (1) with lsn = firstbit.
+online re-scrub (1) with lsn = middlebit.
+scrub didn't fail with lsn = lastbit.
+scrub didn't fail with lsn = add.
+scrub didn't fail with lsn = sub.
+online re-scrub (1) with lsn = random.
+scrub didn't fail with data = ones.
+scrub didn't fail with data = firstbit.
+scrub didn't fail with data = middlebit.
+scrub didn't fail with data = lastbit.
 Done fuzzing symlink remote block

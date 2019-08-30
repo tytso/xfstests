@@ -1,4 +1,13 @@
 QA output created by 410
 Format and populate
 Fuzz refcountbt
+scrub didn't fail with lsn = zeroes.
+scrub didn't fail with lsn = ones.
+scrub didn't fail with lsn = firstbit.
+scrub didn't fail with lsn = middlebit.
+scrub didn't fail with lsn = lastbit.
+scrub didn't fail with lsn = add.
+scrub didn't fail with lsn = sub.
+scrub didn't fail with lsn = random.
+scrub didn't fail with recs[1].refcount = lastbit.
 Done fuzzing refcountbt

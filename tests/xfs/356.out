@@ -1,4 +1,15 @@
 QA output created by 356
 Format and populate
 Fuzz AGI
+scrub didn't fail with newino = ones.
+scrub didn't fail with newino = middlebit.
+scrub didn't fail with newino = lastbit.
+scrub didn't fail with newino = add.
+scrub didn't fail with newino = sub.
+scrub didn't fail with dirino = add.
+scrub didn't fail with unlinked[0] = add.
+scrub didn't fail with lsn = zeroes.
+scrub didn't fail with lsn = ones.
+scrub didn't fail with lsn = lastbit.
+scrub didn't fail with lsn = sub.
 Done fuzzing AGI
