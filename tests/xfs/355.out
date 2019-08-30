@@ -12,9 +12,9 @@ scrub didn't fail with bno[0] = lastbit.
 scrub didn't fail with bno[0] = add.
 Done fuzzing AGFL
 Fuzz AGFL flfirst
-scrub didn't fail with bno[2] = zeroes.
-scrub didn't fail with bno[2] = ones.
-scrub didn't fail with bno[2] = middlebit.
-scrub didn't fail with bno[2] = lastbit.
-scrub didn't fail with bno[2] = add.
+scrub didn't fail with bno[0] = zeroes.
+scrub didn't fail with bno[0] = ones.
+scrub didn't fail with bno[0] = middlebit.
+scrub didn't fail with bno[0] = lastbit.
+scrub didn't fail with bno[0] = add.
 Done fuzzing AGFL flfirst
