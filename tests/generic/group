@@ -571,3 +571,4 @@
 566 auto quick quota metadata
 567 auto quick rw punch
 800 auto quick encrypt
+801 auto quick encrypt
