@@ -884,3 +884,46 @@ _xfs_mount_agcount()
 {
 	$XFS_INFO_PROG "$1" | grep agcount= | sed -e 's/^.*agcount=\([0-9]*\),.*$/\1/g'
 }
+
+# Wipe all XFS superblocks off the disk.
+_xfs_wipe_superblocks()
+{
+	local dev="$1"
+	local blocksize="$2"
+	local agcount="$3"
+	local agblocks="$4"
+	local agsize="$((blocksize * agblocks))"
+
+	seq 0 $agsize $((agcount * agsize)) | while read offset; do
+		src/devzero -b $blocksize -n 1 -o $offset $dev > /dev/null
+	done
+}
+
+# Try to wipe all traces of an XFS filesystem off a disk.
+_xfs_wipe_all()
+{
+	local dev="$1"
+
+	# Now compute the geometry for a default format to find and nuke any
+	# possible secondary superblocks.
+	local blocksize="$(_scratch_mkfs_xfs -N | grep data.*bsize | \
+			sed -e 's/^.*bsize=\([0-9]*\)*.*/\1/g')"
+	local agcount="$(_scratch_mkfs_xfs -N | grep agcount | \
+			sed -e 's/^.*agcount=\([0-9]*\)*.*/\1/g')"
+	local agblocks="$(_scratch_mkfs_xfs -N | grep agsize | \
+			sed -e 's/^.*agsize=\([0-9]*\)*.*/\1/g')"
+	_xfs_wipe_superblocks $dev $blocksize $agcount $agblocks
+
+	# If there's a primary superblock, use it to wipe it and the secondary
+	# superblocks.
+	blocksize="$(_scratch_xfs_get_sb_field blocksize 2> /dev/null)"
+	if [ -n "$blocksize" ]; then
+		agcount="$(_scratch_xfs_get_sb_field agcount)"
+		agblocks="$(_scratch_xfs_get_sb_field agblocks)"
+
+		_xfs_wipe_superblocks $dev $blocksize $agcount $agblocks
+	fi
+
+	# Finally, wipe anything else that might be on the disk.
+	$WIPEFS_PROG -a ${dev}
+}

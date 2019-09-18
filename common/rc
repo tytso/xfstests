@@ -4046,7 +4046,15 @@ _try_wipe_scratch_devs()
 	test -x "$WIPEFS_PROG" || return 0
 
 	for dev in $SCRATCH_DEV_POOL $SCRATCH_DEV $SCRATCH_LOGDEV $SCRATCH_RTDEV; do
-		test -b $dev && $WIPEFS_PROG -a $dev
+		test -b $dev || continue
+		case "$FSTYP" in
+		"xfs")
+			_xfs_wipe_all $dev
+			;;
+		*)
+			$WIPEFS_PROG -a $dev
+			;;
+		esac
 	done
 }
 
