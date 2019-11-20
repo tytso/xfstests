@@ -971,3 +971,17 @@ _require_xfs_scratch_inobtcount()
 		_notrun "inobtcount not supported by scratch filesystem type: $FSTYP"
 	_scratch_unmount
 }
+
+_xfs_timestamp_range()
+{
+	local use_db=0
+	local dbprog="$XFS_DB_PROG $device"
+	test "$device" = "$SCRATCH_DEV" && dbprog=_scratch_xfs_db
+
+	$dbprog -c 'help timelimit' | grep -v -q 'not found' && use_db=1
+	if [ $use_db -eq 0 ]; then
+		echo "-$((1<<31)) $(((1<<31)-1))"
+	else
+		$dbprog -c 'timelimit --compact' | awk '{printf("%s %s", $1, $2);}'
+	fi
+}
