@@ -955,3 +955,19 @@ _xfs_get_cowgc_interval() {
 		_fail "Can't find cowgc interval procfs knob?"
 	fi
 }
+
+_require_xfs_mkfs_inobtcount()
+{
+	_scratch_mkfs_xfs_supported -m inobtcount=1 >/dev/null 2>&1 \
+	   || _notrun "mkfs.xfs doesn't have inobtcount feature"
+}
+
+_require_xfs_scratch_inobtcount()
+{
+	_require_scratch
+
+	_scratch_mkfs -m inobtcount=1 > /dev/null
+	_try_scratch_mount || \
+		_notrun "inobtcount not supported by scratch filesystem type: $FSTYP"
+	_scratch_unmount
+}

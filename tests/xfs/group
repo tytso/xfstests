@@ -524,4 +524,5 @@
 748 auto quick scrub
 751 auto quick
 753 auto quick mkfs
+910 auto quick inobtcount
 912 auto quick label
