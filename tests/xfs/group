@@ -510,4 +510,5 @@
 511 auto quick quota
 747 auto quick scrub
 748 auto quick scrub
+753 auto quick mkfs
 912 auto quick label
