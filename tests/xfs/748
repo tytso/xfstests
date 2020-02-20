@@ -1,0 +1,105 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (c) 2020, Oracle and/or its affiliates.  All Rights Reserved.
+#
+# FS QA Test No. 748
+#
+# Check xfs_scrub's media scan can actually return diagnostic information for
+# media errors in filesystem metadata.
+
+seq=`basename $0`
+seqres=$RESULT_DIR/$seq
+echo "QA output created by $seq"
+
+here=`pwd`
+tmp=/tmp/$$
+status=1    # failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+	cd /
+	rm -f $tmp.*
+	_dmerror_cleanup
+}
+
+# get standard environment, filters and checks
+. ./common/rc
+. ./common/fuzzy
+. ./common/filter
+. ./common/dmerror
+
+# real QA test starts here
+_supported_fs xfs
+_supported_os Linux
+_require_dm_target error
+
+# rmapbt is required to enable reporting of what metadata was lost.
+_require_xfs_scratch_rmapbt
+
+_require_scrub
+
+rm -f $seqres.full
+
+filter_scrub_errors() {
+	_filter_scratch | sed -e "s/disk offset [0-9]*: /disk offset NNN: /g" \
+		-e "/errors found:/d" -e 's/phase6.c line [0-9]*/!/g' \
+		-e "/corruptions found:/d" | uniq
+}
+
+_scratch_mkfs > $tmp.mkfs
+_dmerror_init
+_dmerror_mount >> $seqres.full 2>&1
+
+_supports_xfs_scrub $SCRATCH_MNT $SCRATCH_DEV || _notrun "Scrub not supported"
+
+# Create a bunch of metadata so that we can mark them bad in the next step.
+victim=$SCRATCH_MNT/a
+$FSSTRESS_PROG -z -n 200 -p 10 \
+	       -f creat=10 \
+	       -f resvsp=1 \
+	       -f truncate=1 \
+	       -f punch=1 \
+	       -f chown=5 \
+	       -f mkdir=5 \
+	       -f mknod=1 \
+	       -d $victim >> $seqres.full 2>&1
+
+# Mark all the metadata bad
+_dmerror_reset_table
+$XFS_IO_PROG -c "fsmap -n100 -vvv" $victim | grep inodes > $tmp.fsmap
+while read a b c crap; do
+	phys="$(echo $c | sed -e 's/^.\([0-9]*\)\.\.\([0-9]*\).*$/\1:\2/g')"
+	target_begin="$(echo "$phys" | cut -d ':' -f 1)"
+	target_end="$(echo "$phys" | cut -d ':' -f 2)"
+
+	_dmerror_mark_range_bad $target_begin $((target_end - target_begin))
+done < $tmp.fsmap
+cat $tmp.fsmap >> $seqres.full
+
+cat >> $seqres.full << ENDL
+dmerror after marking bad:
+$DMERROR_TABLE
+<end table>
+ENDL
+
+_dmerror_load_error_table
+
+# See if the media scan picks it up.
+echo "Scrub for injected media error"
+
+XFS_SCRUB_PHASE=6 _scratch_scrub -x >> $seqres.full 2> $tmp.error
+cat $tmp.error | filter_scrub_errors
+
+# Make the disk work again
+_dmerror_load_working_table
+
+echo "Scrub after removing injected media error"
+
+# Scrub one last time to make sure the error's gone.
+XFS_SCRUB_PHASE=6 _scratch_scrub -x >> $seqres.full 2> $tmp.error
+cat $tmp.error | filter_scrub_errors
+
+# success, all done
+status=0
+exit
