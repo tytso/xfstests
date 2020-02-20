@@ -1,0 +1,60 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (c) 2020, Oracle and/or its affiliates.  All Rights Reserved.
+#
+# FS QA Test No. 910
+#
+# Check that we can upgrade a filesystem to support inobtcount and that
+# everything works properly after the upgrade.
+
+seq=`basename $0`
+seqres=$RESULT_DIR/$seq
+echo "QA output created by $seq"
+
+here=`pwd`
+tmp=/tmp/$$
+status=1    # failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+	cd /
+	rm -f $tmp.*
+}
+
+# get standard environment, filters and checks
+. ./common/rc
+. ./common/filter
+
+# real QA test starts here
+_supported_fs xfs
+_supported_os Linux
+_require_command "$XFS_ADMIN_PROG" "xfs_admin"
+_require_xfs_mkfs_inobtcount
+_require_xfs_scratch_inobtcount
+
+rm -f $seqres.full
+
+# Format V5 filesystem without inode btree counter support and populate it
+_scratch_mkfs -m crc=1,inobtcount=0 > $seqres.full
+_scratch_xfs_db -c 'version' -c 'sb 0' -c 'p' >> $seqres.full
+_scratch_mount >> $seqres.full
+
+echo moo > $SCRATCH_MNT/urk
+
+_scratch_unmount
+_check_scratch_fs
+
+# Now upgrade to inobtcount support
+_scratch_xfs_admin -O inobtcount >> $seqres.full
+_check_scratch_fs
+_scratch_xfs_db -c 'version' -c 'sb 0' -c 'p' -c 'agi 0' -c 'p' >> $seqres.full
+
+# Mount again, look at our files
+_scratch_mount >> $seqres.full
+cat $SCRATCH_MNT/urk
+
+# success, all done
+echo Silence is golden.
+status=0
+exit

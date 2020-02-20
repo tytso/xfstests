@@ -531,4 +531,5 @@
 746 auto quick online_repair
 747 auto quick scrub
 748 auto quick scrub
+910 auto quick inobtcount
 915 auto quick quota
