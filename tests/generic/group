@@ -617,6 +617,8 @@
 612 auto quick clone
 613 auto quick encrypt
 614 auto quick rw
+715 auto quick rw
+716 auto quick rw
 721 auto quick atime bigtime
 722 auto quick atime bigtime shutdown
 747 auto quick scrub
