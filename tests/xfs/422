@@ -20,6 +20,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 7 15
 _cleanup()
 {
 	cd /
+	$XFS_IO_PROG -x -c 'thaw' $SCRATCH_MNT > /dev/null 2>&1
 	rm -rf $tmp.*
 }
 
@@ -72,7 +73,7 @@ repair_loop() {
 	end="$1"
 
 	while [ "$(date +%s)" -lt $end ]; do
-		$XFS_IO_PROG -x -c 'repair rmapbt 0' -c 'repair rmapbt 1' $SCRATCH_MNT 2>&1 | filter_output
+		$XFS_IO_PROG -x -c 'repair -f rmapbt 0' -c 'repair -f rmapbt 1' $SCRATCH_MNT 2>&1 | filter_output
 	done
 }
 stress_loop() {
