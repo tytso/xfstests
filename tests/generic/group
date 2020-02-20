@@ -619,5 +619,6 @@
 614 auto quick rw
 721 auto quick atime bigtime
 722 auto quick atime bigtime shutdown
+747 auto quick scrub
 947 auto quick rw clone
 948 auto quick rw copy_range
