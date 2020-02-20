@@ -260,7 +260,7 @@
 255 auto quick prealloc punch
 256 auto quick punch
 257 dir auto quick
-258 auto quick
+258 auto quick bigtime
 259 auto quick clone zero
 260 auto quick trim
 261 auto quick clone collapse
@@ -404,7 +404,7 @@
 399 auto encrypt
 400 auto quick quota
 401 auto quick
-402 auto quick rw
+402 auto quick rw bigtime
 403 auto quick attr
 404 auto quick insert
 405 auto mkfs thin
@@ -617,5 +617,7 @@
 612 auto quick clone
 613 auto quick encrypt
 614 auto quick rw
+721 auto quick atime bigtime
+722 auto quick atime bigtime shutdown
 947 auto quick rw clone
 948 auto quick rw copy_range
