@@ -1054,3 +1054,26 @@ _require_xfs_set_needsrepair()
 	_scratch_xfs_db -c 'help version' | grep -q needsrepair || \
 		_notrun "xfs_db does not support upgrading needsrepair"
 }
+
+__xfs_cowgc_interval_knob1="/proc/sys/fs/xfs/speculative_cow_prealloc_lifetime"
+__xfs_cowgc_interval_knob2="/proc/sys/fs/xfs/speculative_prealloc_lifetime"
+
+_xfs_set_cowgc_interval() {
+	if [ -w $__xfs_cowgc_interval_knob1 ]; then
+		echo "$@" > $__xfs_cowgc_interval_knob1
+	elif [ -w $__xfs_cowgc_interval_knob2 ]; then
+		echo "$@" > $__xfs_cowgc_interval_knob2
+	else
+		_fail "Can't find cowgc interval procfs knob?"
+	fi
+}
+
+_xfs_get_cowgc_interval() {
+	if [ -w $__xfs_cowgc_interval_knob1 ]; then
+		cat $__xfs_cowgc_interval_knob1
+	elif [ -w $__xfs_cowgc_interval_knob2 ]; then
+		cat $__xfs_cowgc_interval_knob2
+	else
+		_fail "Can't find cowgc interval procfs knob?"
+	fi
+}
