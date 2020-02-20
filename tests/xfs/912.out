@@ -1,0 +1,43 @@
+QA output created by 912
+
+Format with label
+Read label offline
+label = "label0"
+Read label online
+label = "label0"
+
+Set label offline
+writing all SBs
+new label = "label1"
+Read label offline
+label = "label1"
+Read label online
+label = "label1"
+
+Set label online
+label = "label2"
+Read label online
+label = "label2"
+Read label offline
+label = "label2"
+
+Clear label online
+label = ""
+Read label online
+label = ""
+Read label offline
+label = ""
+
+Set label offline
+writing all SBs
+new label = "label3"
+Read label offline
+label = "label3"
+
+Clear label offline
+writing all SBs
+new label = ""
+Read label offline
+label = ""
+Read label online
+label = ""

@@ -513,3 +513,4 @@
 513 auto mount
 747 auto quick scrub
 748 auto quick scrub
+912 auto quick label
