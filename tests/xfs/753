@@ -1,0 +1,254 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (c) 2020, Oracle and/or its affiliates.  All Rights Reserved.
+#
+# FS QA Test No. 753
+#
+# Test that we can respecify mkfs.xfs options by ending the argument with a
+# question mark (e.g. "-m reflink=1?").  Make sure that we can only respecify
+# one time, and that we can't enable respecification if we've already specified
+# the option.  This will form the basis for creating mkfs.xfs wrappers to
+# format a filesystem with the "default" feature options from an old release.
+
+seq=`basename $0`
+seqres=$RESULT_DIR/$seq
+echo "QA output created by $seq"
+
+here=`pwd`
+tmp=/tmp/$$
+status=1    # failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+	cd /
+	rm -f $tmp.* $test_file
+	rm -r -f $test_mount
+}
+
+# get standard environment, filters and checks
+. ./common/rc
+. ./common/filter
+
+# real QA test starts here
+_supported_fs xfs
+_require_test
+
+test_file=$TEST_DIR/test-$seq
+test_mount=$TEST_DIR/mount-$seq
+
+MANPAGE=`$MAN_PROG --path mkfs.xfs`
+
+case "$MANPAGE" in
+*.gz|*.z\|*.Z)  CAT=zcat;;
+*.bz2)          CAT=bzcat;;
+*.xz)           CAT=xzcat;;
+*)              CAT=cat;;
+esac
+
+$CAT "$MANPAGE" | grep -q 'options cannot be specified more than once' || \
+	_notrun "mkfs does not support respecifying options"
+
+rm -f $test_mount
+mkdir $test_mount
+
+test_mkfs()
+{
+	# We use a 30G sparse file in the test fs and call mkfs directly so
+	# that we won't be influenced by any mkfs or mount options given by
+	# the user.  This is purely a test of mkfs parsing abilities.
+	rm -f $test_file
+	truncate -s 30g $test_file
+	$MKFS_XFS_PROG "$@" $test_file >> $seqres.full 2>&1
+}
+
+log()
+{
+	echo "$@" | tee -a $seqres.full
+}
+
+try_test_mount()
+{
+	$MOUNT_PROG $test_file $test_mount >> $seqres.full 2>&1
+}
+
+filter_spaceman_var()
+{
+	local tag="$1"
+	grep "$tag=" | sed -e 's/^.*'"$tag"'=\([0-9]*\).*$/\1/g'
+}
+
+# Various functions to test the effects of our formatting arguments
+
+report_extsz()
+{
+	if try_test_mount; then
+		$XFS_IO_PROG -c 'extsize' $test_mount | _filter_test_dir
+		$UMOUNT_PROG $test_mount
+	fi
+}
+
+report_agsize()
+{
+	if try_test_mount; then
+		$XFS_SPACEMAN_PROG -c 'info' $test_mount | \
+			filter_spaceman_var 'agsize'
+		$UMOUNT_PROG $test_mount
+	fi
+}
+
+report_reflink()
+{
+	if try_test_mount; then
+		$XFS_SPACEMAN_PROG -c 'info' $test_mount | \
+			filter_spaceman_var 'reflink'
+		$UMOUNT_PROG $test_mount
+	fi
+}
+
+report_label()
+{
+	$XFS_DB_PROG -c 'label' $test_file
+}
+
+report_uuid()
+{
+	$XFS_DB_PROG -c 'sb 0' -c 'p uuid' $test_file
+}
+
+report_bssize()
+{
+	if try_test_mount; then
+		$XFS_SPACEMAN_PROG -c 'info' $test_mount | \
+			grep 'sectsz.*attr' | \
+			filter_spaceman_var 'sectsz'
+		$XFS_SPACEMAN_PROG -c 'info' $test_mount | \
+			grep 'data.*bsize' | \
+			filter_spaceman_var 'bsize'
+		$UMOUNT_PROG $test_mount
+	fi
+}
+
+report_su_sw()
+{
+	$XFS_DB_PROG -c 'sb 0' -c 'p unit width' $test_file
+}
+
+report_agcount()
+{
+	$XFS_DB_PROG -c 'sb 0' -c 'p agcount' $test_file
+}
+
+rm -f $seqres.full
+
+log "Normal mkfs (pass, no output)"
+test_mkfs
+report_extsz
+
+log "Specify extszinherit once (pass)"
+test_mkfs -d extszinherit=2
+report_extsz
+
+log "Specify extszinherit twice (fail)"
+test_mkfs -d extszinherit=2,extszinherit=2
+report_extsz
+
+log "Specify extszinherit twice with two -d options (fail)"
+test_mkfs -d extszinherit=2 -d extszinherit=2
+report_extsz
+
+log "Specify extszinherit twice, allowing override (pass)"
+test_mkfs -d extszinherit=2?,extszinherit=4
+report_extsz
+
+log "Specify extszinherit twice with two -d options, first allows override (pass)"
+test_mkfs -d extszinherit=2? -d extszinherit=4
+report_extsz
+
+log "Specify extszinherit thrice with three -d options, first allows override (fail)"
+test_mkfs -d extszinherit=2? -d extszinherit=4 -d extszinherit=8
+report_extsz
+
+log "Specify extszinherit thrice with three -d options, first two allowing override (pass)"
+test_mkfs -d extszinherit=2? -d extszinherit=4? -d extszinherit=8
+report_extsz
+
+log "Specify extszinherit twice with two -d options, override is too late (fail)"
+test_mkfs -d extszinherit=2 -d extszinherit=4?
+report_extsz
+
+log "Sector size, respecify it, use it (pass)"
+test_mkfs -s size=512? -s size=1024 -d agsize=131072s -b size=4k
+report_agsize
+
+log "Sector size, use it, then respecify sector size (pass)"
+test_mkfs -s size=512? -d agsize=131072s -s size=1024 -b size=4k
+report_agsize
+
+log "Block size, respecify it, use it (pass)"
+test_mkfs -b size=512? -b size=1024 -d agsize=131072b
+report_agsize
+
+log "Block size, use it, then respecify sector size (pass)"
+test_mkfs -b size=512? -d agsize=131072b -b size=1024
+report_agsize
+
+log "Impossible sector and block size (fail)"
+test_mkfs -b size=512 -s size=1024
+report_bssize
+
+log "Impossible sector and block size overridden by possible sizes (pass)"
+test_mkfs -b size=512? -s size=1024? -b size=1024 -s size=512
+report_bssize
+
+log "no reflink but allow it to be respecified"
+test_mkfs -m reflink=0?
+report_reflink
+
+log "no reflink but then override it"
+test_mkfs -m reflink=0? -m reflink=1
+report_reflink
+
+log "label 1-C"
+test_mkfs -L 123456789ABC
+report_label
+
+log "label 1-C and then respecify it"
+test_mkfs -L 123456789ABC -L noooope
+report_label
+
+log "uuid 476..."
+test_mkfs -m uuid=476aaf3c-1fcd-484b-9d93-083bc1bac196
+report_uuid
+
+log "uuid 476... and respecify as 7a8..."
+test_mkfs -m uuid=476aaf3c-1fcd-484b-9d93-083bc1bac196 -m uuid=7a8fc8b7-879c-457b-93fc-e3ac49509452
+report_uuid
+
+log "stripe unit 2m, stripe width 2x, blksz 4k"
+test_mkfs -b size=4k -d su=2097152,sw=2
+report_su_sw
+
+log "stripe unit 2m, stripe width 2x, blksz 4k, override with su 3m sw 3x"
+test_mkfs -b size=4k -d su=2097152?,sw=2? -d su=3145728 -d sw=3
+report_su_sw
+
+log "stripe unit 2m, stripe width 2x, blksz 4k, fail to override with su 3m sw 3x"
+test_mkfs -b size=4k -d su=2097152,sw=2? -d su=3145728 -d sw=3
+report_su_sw 2>&1 | _filter_test_dir
+
+log "garbage argument ending in question mark"
+test_mkfs -d agcount=cow? -d agcount=1
+report_agcount 2>&1 | _filter_test_dir
+
+log "enable respecify and respecify a garbage argument"
+test_mkfs -d agcount=1? -d agcount=cow
+report_agcount 2>&1 | _filter_test_dir
+
+log "specify three different agcount values, all overridable"
+test_mkfs -d agcount=1? -d agcount=2?,agcount=3?
+report_agcount
+
+# success, all done
+status=0
+exit

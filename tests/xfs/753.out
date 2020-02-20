@@ -1,0 +1,56 @@
+QA output created by 753
+Normal mkfs (pass, no output)
+[0] TEST_DIR/mount-753
+Specify extszinherit once (pass)
+[8192] TEST_DIR/mount-753
+Specify extszinherit twice (fail)
+Specify extszinherit twice with two -d options (fail)
+Specify extszinherit twice, allowing override (pass)
+[16384] TEST_DIR/mount-753
+Specify extszinherit twice with two -d options, first allows override (pass)
+[16384] TEST_DIR/mount-753
+Specify extszinherit thrice with three -d options, first allows override (fail)
+Specify extszinherit thrice with three -d options, first two allowing override (pass)
+[32768] TEST_DIR/mount-753
+Specify extszinherit twice with two -d options, override is too late (fail)
+Sector size, respecify it, use it (pass)
+32768
+Sector size, use it, then respecify sector size (pass)
+32768
+Block size, respecify it, use it (pass)
+131072
+Block size, use it, then respecify sector size (pass)
+131072
+Impossible sector and block size (fail)
+Impossible sector and block size overridden by possible sizes (pass)
+512
+1024
+no reflink but allow it to be respecified
+0
+no reflink but then override it
+1
+label 1-C
+label = "123456789ABC"
+label 1-C and then respecify it
+label = "noooope"
+uuid 476...
+uuid = 476aaf3c-1fcd-484b-9d93-083bc1bac196
+uuid 476... and respecify as 7a8...
+uuid = 7a8fc8b7-879c-457b-93fc-e3ac49509452
+stripe unit 2m, stripe width 2x, blksz 4k
+unit = 512
+width = 1024
+stripe unit 2m, stripe width 2x, blksz 4k, override with su 3m sw 3x
+unit = 768
+width = 2304
+stripe unit 2m, stripe width 2x, blksz 4k, fail to override with su 3m sw 3x
+xfs_db: TEST_DIR/test-753 is not a valid XFS filesystem (unexpected SB magic number 0x00000000)
+Use -F to force a read attempt.
+garbage argument ending in question mark
+xfs_db: TEST_DIR/test-753 is not a valid XFS filesystem (unexpected SB magic number 0x00000000)
+Use -F to force a read attempt.
+enable respecify and respecify a garbage argument
+xfs_db: TEST_DIR/test-753 is not a valid XFS filesystem (unexpected SB magic number 0x00000000)
+Use -F to force a read attempt.
+specify three different agcount values, all overridable
+agcount = 3
