@@ -271,6 +271,15 @@ __scratch_xfs_fuzz_field_test() {
 		# Try modifying the filesystem again!
 		__fuzz_notify "++ Try to write filesystem again"
 		_scratch_fuzz_modify 100 2>&1
+
+		# Does the health status trip over the corruption?
+		if [ "${repair}" = "none" ]; then
+			_check_xfs_health $SCRATCH_MNT 2>&1
+			res=$?
+			test $res -ne 1 && \
+				(>&2 echo "online health check ($res) with ${field} = ${fuzzverb}.")
+		fi
+
 		__scratch_xfs_fuzz_unmount
 	else
 		(>&2 echo "re-mount failed ($res) with ${field} = ${fuzzverb}.")
