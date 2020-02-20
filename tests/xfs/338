@@ -42,13 +42,16 @@ $XFS_IO_PROG -f -R -c "pwrite -S 0x68 0 9999" $SCRATCH_MNT/f2 >> $seqres.full
 _scratch_unmount
 
 echo "Corrupt fs"
-_scratch_xfs_db -x -c 'sb 0' -c 'addr rrmapino' \
-	-c 'write core.nlinkv2 0' -c 'write core.mode 0' -c 'sb 0' \
-	-c 'write rrmapino 0' >> $seqres.full
+rtrmap_sfentry="$(_scratch_find_rt_metadir_entry 0.rmap)"
+test -n "$rtrmap_sfentry" || _fail "Could not find rtrmap metadir entry?"
+_scratch_xfs_db -x -c 'path -m /realtime/0.rmap' \
+	-c 'write core.nlinkv2 0' -c 'write core.mode 0' \
+	-c 'path -m /realtime' \
+	-c "write $rtrmap_sfentry 0" >> $seqres.full
 _try_scratch_mount >> $seqres.full 2>&1 && echo "mount should have failed"
 
 echo "Repair fs"
-_scratch_unmount 2>&1 | _filter_scratch
+_scratch_unmount 2>&1 | _filter_scratch | _filter_ending_dot
 _repair_scratch_fs >> $seqres.full 2>&1
 
 echo "Try to create more files (again)"
