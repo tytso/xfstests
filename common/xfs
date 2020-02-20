@@ -1002,3 +1002,22 @@ _require_xfs_upgrade_inobtcount()
 	_scratch_xfs_db -c 'help version' | grep -q inobtcount || \
 		_notrun "xfs_db does not support upgrading inobtcount"
 }
+
+_xfs_timestamp_range()
+{
+	local device="$1"
+	local use_db=0
+	local dbprog="$XFS_DB_PROG $device"
+	test "$device" = "$SCRATCH_DEV" && dbprog=_scratch_xfs_db
+
+	$dbprog -f -c 'help timelimit' | grep -v -q 'not found' && use_db=1
+	if [ $use_db -eq 0 ]; then
+		# The "timelimit" command was added to xfs_db at the same time
+		# that bigtime was added to xfsprogs.  Therefore, we can assume
+		# the old timestamp range if the command isn't present.
+		echo "-$((1<<31)) $(((1<<31)-1))"
+	else
+		$dbprog -f -c 'timelimit --compact' | \
+			awk '{printf("%s %s", $1, $2);}'
+	fi
+}
