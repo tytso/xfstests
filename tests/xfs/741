@@ -1,0 +1,84 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (c) 2020, Oracle and/or its affiliates.  All Rights Reserved.
+#
+# FS QA Test No. 741
+#
+# Check that we can't modify a file that's been marked immutable, regardless
+# of whether the file description was created before or after the file was
+# marked immutable.  This version uses xfs ioctls, unlike its generic
+# counterpart.
+
+seq=`basename $0`
+seqres=$RESULT_DIR/$seq
+echo "QA output created by $seq"
+
+here=`pwd`
+tmp=/tmp/$$
+status=1    # failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+	cd /
+	rm -rf $tmp.* $testfile
+}
+
+# get standard environment, filters and checks
+. ./common/rc
+. ./common/filter
+
+# real QA test starts here
+_supported_fs xfs
+_supported_os Linux
+_require_command "$CHATTR_PROG" chattr
+_require_chattr i
+
+rm -f $seqres.full
+
+testfile=$TEST_DIR/$seq.txt
+
+filter_cmd() {
+	_filter_test_dir | sed -e 's/Operation not supported/Operation not permitted/g'
+}
+
+# Check if we can modify an open fd after we've used the open fd to mark
+# the file immutable.
+test1() {
+	local descr="$1"
+	shift
+	local cmds=()
+	for arg in "$@"; do
+		cmds+=('-c' "${arg}")
+	done
+
+	echo "*** checking ${descr}" | tee -a $seqres.full
+	rm -f $testfile
+	$XFS_IO_PROG -f -c 'pwrite -S 0x59 0 170000' \
+		-c 'fsync' \
+		$testfile >> $seqres.full
+	md5sum $testfile | _filter_test_dir
+
+	echo $XFS_IO_PROG "${cmds[@]}" $testfile >> $seqres.full
+	ulimit -c 0
+	$XFS_IO_PROG "${cmds[@]}" $testfile 2>&1 | filter_cmd
+	md5sum $testfile | _filter_test_dir
+
+	$XFS_IO_PROG -r -c 'chattr -i' $testfile 2>&1 | _filter_test_dir
+}
+
+test1 "allocsp" 'chattr +i' 'allocsp 0 65536'
+test1 "chproj" 'chattr +i' 'chproj 555'
+test1 "extsize" 'truncate 0' 'chattr +i' 'extsize 1m'
+test1 "change extsize" 'truncate 0' 'extsize 512k' 'chattr +i' 'extsize 1m'
+test1 "nodump" 'chattr +i' 'chattr +d'
+test1 "unresvsp" 'chattr +i' 'unresvsp 0 65536'
+test1 "zero" 'chattr +i' 'zero 0 65536'
+test1 "chattr with chproj" 'chproj 55' 'chattr +i' 'chattr -i'
+
+echo "*** change project id"
+src/immutable_write 9 $testfile 2>&1 | filter_cmd
+
+# success, all done
+status=0
+exit
