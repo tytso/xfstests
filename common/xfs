@@ -978,3 +978,27 @@ _require_xfs_copy()
 	[ "$USE_EXTERNAL" = yes ] && \
 		_notrun "Cannot xfs_copy with external devices"
 }
+
+_require_xfs_mkfs_inobtcount()
+{
+	_scratch_mkfs_xfs_supported -m inobtcount=1 >/dev/null 2>&1 || \
+		_notrun "mkfs.xfs doesn't have inobtcount feature"
+}
+
+_require_xfs_scratch_inobtcount()
+{
+	_require_scratch
+
+	_scratch_mkfs -m inobtcount=1 > /dev/null
+	_try_scratch_mount || \
+		_notrun "inobtcount not supported by scratch filesystem type: $FSTYP"
+	_scratch_unmount
+}
+
+_require_xfs_upgrade_inobtcount()
+{
+	_require_xfs_mkfs_inobtcount
+	_require_xfs_scratch_inobtcount
+	_scratch_xfs_db -c 'help version' | grep -q inobtcount || \
+		_notrun "xfs_db does not support upgrading inobtcount"
+}
