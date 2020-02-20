@@ -511,3 +511,5 @@
 511 auto quick quota
 512 auto quick acl attr
 513 auto mount
+754 auto quick db
+755 auto quick quota
