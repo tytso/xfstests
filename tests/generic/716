@@ -1,0 +1,126 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (c) 2020, Oracle and/or its affiliates.  All Rights Reserved.
+#
+# FS QA Test No. 716
+#
+# Check that we can't modify a file that's been marked immutable, regardless
+# of whether the file description was created before or after the file was
+# marked immutable.  Note that the filesystem has to support FS_IOC_FSSETXATTR
+# because we need to be able to continue using a file descriptor after we've
+# used it to set the immutable flag.
+
+seq=`basename $0`
+seqres=$RESULT_DIR/$seq
+echo "QA output created by $seq"
+
+here=`pwd`
+tmp=/tmp/$$
+status=1    # failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+	cd /
+	rm -rf $tmp.* $testfile $testfile.moo
+}
+
+# get standard environment, filters and checks
+. ./common/rc
+. ./common/filter
+
+# real QA test starts here
+_supported_fs generic
+_require_command "$CHATTR_PROG" chattr
+_require_chattr i
+
+# Does this filesystem support FS_IOC_SETFLAGS?
+$XFS_IO_PROG -c 'lsattr' $TEST_DIR 2>&1 | \
+	grep -q 'Inappropriate ioctl for device' && \
+	_notrun "filesystem does not support FS_IOC_SETXATTR"
+
+rm -f $seqres.full
+
+testfile=$TEST_DIR/$seq.txt
+
+filter_cmd() {
+	_filter_test_dir | _filter_xfs_io | sed -e 's/Operation not supported/Operation not permitted/g'
+}
+
+# Check if we can modify an open fd after we've used the open fd to mark
+# the file immutable.
+test1() {
+	local descr="$1"
+	shift
+	local cmds=()
+	for arg in "$@"; do
+		cmds+=('-c' "${arg}")
+	done
+
+	echo "*** checking ${descr}" | tee -a $seqres.full
+	rm -f $testfile
+	$XFS_IO_PROG -f -c 'pwrite -S 0x59 0 170000' \
+		-c 'fsync' \
+		$testfile >> $seqres.full
+	md5sum $testfile | _filter_test_dir
+
+	echo $XFS_IO_PROG "${cmds[@]}" $testfile >> $seqres.full
+	ulimit -c 0
+	$XFS_IO_PROG "${cmds[@]}" $testfile 2>&1 | filter_cmd
+	md5sum $testfile | _filter_test_dir
+
+	$XFS_IO_PROG -r -c 'chattr -i' $testfile 2>&1 | _filter_test_dir
+}
+
+# First we make sure that we can't open immutable files for writing
+$XFS_IO_PROG -f -c 'pwrite -S 0x59 0 170000' -c fsync $testfile >> $seqres.full
+$XFS_IO_PROG -c 'chattr +i' $testfile 2>&1 | _filter_test_dir
+
+echo "*** checking rw open" | tee -a $seqres.full
+$XFS_IO_PROG -c 'quit' $testfile 2>&1 | _filter_test_dir
+md5sum $testfile | _filter_test_dir
+
+echo "*** checking ro open" | tee -a $seqres.full
+$XFS_IO_PROG -r -c 'quit' $testfile 2>&1 | _filter_test_dir
+md5sum $testfile | _filter_test_dir
+
+$XFS_IO_PROG -r -c 'chattr -i' $testfile 2>&1 | _filter_test_dir
+
+# Now we make sure we can't use existing fds for writes to immutable files
+test1 "append" 'chattr +i' 'pwrite -S 0x60 170000 20'
+test1 "truncate bigger" 'chattr +i' 'truncate 170050'
+test1 "truncate smaller" 'chattr +i' 'truncate 150000'
+test1 "chmod" 'chattr +i' 'chmod -r' 'chmod -w'
+test1 "utimes" 'chattr +i' 'utimes 0 0 0 0'
+test1 "rewrite" 'chattr +i' 'pwrite -S 0x60 0 20'
+test1 "falloc" 'chattr +i' 'falloc 170050 25'
+test1 "fpunch" 'chattr +i' 'fpunch 65536 65536'
+test1 "finsert" 'chattr +i' 'finsert 0 65536'
+test1 "fcollapse" 'chattr +i' 'fcollapse 0 65536'
+test1 "funshare" 'chattr +i' 'funshare 0 65536'
+test1 "fzero" 'chattr +i' 'fzero 0 65536'
+test1 "flink" 'chattr +i' "flink $testfile.moo"
+test1 "read" 'chattr +i' 'pread 0 65536'
+test1 "mmap read" 'chattr +i' 'mmap -r 0 65536' 'mread 0 65536'
+test1 "read of existing mmap" 'mmap -r 0 65536' 'chattr +i' 'mread 0 20'
+test1 "read of existing mapped mmap" 'mmap -r 0 65536' 'mread 0 20' 'chattr +i' 'mread 0 20'
+test1 "mmap write" 'chattr +i' 'mmap -rw 0 65536' 'mwrite -S 0x60 0 20'
+test1 "write of existing mmap" 'mmap -rw 0 65536' 'chattr +i' 'mwrite -S 0x60 0 20'
+test1 "write of existing mapped mmap" 'mmap -rw 0 65536' 'mwrite -S 0x59 0 20' 'chattr +i' 'mwrite -S 0x60 0 20'
+test1 "copyrange blocks" "chattr +i" "copy_range -s 0 -d 262144 -l 65536 $testfile"
+test1 "copyrange" "chattr +i" "copy_range -s 0 -d 73 -l 37 $testfile"
+test1 "chattr chattr" 'chattr +i' 'chattr +i'
+test1 "chattr unchattr unchattr" 'chattr +i' 'chattr -i' 'chattr -i'
+
+# reflink and dedupe are checked in generic/159 and generic/160, respectively
+
+# Make sure we can still read files after setting immutable.
+echo "*** read files with a readonly fd"
+$XFS_IO_PROG -c 'chattr +i' $testfile
+$XFS_IO_PROG -r -c 'pread 0 64k' -c 'mmap -r 0 64k' -c 'mread 0 64k' $testfile 2>1 | filter_cmd
+$XFS_IO_PROG -c 'chattr -i' $testfile 2>&1 | filter_cmd
+$XFS_IO_PROG -r -c 'chattr -i' $testfile
+
+# success, all done
+status=0
+exit
