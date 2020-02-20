@@ -1021,3 +1021,27 @@ _xfs_timestamp_range()
 			awk '{printf("%s %s", $1, $2);}'
 	fi
 }
+
+_require_xfs_mkfs_bigtime()
+{
+	_scratch_mkfs_xfs_supported -m bigtime=1 >/dev/null 2>&1 || \
+		_notrun "mkfs.xfs doesn't have bigtime feature"
+}
+
+_require_xfs_scratch_bigtime()
+{
+	_require_scratch
+
+	_scratch_mkfs -m bigtime=1 > /dev/null
+	_try_scratch_mount || \
+		_notrun "bigtime not supported by scratch filesystem type: $FSTYP"
+	_scratch_unmount
+}
+
+_require_xfs_upgrade_bigtime()
+{
+	_require_xfs_mkfs_bigtime
+	_require_xfs_scratch_bigtime
+	_scratch_xfs_db -c 'help version' | grep -q bigtime || \
+		_notrun "xfs_db does not support upgrading bigtime"
+}
