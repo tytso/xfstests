@@ -2,4 +2,9 @@ QA output created by 405
 Format and populate
 Find external attr block
 Fuzz external attr block
+scrub didn't fail with data = zeroes.
+scrub didn't fail with data = ones.
+scrub didn't fail with data = firstbit.
+scrub didn't fail with data = middlebit.
+scrub didn't fail with data = lastbit.
 Done fuzzing external attr block

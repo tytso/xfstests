@@ -1,4 +1,5 @@
 QA output created by 411
 Format and populate
 Fuzz refcountbt
+scrub didn't fail with recs[1].refcount = lastbit.
 Done fuzzing refcountbt

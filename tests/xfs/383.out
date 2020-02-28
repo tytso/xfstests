@@ -2,4 +2,8 @@ QA output created by 383
 Format and populate
 Find symlink remote block
 Fuzz symlink remote block
+scrub didn't fail with data = ones.
+scrub didn't fail with data = firstbit.
+scrub didn't fail with data = middlebit.
+scrub didn't fail with data = lastbit.
 Done fuzzing symlink remote block

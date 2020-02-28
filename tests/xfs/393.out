@@ -2,4 +2,9 @@ QA output created by 393
 Format and populate
 Find leafn-format dir block
 Fuzz leafn-format dir block
+scrub didn't fail with lents[0].hashval = lastbit.
+scrub didn't fail with lents[2].hashval = lastbit.
+scrub didn't fail with lents[4].hashval = lastbit.
+scrub didn't fail with lents[6].hashval = lastbit.
+scrub didn't fail with lents[8].hashval = lastbit.
 Done fuzzing leafn-format dir block

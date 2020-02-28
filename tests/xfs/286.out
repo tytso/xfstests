@@ -1,4 +1,7 @@
 QA output created by 286
 Format and populate
+Corruption: filesystem summary counters: Repairs are required. (scrub.c line 206)
+/opt: corruptions found: 1
+/opt: Re-run xfs_scrub without -n.
 Concurrent repair
 Test done
