@@ -1,10 +1,89 @@
 QA output created by 1557
 Format and populate
 Fuzz block map for EXTENTS_REMOTE3K
+a.bmx[0].startblock = zeroes: online re-scrub failed (5).
+a.bmx[0].startblock = ones: online re-scrub failed (5).
+a.bmx[0].startblock = firstbit: online re-scrub failed (5).
+a.bmx[0].startblock = middlebit: online re-scrub failed (5).
+a.bmx[0].startblock = sub: online re-scrub failed (5).
+a.bmx[0].blockcount = zeroes: online re-scrub failed (5).
+a.bmx[0].blockcount = ones: online re-scrub failed (5).
+a.bmx[0].blockcount = firstbit: online re-scrub failed (5).
+a.bmx[0].blockcount = lastbit: online re-scrub failed (5).
+a.bmx[0].blockcount = sub: online re-scrub failed (5).
+a.bmx[0].extentflag = ones: online re-scrub failed (5).
+a.bmx[0].extentflag = firstbit: online re-scrub failed (5).
+a.bmx[0].extentflag = middlebit: online re-scrub failed (5).
+a.bmx[0].extentflag = lastbit: online re-scrub failed (5).
+a.bmx[0].extentflag = add: online re-scrub failed (5).
+a.bmx[0].extentflag = sub: online re-scrub failed (5).
+a.bmx[1].startblock = zeroes: online re-scrub failed (5).
+a.bmx[1].startblock = ones: online re-scrub failed (5).
+a.bmx[1].startblock = firstbit: online re-scrub failed (5).
+a.bmx[1].startblock = middlebit: online re-scrub failed (5).
+a.bmx[1].startblock = sub: online re-scrub failed (5).
+a.bmx[1].blockcount = zeroes: online re-scrub failed (5).
+a.bmx[1].blockcount = ones: online re-scrub failed (5).
+a.bmx[1].blockcount = firstbit: online re-scrub failed (5).
+a.bmx[1].blockcount = lastbit: online re-scrub failed (5).
+a.bmx[1].blockcount = sub: online re-scrub failed (5).
+a.bmx[1].extentflag = ones: online re-scrub failed (5).
+a.bmx[1].extentflag = firstbit: online re-scrub failed (5).
+a.bmx[1].extentflag = middlebit: online re-scrub failed (5).
+a.bmx[1].extentflag = lastbit: online re-scrub failed (5).
+a.bmx[1].extentflag = add: online re-scrub failed (5).
+a.bmx[1].extentflag = sub: online re-scrub failed (5).
 Done fuzzing attr map EXTENTS_REMOTE3K
 Fuzz block map for EXTENTS_REMOTE4K
+a.bmx[0].startblock = zeroes: online re-scrub failed (5).
+a.bmx[0].startblock = ones: online re-scrub failed (5).
+a.bmx[0].startblock = firstbit: online re-scrub failed (5).
+a.bmx[0].startblock = middlebit: online re-scrub failed (5).
+a.bmx[0].startblock = sub: online re-scrub failed (5).
+a.bmx[0].blockcount = zeroes: online re-scrub failed (5).
+a.bmx[0].blockcount = ones: online re-scrub failed (5).
+a.bmx[0].blockcount = firstbit: online re-scrub failed (5).
+a.bmx[0].blockcount = lastbit: online re-scrub failed (5).
+a.bmx[0].blockcount = sub: online re-scrub failed (5).
+a.bmx[0].extentflag = ones: online re-scrub failed (5).
+a.bmx[0].extentflag = firstbit: online re-scrub failed (5).
+a.bmx[0].extentflag = middlebit: online re-scrub failed (5).
+a.bmx[0].extentflag = lastbit: online re-scrub failed (5).
+a.bmx[0].extentflag = add: online re-scrub failed (5).
+a.bmx[0].extentflag = sub: online re-scrub failed (5).
+a.bmx[1].startblock = zeroes: online re-scrub failed (5).
+a.bmx[1].startblock = ones: online re-scrub failed (5).
+a.bmx[1].startblock = firstbit: online re-scrub failed (5).
+a.bmx[1].startblock = middlebit: online re-scrub failed (5).
+a.bmx[1].startblock = sub: online re-scrub failed (5).
+a.bmx[1].blockcount = zeroes: online re-scrub failed (5).
+a.bmx[1].blockcount = ones: online re-scrub failed (5).
+a.bmx[1].blockcount = firstbit: online re-scrub failed (5).
+a.bmx[1].blockcount = sub: online re-scrub failed (5).
+a.bmx[1].extentflag = ones: online re-scrub failed (5).
+a.bmx[1].extentflag = firstbit: online re-scrub failed (5).
+a.bmx[1].extentflag = middlebit: online re-scrub failed (5).
+a.bmx[1].extentflag = lastbit: online re-scrub failed (5).
+a.bmx[1].extentflag = add: online re-scrub failed (5).
+a.bmx[1].extentflag = sub: online re-scrub failed (5).
 Done fuzzing attr map EXTENTS_REMOTE4K
 Fuzz block map for LEAF
+a.bmx[0].startblock = zeroes: online re-scrub failed (5).
+a.bmx[0].startblock = ones: online re-scrub failed (5).
+a.bmx[0].startblock = firstbit: online re-scrub failed (5).
+a.bmx[0].startblock = middlebit: online re-scrub failed (5).
+a.bmx[0].startblock = sub: online re-scrub failed (5).
+a.bmx[0].blockcount = zeroes: online re-scrub failed (5).
+a.bmx[0].blockcount = ones: online re-scrub failed (5).
+a.bmx[0].blockcount = firstbit: online re-scrub failed (5).
+a.bmx[0].blockcount = lastbit: online re-scrub failed (5).
+a.bmx[0].blockcount = sub: online re-scrub failed (5).
+a.bmx[0].extentflag = ones: online re-scrub failed (5).
+a.bmx[0].extentflag = firstbit: online re-scrub failed (5).
+a.bmx[0].extentflag = middlebit: online re-scrub failed (5).
+a.bmx[0].extentflag = lastbit: online re-scrub failed (5).
+a.bmx[0].extentflag = add: online re-scrub failed (5).
+a.bmx[0].extentflag = sub: online re-scrub failed (5).
 Done fuzzing attr map LEAF
 Fuzz block map for NODE
 Done fuzzing attr map NODE

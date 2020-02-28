@@ -1,4 +1,18 @@
 QA output created by 713
 Format and populate
 Fuzz fscounters
+icount = zeroes: online scrub didn't fail.
+icount = ones: online scrub didn't fail.
+icount = firstbit: online scrub didn't fail.
+icount = middlebit: online scrub didn't fail.
+ifree = zeroes: online repair failed (4).
+ifree = zeroes: online re-scrub failed (4).
+ifree = zeroes: offline re-scrub failed (1).
+ifree = zeroes: pre-mod mount failed (32).
+ifree = ones: online scrub didn't fail.
+ifree = firstbit: online scrub didn't fail.
+ifree = middlebit: online scrub didn't fail.
+fdblocks = ones: online scrub didn't fail.
+fdblocks = firstbit: online scrub didn't fail.
+fdblocks = middlebit: online scrub didn't fail.
 Done fuzzing fscounters
