@@ -2,4 +2,10 @@ QA output created by 394
 Format and populate
 Find node-format dir block
 Fuzz node-format dir block
+online re-scrub (1) with nhdr.info.hdr.back = ones.
+online re-scrub (1) with nhdr.info.hdr.back = firstbit.
+online re-scrub (1) with nhdr.info.hdr.back = middlebit.
+online re-scrub (1) with nhdr.info.hdr.back = lastbit.
+online re-scrub (1) with nhdr.info.hdr.back = add.
+online re-scrub (1) with nhdr.info.hdr.back = sub.
 Done fuzzing node-format dir block

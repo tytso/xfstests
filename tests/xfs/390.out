@@ -2,4 +2,5 @@ QA output created by 390
 Format and populate
 Find leaf1-format dir block
 Fuzz leaf1-format dir block
+scrub didn't fail with lbests[0] = ones.
 Done fuzzing leaf1-format dir block

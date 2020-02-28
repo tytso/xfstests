@@ -1,4 +1,11 @@
 QA output created by 360
 Format and populate
 Fuzz bnobt keyptr
+scrub didn't fail with keys[1].blockcount = zeroes.
+scrub didn't fail with keys[1].blockcount = ones.
+scrub didn't fail with keys[1].blockcount = firstbit.
+scrub didn't fail with keys[1].blockcount = middlebit.
+scrub didn't fail with keys[1].blockcount = lastbit.
+scrub didn't fail with keys[1].blockcount = add.
+scrub didn't fail with keys[1].blockcount = sub.
 Done fuzzing bnobt keyptr
