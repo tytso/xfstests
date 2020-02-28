@@ -91,7 +91,7 @@ __filter_xfs_db_print_fields() {
 		else
 			echo "${fuzzkey}"
 		fi
-	done | egrep "${filter}"
+	done | egrep "${filter}" | egrep -v '(^|\.)(sec|nsec|lsn)$'
 }
 
 # Navigate to some part of the filesystem and print the field info.
