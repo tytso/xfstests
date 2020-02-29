@@ -2,4 +2,54 @@ QA output created by 474
 Format and populate
 Find leafn-format dir block
 Fuzz leafn-format dir block
+online health check (0) with lhdr.info.hdr.forw = zeroes.
+online health check (0) with lhdr.info.hdr.forw = ones.
+online health check (0) with lhdr.info.hdr.forw = firstbit.
+online health check (0) with lhdr.info.hdr.forw = middlebit.
+online health check (0) with lhdr.info.hdr.forw = lastbit.
+online health check (0) with lhdr.info.hdr.forw = add.
+online health check (0) with lhdr.info.hdr.forw = sub.
+online health check (0) with lhdr.info.hdr.back = zeroes.
+online health check (0) with lhdr.info.hdr.back = ones.
+online health check (0) with lhdr.info.hdr.back = firstbit.
+online health check (0) with lhdr.info.hdr.back = middlebit.
+online health check (0) with lhdr.info.hdr.back = lastbit.
+online health check (0) with lhdr.info.hdr.back = add.
+online health check (0) with lhdr.info.hdr.back = sub.
+online health check (0) with lhdr.info.owner = zeroes.
+online health check (0) with lhdr.info.owner = ones.
+online health check (0) with lhdr.info.owner = firstbit.
+online health check (0) with lhdr.info.owner = middlebit.
+online health check (0) with lhdr.info.owner = lastbit.
+online health check (0) with lhdr.info.owner = add.
+online health check (0) with lhdr.info.owner = sub.
+online health check (0) with lhdr.count = middlebit.
+online health check (0) with lhdr.count = lastbit.
+online health check (0) with lents[0].hashval = zeroes.
+online health check (0) with lents[0].hashval = middlebit.
+online health check (0) with lents[0].hashval = lastbit.
+online health check (0) with lents[0].hashval = sub.
+online health check (0) with lents[1].hashval = lastbit.
+online health check (0) with lents[1].address = lastbit.
+online health check (0) with lents[1].address = add.
+online health check (0) with lents[2].hashval = lastbit.
+online health check (0) with lents[3].hashval = lastbit.
+online health check (0) with lents[3].address = ones.
+online health check (0) with lents[3].address = firstbit.
+online health check (0) with lents[3].address = middlebit.
+online health check (0) with lents[3].address = lastbit.
+online health check (0) with lents[3].address = add.
+online health check (0) with lents[3].address = sub.
+online health check (0) with lents[4].hashval = lastbit.
+online health check (0) with lents[5].hashval = lastbit.
+online health check (0) with lents[5].address = lastbit.
+online health check (0) with lents[5].address = add.
+online health check (0) with lents[6].hashval = lastbit.
+online health check (0) with lents[7].hashval = lastbit.
+online health check (0) with lents[7].address = lastbit.
+online health check (0) with lents[7].address = add.
+online health check (0) with lents[8].hashval = lastbit.
+online health check (0) with lents[9].hashval = lastbit.
+online health check (0) with lents[9].address = lastbit.
+online health check (0) with lents[9].address = add.
 Done fuzzing leafn-format dir block

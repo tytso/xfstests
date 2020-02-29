@@ -1,6 +1,12 @@
 QA output created by 455
 Format and populate
 Fuzz AGFL
+online health check (0) with bno[0] = zeroes.
+online health check (0) with bno[0] = add.
 Done fuzzing AGFL
 Fuzz AGFL flfirst
+online health check (0) with bno[15] = middlebit.
+online health check (0) with bno[15] = lastbit.
+online health check (0) with bno[15] = add.
+online health check (0) with bno[15] = sub.
 Done fuzzing AGFL flfirst

@@ -1,4 +1,25 @@
 QA output created by 459
 Format and populate
 Fuzz cntbt
+online health check (0) with numrecs = middlebit.
+online health check (0) with numrecs = lastbit.
+online health check (0) with leftsib = add.
+online health check (0) with rightsib = ones.
+online health check (0) with rightsib = middlebit.
+online health check (0) with rightsib = lastbit.
+online health check (0) with rightsib = add.
+online health check (0) with recs[1].startblock = zeroes.
+online health check (0) with recs[1].startblock = ones.
+online health check (0) with recs[1].startblock = firstbit.
+online health check (0) with recs[1].startblock = middlebit.
+online health check (0) with recs[1].startblock = lastbit.
+online health check (0) with recs[1].startblock = add.
+online health check (0) with recs[1].startblock = sub.
+online health check (0) with recs[1].blockcount = zeroes.
+online health check (0) with recs[1].blockcount = ones.
+online health check (0) with recs[1].blockcount = firstbit.
+online health check (0) with recs[1].blockcount = middlebit.
+online health check (0) with recs[1].blockcount = lastbit.
+online health check (0) with recs[1].blockcount = add.
+online health check (0) with recs[1].blockcount = sub.
 Done fuzzing cntbt

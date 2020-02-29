@@ -2,4 +2,55 @@ QA output created by 480
 Format and populate
 Find external attr block
 Fuzz external attr block
+online health check (0) with hdr.magic = zeroes.
+online health check (0) with hdr.magic = ones.
+online health check (0) with hdr.magic = firstbit.
+online health check (0) with hdr.magic = middlebit.
+online health check (0) with hdr.magic = lastbit.
+online health check (0) with hdr.magic = add.
+online health check (0) with hdr.magic = sub.
+online health check (0) with hdr.offset = ones.
+online health check (0) with hdr.offset = firstbit.
+online health check (0) with hdr.offset = middlebit.
+online health check (0) with hdr.offset = lastbit.
+online health check (0) with hdr.offset = add.
+online health check (0) with hdr.offset = sub.
+online health check (0) with hdr.bytes = zeroes.
+online health check (0) with hdr.bytes = ones.
+online health check (0) with hdr.bytes = firstbit.
+online health check (0) with hdr.bytes = middlebit.
+online health check (0) with hdr.bytes = lastbit.
+online health check (0) with hdr.bytes = add.
+online health check (0) with hdr.bytes = sub.
+online health check (0) with hdr.crc = zeroes.
+online health check (0) with hdr.crc = ones.
+online health check (0) with hdr.crc = firstbit.
+online health check (0) with hdr.crc = middlebit.
+online health check (0) with hdr.crc = lastbit.
+online health check (0) with hdr.crc = add.
+online health check (0) with hdr.crc = sub.
+online health check (0) with hdr.uuid = zeroes.
+online health check (0) with hdr.uuid = ones.
+online health check (0) with hdr.uuid = firstbit.
+online health check (0) with hdr.uuid = middlebit.
+online health check (0) with hdr.uuid = lastbit.
+online health check (0) with hdr.owner = zeroes.
+online health check (0) with hdr.owner = ones.
+online health check (0) with hdr.owner = firstbit.
+online health check (0) with hdr.owner = middlebit.
+online health check (0) with hdr.owner = lastbit.
+online health check (0) with hdr.owner = add.
+online health check (0) with hdr.owner = sub.
+online health check (0) with hdr.bno = zeroes.
+online health check (0) with hdr.bno = ones.
+online health check (0) with hdr.bno = firstbit.
+online health check (0) with hdr.bno = middlebit.
+online health check (0) with hdr.bno = lastbit.
+online health check (0) with hdr.bno = add.
+online health check (0) with hdr.bno = sub.
+online health check (0) with data = zeroes.
+online health check (0) with data = ones.
+online health check (0) with data = firstbit.
+online health check (0) with data = middlebit.
+online health check (0) with data = lastbit.
 Done fuzzing external attr block

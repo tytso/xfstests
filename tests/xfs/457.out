@@ -1,4 +1,12 @@
 QA output created by 457
 Format and populate
 Fuzz bnobt recs
+online health check (0) with numrecs = middlebit.
+online health check (0) with numrecs = lastbit.
+online health check (0) with leftsib = add.
+online health check (0) with rightsib = ones.
+online health check (0) with rightsib = middlebit.
+online health check (0) with rightsib = lastbit.
+online health check (0) with rightsib = add.
+online health check (0) with recs[1].startblock = add.
 Done fuzzing bnobt recs

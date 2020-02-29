@@ -1,4 +1,13 @@
 QA output created by 460
 Format and populate
 Fuzz inobt
+online health check (0) with leftsib = add.
+online health check (0) with rightsib = add.
+online health check (0) with keys[1].startino = zeroes.
+online health check (0) with keys[1].startino = ones.
+online health check (0) with keys[1].startino = firstbit.
+online health check (0) with keys[1].startino = middlebit.
+online health check (0) with keys[1].startino = lastbit.
+online health check (0) with keys[1].startino = add.
+online health check (0) with keys[1].startino = sub.
 Done fuzzing inobt
