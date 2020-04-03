@@ -614,3 +614,6 @@
 715 auto quick rw
 716 auto quick rw
 721 auto quick atime
+1200 auto quick swapext quota
+1201 auto quick swapext quota
+1202 auto quick swapext
