@@ -548,6 +548,7 @@
 915 auto quick quota
 917 auto quick db
 918 auto quick db
+1202 auto quick swapext
 1500 dangerous_fuzzers dangerous_bothrepair
 1501 dangerous_fuzzers dangerous_bothrepair
 1502 dangerous_fuzzers dangerous_bothrepair
