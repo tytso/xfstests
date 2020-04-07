@@ -215,6 +215,24 @@ __scratch_xfs_fuzz_field_test() {
 		(>&2 echo "mount failed ($res) with ${field} = ${fuzzverb}.")
 	fi
 
+	# For a purely offline check, compare xfs_db to xfs_repair -n.
+	if [ "${repair}" = "offline" ]; then
+		echo "OFFLINE XFS CHECK" >> $seqres.full
+		_scratch_xfs_check >> $seqres.full 2>&1
+		res1=$?
+		echo "OFFLINE XFS REPAIR -N" >> $seqres.full
+		_scratch_xfs_repair -n >> $seqres.full 2>&1
+		res2=$?
+		if [ "$res1" -ne 0 ] && [ "$res2" -eq 0 ]; then
+			(>&2 echo "xfs_repair passed but xfs_check failed ($res1) with ${field} = ${fuzzverb}.")
+			echo "xfs_repair passed but xfs_check failed ($res1) with ${field} = ${fuzzverb}." >> $seqres.full
+		fi
+		if [ "$res1" -eq 0 ] && [ "$res2" -ne 0 ]; then
+			(>&2 echo "xfs_check passed but xfs_repair failed ($res2) with ${field} = ${fuzzverb}.")
+			echo "xfs_check passed but xfs_repair failed ($res2) with ${field} = ${fuzzverb}." >> $seqres.full
+		fi
+	fi
+
 	# Repair the filesystem offline?
 	if [ "${repair}" = "offline" ] || [ "${repair}" = "both" ]; then
 		echo "+ Try to repair the filesystem offline"
