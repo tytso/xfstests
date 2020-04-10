@@ -33,6 +33,8 @@ io_context_t	io_ctx;
 #include <sys/syscall.h>
 #include <sys/xattr.h>
 
+#include "swaprange.h"
+
 #ifndef FS_IOC_GETFLAGS
 #define FS_IOC_GETFLAGS                 _IOR('f', 1, long)
 #endif
@@ -134,6 +136,7 @@ typedef enum {
 	OP_STAT,
 	OP_SUBVOL_CREATE,
 	OP_SUBVOL_DELETE,
+	OP_SWAPRANGE,
 	OP_SYMLINK,
 	OP_SYNC,
 	OP_TRUNCATE,
@@ -262,6 +265,7 @@ void	splice_f(int, long);
 void	stat_f(int, long);
 void	subvol_create_f(int, long);
 void	subvol_delete_f(int, long);
+void	swaprange_f(int, long);
 void	symlink_f(int, long);
 void	sync_f(int, long);
 void	truncate_f(int, long);
@@ -330,6 +334,7 @@ opdesc_t	ops[] = {
 	{ OP_STAT, "stat", stat_f, 1, 0 },
 	{ OP_SUBVOL_CREATE, "subvol_create", subvol_create_f, 1, 1},
 	{ OP_SUBVOL_DELETE, "subvol_delete", subvol_delete_f, 1, 1},
+	{ OP_SWAPRANGE, "swaprange", swaprange_f, 4, 1 },
 	{ OP_SYMLINK, "symlink", symlink_f, 2, 1 },
 	{ OP_SYNC, "sync", sync_f, 1, 1 },
 	{ OP_TRUNCATE, "truncate", truncate_f, 2, 1 },
@@ -2398,6 +2403,163 @@ chown_f(int opno, long r)
 	if (v)
 		printf("%d/%d: chown %s %d/%d %d\n", procid, opno, f.path, (int)u, (int)g, e);
 	free_pathname(&f);
+}
+
+/* swap some arbitrary range of f1 to f2...fn. */
+void
+swaprange_f(
+	int			opno,
+	long			r)
+{
+#ifdef FISWAPRANGE
+	struct file_swap_range	fsr = { 0 };
+	struct pathname		fpath1;
+	struct pathname		fpath2;
+	struct stat64		stat1;
+	struct stat64		stat2;
+	char			inoinfo1[1024];
+	char			inoinfo2[1024];
+	off64_t			lr;
+	off64_t			off1;
+	off64_t			off2;
+	off64_t			max_off2;
+	size_t			len;
+	int			v1;
+	int			v2;
+	int			fd1;
+	int			fd2;
+	int			ret;
+	int			tries = 0;
+	int			e;
+
+	/* Load paths */
+	init_pathname(&fpath1);
+	if (!get_fname(FT_REGm, r, &fpath1, NULL, NULL, &v1)) {
+		if (v1)
+			printf("%d/%d: swaprange read - no filename\n",
+				procid, opno);
+		goto out_fpath1;
+	}
+
+	init_pathname(&fpath2);
+	if (!get_fname(FT_REGm, random(), &fpath2, NULL, NULL, &v2)) {
+		if (v2)
+			printf("%d/%d: swaprange write - no filename\n",
+				procid, opno);
+		goto out_fpath2;
+	}
+
+	/* Open files */
+	fd1 = open_path(&fpath1, O_RDONLY);
+	e = fd1 < 0 ? errno : 0;
+	check_cwd();
+	if (fd1 < 0) {
+		if (v1)
+			printf("%d/%d: swaprange read - open %s failed %d\n",
+				procid, opno, fpath1.path, e);
+		goto out_fpath2;
+	}
+
+	fd2 = open_path(&fpath2, O_WRONLY);
+	e = fd2 < 0 ? errno : 0;
+	check_cwd();
+	if (fd2 < 0) {
+		if (v2)
+			printf("%d/%d: swaprange write - open %s failed %d\n",
+				procid, opno, fpath2.path, e);
+		goto out_fd1;
+	}
+
+	/* Get file stats */
+	if (fstat64(fd1, &stat1) < 0) {
+		if (v1)
+			printf("%d/%d: swaprange read - fstat64 %s failed %d\n",
+				procid, opno, fpath1.path, errno);
+		goto out_fd2;
+	}
+	inode_info(inoinfo1, sizeof(inoinfo1), &stat1, v1);
+
+	if (fstat64(fd2, &stat2) < 0) {
+		if (v2)
+			printf("%d/%d: swaprange write - fstat64 %s failed %d\n",
+				procid, opno, fpath2.path, errno);
+		goto out_fd2;
+	}
+	inode_info(inoinfo2, sizeof(inoinfo2), &stat2, v2);
+
+	if (stat1.st_size < (stat1.st_blksize * 2) ||
+	    stat2.st_size < (stat2.st_blksize * 2)) {
+		if (v2)
+			printf("%d/%d: swaprange - files are too small\n",
+				procid, opno);
+		goto out_fd2;
+	}
+
+	/* Never let us swap more than 1/4 of the files. */
+	len = (random() % FILELEN_MAX) + 1;
+	if (len > stat1.st_size / 4)
+		len = stat1.st_size / 4;
+	if (len > stat2.st_size / 4)
+		len = stat2.st_size / 4;
+	len &= ~(stat1.st_blksize - 1);
+	if (len == 0)
+		len = stat1.st_blksize;
+
+	/* Calculate offsets */
+	lr = ((int64_t)random() << 32) + random();
+	if (stat1.st_size == len)
+		off1 = 0;
+	else
+		off1 = (off64_t)(lr % MIN(stat1.st_size - len, MAXFSIZE));
+	off1 %= maxfsize;
+	off1 &= ~(stat1.st_blksize - 1);
+
+	/*
+	 * If srcfile == destfile, randomly generate destination ranges
+	 * until we find one that doesn't overlap the source range.
+	 */
+	max_off2 = MIN(stat2.st_size  - len, MAXFSIZE);
+	do {
+		lr = ((int64_t)random() << 32) + random();
+		if (stat2.st_size == len)
+			off2 = 0;
+		else
+			off2 = (off64_t)(lr % max_off2);
+		off2 %= maxfsize;
+		off2 &= ~(stat2.st_blksize - 1);
+	} while (stat1.st_ino == stat2.st_ino &&
+		 llabs(off2 - off1) < len &&
+		 tries++ < 10);
+
+	/* Swap data blocks */
+	fsr.file1_fd = fd1;
+	fsr.file1_offset = off1;
+	fsr.length = len;
+	fsr.file2_offset = off2;
+	fsr.flags = FILE_SWAP_RANGE_NONATOMIC;
+
+	ret = ioctl(fd2, FISWAPRANGE, &fsr);
+	e = ret < 0 ? errno : 0;
+	if (v1 || v2) {
+		printf("%d/%d: swaprange %s%s [%lld,%lld] -> %s%s [%lld,%lld]",
+			procid, opno,
+			fpath1.path, inoinfo1, (long long)off1, (long long)len,
+			fpath2.path, inoinfo2, (long long)off2, (long long)len);
+
+		if (ret < 0)
+			printf(" error %d", e);
+		printf("\n");
+	}
+
+out_fd2:
+	close(fd2);
+out_fd1:
+	close(fd1);
+out_fpath2:
+	free_pathname(&fpath2);
+out_fpath1:
+	free_pathname(&fpath1);
+#endif
 }
 
 /* reflink some arbitrary range of f1 to f2. */
