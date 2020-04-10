@@ -70,6 +70,7 @@ HAVE_FIEMAP = @have_fiemap@
 HAVE_FALLOCATE = @have_fallocate@
 HAVE_COPY_FILE_RANGE = @have_copy_file_range@
 HAVE_LIBBTRFSUTIL = @have_libbtrfsutil@
+HAVE_FIEXCHANGE = @have_fiexchange@
 
 GCCFLAGS = -funsigned-char -fno-strict-aliasing -Wall
 
