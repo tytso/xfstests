@@ -76,7 +76,7 @@ repair_loop() {
 	end="$1"
 
 	while [ "$(date +%s)" -lt $end ]; do
-		$XFS_IO_PROG -x -c 'repair -f usrquota' -c 'repair -f grpquota' $SCRATCH_MNT 2>&1 | filter_output
+		$XFS_IO_PROG -x -c 'repair quotacheck' $SCRATCH_MNT 2>&1 | filter_output
 	done
 }
 stress_loop() {
