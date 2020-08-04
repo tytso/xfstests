@@ -532,11 +532,13 @@
 741 auto quick rw
 746 auto quick online_repair
 747 auto quick scrub
+756 auto quick rw scrub
 757 auto quick attr repair
 758 auto quick rw attr realtime
 759 auto quick rw realtime
 760 auto quick rw collapse punch insert zero prealloc
 761 auto quick realtime
+762 auto quick rw scrub realtime
 763 auto quick rw realtime
 764 auto quick repair
 908 auto quick bigtime
