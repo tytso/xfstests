@@ -520,6 +520,7 @@
 520 auto quick reflink
 521 auto quick realtime growfs
 747 auto quick scrub
+757 auto quick attr repair
 758 auto quick rw attr realtime
 759 auto quick rw realtime
 760 auto quick rw collapse punch insert zero prealloc
