@@ -624,3 +624,5 @@
 619 auto rw enospc
 620 auto mount quick
 621 auto quick encrypt
+947 auto quick rw clone
+948 auto quick rw copy_range
