@@ -620,3 +620,5 @@
 615 auto rw
 616 auto rw io_uring stress
 617 auto rw io_uring stress
+947 auto quick rw clone
+948 auto quick rw copy_range
