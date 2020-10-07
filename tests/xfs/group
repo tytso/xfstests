@@ -526,3 +526,4 @@
 763 auto quick rw realtime
 915 auto quick quota
 917 auto quick db
+918 auto quick db
