@@ -62,6 +62,10 @@ _scratch_mkfs_xfs -d agsize=20m,size=2g >> $seqres.full 2>&1 ||
 	_fail "mkfs failed"
 _scratch_mount "-o filestreams"
 
+# filestreams doesn't exist for rt volumes, so make sure that everything we
+# create is on the data device
+$XFS_IO_PROG -c 'chattr -t' $SCRATCH_MNT
+
 # start background inode reclaim
 drop_caches &
 pid=$!
