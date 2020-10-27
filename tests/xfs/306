@@ -34,16 +34,21 @@ _cleanup()
 _supported_fs xfs
 
 _require_scratch_nocheck	# check complains about single AG fs
-_require_no_rtinherit
 _require_xfs_io_command "fpunch"
 _require_command $UUIDGEN_PROG uuidgen
 
 rm -f $seqres.full
 
+unset SCRATCH_RTDEV
+
 # Create a small fs with a large directory block size. We want to fill up the fs
 # quickly and then create multi-fsb dirblocks over fragmented free space.
 _scratch_mkfs_xfs -d size=20m -n size=64k >> $seqres.full 2>&1
 _scratch_mount
+
+# This test depends on specific behaviors of the data device, so create all
+# files on it.
+$XFS_IO_PROG -c 'chattr -t' $SCRATCH_MNT
 
 # Fill a source directory with many largish-named files. 1k uuid-named entries
 # sufficiently populates a 64k directory block.
