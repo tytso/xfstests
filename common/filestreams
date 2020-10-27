@@ -105,6 +105,10 @@ _test_streams() {
 
 	cd $SCRATCH_MNT
 
+	# filestreams doesn't exist for rt volumes, so make sure that
+	# everything we create is on the data device
+	$XFS_IO_PROG -c 'chattr -t' $SCRATCH_MNT
+
 	# start $stream_count streams
 	# each stream writes ($stream_files x $stream_file_size)M
 	echo "# streaming"
