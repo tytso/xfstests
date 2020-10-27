@@ -23,13 +23,18 @@ _supported_fs xfs
 
 # single AG will cause xfs_repair to fail checks.
 _require_scratch_nocheck
-_require_no_rtinherit
 
 rm -f $seqres.full
+
+unset SCRATCH_RTDEV
 
 fsblksz=1024
 _scratch_mkfs_xfs -d size=$((32768*fsblksz)) -b size=$fsblksz >> $seqres.full 2>&1
 _scratch_mount
+
+# This test depends on specific behaviors of the data device, so create all
+# files on it.
+$XFS_IO_PROG -c 'chattr -t' $SCRATCH_MNT
 
 # fix the reserve block pool to a known size so that the enospc calculations
 # work out correctly.
