@@ -79,6 +79,9 @@ _link_out_file_named $seqfull.out "$FEATURES"
 `_scratch_xfs_db -r -c sb -c p | grep 'ino = ' | \
 	sed -e 's/ //g' -e 's/^/export /'`
 
+test -z "${rbmino}" && rbmino="$(_scratch_xfs_db -c 'ls -i -m /realtime/0.bitmap')"
+test -z "${rsumino}" && rsumino="$(_scratch_xfs_db -c 'ls -i -m /realtime/0.summary')"
+
 # check we won't get any quota inodes setup on mount
 _qmount_option noquota
 _scratch_mount
