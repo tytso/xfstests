@@ -1045,3 +1045,12 @@ _require_xfs_upgrade_bigtime()
 	_scratch_xfs_db -c 'help version' | grep -q bigtime || \
 		_notrun "xfs_db does not support upgrading bigtime"
 }
+
+_require_xfs_set_needsrepair()
+{
+	_require_xfs_mkfs_crc
+	_require_scratch
+	_scratch_mkfs -m crc=1 > /dev/null
+	_scratch_xfs_db -c 'help version' | grep -q needsrepair || \
+		_notrun "xfs_db does not support upgrading needsrepair"
+}

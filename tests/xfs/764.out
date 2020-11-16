@@ -1,0 +1,9 @@
+QA output created by 764
+Format filesystem
+Set needsrepair
+Fail to set label
+xfs_db: filesystem needs xfs_repair
+Fail to mount
+Repair
+Check clean
+Try to mount again

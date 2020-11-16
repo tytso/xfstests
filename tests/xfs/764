@@ -1,0 +1,71 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (c) 2020, Oracle and/or its affiliates.  All Rights Reserved.
+#
+# FS QA Test No. 764
+#
+# Check that we can flag a filesystem as needing xfs_repair, that we can't
+# do that to a filesystem requiring repair, that mounts fail when the flag is
+# enabled, that repair clears the flag, and mount works after repair.
+
+seq=`basename $0`
+seqres=$RESULT_DIR/$seq
+echo "QA output created by $seq"
+
+here=`pwd`
+tmp=/tmp/$$
+status=1    # failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+	cd /
+	rm -f $tmp.*
+}
+
+# get standard environment, filters and checks
+. ./common/rc
+
+# real QA test starts here
+_supported_fs xfs
+_require_xfs_set_needsrepair
+
+rm -f $seqres.full
+
+echo "Format filesystem" | tee -a $seqres.full
+_scratch_mkfs -m crc=1 > $seqres.full
+_scratch_xfs_db -c 'version' -c 'sb 0' -c 'p' >> $seqres.full
+
+_scratch_xfs_db -c 'help version' | grep -q needsrepair || \
+	_notrun "xfs_db does not support needsrepair"
+
+echo "Set needsrepair" | tee -a $seqres.full
+_scratch_xfs_db -x -c 'version needsrepair' >> $seqres.full
+
+_scratch_xfs_db -c 'version' | grep -q NEEDSREPAIR || \
+	echo "Should have seen needsrepair?"
+
+echo "Fail to set label" | tee -a $seqres.full
+_scratch_xfs_db -x -c 'label 123456'
+
+echo "Fail to mount" | tee -a $seqres.full
+if _try_scratch_mount &>> $seqres.full; then
+	echo "Mount should not have succeeded."
+	_scratch_unmount
+fi
+
+echo "Repair" | tee -a $seqres.full
+_scratch_xfs_repair &> $tmp.repair || echo "Repair failed?"
+grep -q 'needsrepair flag set' $tmp.repair || \
+	echo "Repair should have noticed needsrepair."
+cat $tmp.repair >> $seqres.full
+
+echo "Check clean" | tee -a $seqres.full
+_scratch_xfs_repair -n &>> $seqres.full || echo "Check failed?"
+
+echo "Try to mount again" | tee -a $seqres.full
+_try_scratch_mount && _scratch_unmount
+
+# success, all done
+status=0
+exit
