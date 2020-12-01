@@ -550,6 +550,8 @@
 918 auto quick db
 1202 auto quick swapext
 1208 auto quick swapext
+1211 auto quick swapext
+1212 auto quick swapext
 1500 dangerous_fuzzers dangerous_bothrepair
 1501 dangerous_fuzzers dangerous_bothrepair
 1502 dangerous_fuzzers dangerous_bothrepair
