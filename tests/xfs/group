@@ -500,3 +500,4 @@
 525 auto quick mkfs
 526 auto quick mkfs
 527 auto quick quota
+763 auto quick rw realtime
