@@ -1,4 +1,38 @@
 QA output created by 1544
 Format and populate
 Fuzz rtrefcountbt keyptrs
+u3.rtrefcbt.level = ones: mount failed (32).
+u3.rtrefcbt.level = firstbit: mount failed (32).
+u3.rtrefcbt.level = middlebit: mount failed (32).
+u3.rtrefcbt.level = add: mount failed (32).
+u3.rtrefcbt.level = sub: mount failed (32).
+u3.rtrefcbt.numrecs = zeroes: mount failed (32).
+u3.rtrefcbt.numrecs = ones: mount failed (32).
+u3.rtrefcbt.numrecs = firstbit: mount failed (32).
+u3.rtrefcbt.numrecs = middlebit: mount failed (32).
+u3.rtrefcbt.numrecs = lastbit: mount failed (32).
+u3.rtrefcbt.numrecs = add: mount failed (32).
+u3.rtrefcbt.numrecs = sub: mount failed (32).
+u3.rtrefcbt.keys[1].startblock = zeroes: offline scrub didn't fail.
+u3.rtrefcbt.keys[1].startblock = lastbit: offline scrub didn't fail.
+u3.rtrefcbt.keys[1].startblock = sub: offline scrub didn't fail.
+u3.rtrefcbt.keys[1].cowflag = ones: mount failed (32).
+u3.rtrefcbt.keys[1].cowflag = firstbit: mount failed (32).
+u3.rtrefcbt.keys[1].cowflag = middlebit: mount failed (32).
+u3.rtrefcbt.keys[1].cowflag = lastbit: mount failed (32).
+u3.rtrefcbt.keys[1].cowflag = add: mount failed (32).
+u3.rtrefcbt.keys[1].cowflag = sub: mount failed (32).
+u3.rtrefcbt.keys[2].startblock = lastbit: offline scrub didn't fail.
+u3.rtrefcbt.keys[2].cowflag = ones: mount failed (32).
+u3.rtrefcbt.keys[2].cowflag = firstbit: mount failed (32).
+u3.rtrefcbt.keys[2].cowflag = middlebit: mount failed (32).
+u3.rtrefcbt.keys[2].cowflag = lastbit: mount failed (32).
+u3.rtrefcbt.keys[2].cowflag = add: mount failed (32).
+u3.rtrefcbt.keys[2].cowflag = sub: mount failed (32).
+u3.rtrefcbt.ptrs[2] = zeroes: mount failed (32).
+u3.rtrefcbt.ptrs[2] = ones: mount failed (32).
+u3.rtrefcbt.ptrs[2] = middlebit: mount failed (32).
+u3.rtrefcbt.ptrs[2] = lastbit: mount failed (32).
+u3.rtrefcbt.ptrs[2] = add: mount failed (32).
+u3.rtrefcbt.ptrs[2] = sub: mount failed (32).
 Done fuzzing rtrefcountbt keyptrs
