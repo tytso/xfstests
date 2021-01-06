@@ -1387,3 +1387,21 @@ _require_xfs_scratch_metadir()
 		_scratch_unmount
 	fi
 }
+
+# Resolve a metadata directory tree path and return the inode number.
+_scratch_metadir_lookup() {
+	local res="$(_scratch_xfs_db -c "ls -i -m $1")"
+	test "${PIPESTATUS[0]}" -eq 0 && echo "$res"
+}
+
+# Figure out which directory entry we have to change to update the rtrmap
+# inode pointer.  Assumes the /realtime directory is a short format dir.
+_scratch_find_rt_metadir_entry() {
+	local sfkey="$(_scratch_xfs_db -c 'path -m /realtime' -c print | \
+		grep "\"$1\"" | \
+		sed -e 's/.name.*$//g' -e 's/\[/\\[/g' -e 's/\]/\\]/g' )"
+	test -n "$sfkey" || return 1
+	_scratch_xfs_db -c 'path -m /realtime' -c print | \
+		grep "${sfkey}.inumber" | awk '{print $1}'
+	return 0
+}

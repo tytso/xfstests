@@ -39,7 +39,7 @@ echo "Format and populate"
 _scratch_populate_cached nofill > $seqres.full 2>&1
 
 echo "Fuzz rtrmapbt keyptrs"
-_scratch_xfs_fuzz_metadata '(rtrmapbt)' 'offline' 'sb 0' 'addr rrmapino' >> $seqres.full
+_scratch_xfs_fuzz_metadata '(rtrmapbt)' 'offline' 'path -m /realtime/0.rmap' >> $seqres.full
 echo "Done fuzzing rtrmapbt keyptrs"
 
 # success, all done
