@@ -1,4 +1,20 @@
 QA output created by 1528
 Format and populate
 Fuzz rtrmapbt recs
-Done fuzzing rtrmapbt recs
+leftsib = zeroes: offline post-mod scrub failed (1).
+leftsib = add: offline scrub didn't fail.
+rightsib = ones: offline scrub didn't fail.
+rightsib = firstbit: offline scrub didn't fail.
+rightsib = lastbit: offline scrub didn't fail.
+rightsib = add: offline scrub didn't fail.
+recs[1].startblock = zeroes: online repair failed (1).
+recs[1].startblock = ones: online repair failed (1).
+recs[1].startblock = middlebit: online repair failed (1).
+recs[1].startblock = lastbit: online repair failed (1).
+recs[1].startblock = add: online repair failed (1).
+recs[1].startblock = sub: online repair failed (1).
+recs[1].blockcount = ones: online repair failed (137).
+recs[1].blockcount = firstbit: online repair failed (137).
+recs[1].blockcount = middlebit: online repair failed (5).
+recs[1].blockcount = add: offline scrub didn't fail.
+recs[1].blockcount = add: online repair failed (1).
