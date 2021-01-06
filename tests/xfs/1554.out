@@ -1,8 +1,23 @@
 QA output created by 1554
 Format and populate
 Fuzz block map for BLOCK
+u3.bmx[0].blockcount = middlebit: online repair failed (4).
+u3.bmx[0].blockcount = middlebit: online re-scrub failed (4).
+u3.bmx[0].blockcount = middlebit: offline re-scrub failed (1).
+u3.bmx[0].blockcount = middlebit: pre-mod mount failed (32).
+u3.bmx[0].blockcount = add: online repair failed (4).
+u3.bmx[0].blockcount = add: online re-scrub failed (4).
+u3.bmx[0].blockcount = add: offline re-scrub failed (1).
+u3.bmx[0].blockcount = add: pre-mod mount failed (32).
 Done fuzzing dir map BLOCK
 Fuzz block map for LEAF
+u3.bmx[2].startoff = middlebit: online repair failed (1).
+u3.bmx[2].blockcount = middlebit: online repair failed (1).
+u3.bmx[2].blockcount = middlebit: online re-scrub failed (5).
+u3.bmx[2].blockcount = middlebit: online post-mod scrub failed (1).
+u3.bmx[2].blockcount = add: online repair failed (1).
+u3.bmx[2].blockcount = add: online re-scrub failed (5).
+u3.bmx[2].blockcount = add: online post-mod scrub failed (1).
 Done fuzzing dir map LEAF
 Fuzz block map for LEAFN
 Done fuzzing dir map LEAFN
