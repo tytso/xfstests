@@ -1,0 +1,101 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (c) 2021 Oracle.  All Rights Reserved.
+#
+# FS QA Test No. 770
+#
+# Populate a filesystem with all types of metadata, then run repair with the
+# libxfs write failure trigger set to go after a single write.  Check that the
+# injected error trips, causing repair to abort, that needsrepair is set on the
+# fs, the kernel won't mount; and that a non-injecting repair run clears
+# needsrepair and makes the filesystem mountable again.
+#
+# Repeat with the trip point set to successively higher numbers of writes until
+# we hit ~200 writes or repair manages to run to completion without tripping.
+
+seq=`basename $0`
+seqres=$RESULT_DIR/$seq
+echo "QA output created by $seq"
+
+here=`pwd`
+tmp=/tmp/$$
+status=1    # failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+	cd /
+	rm -f $tmp.*
+}
+
+# get standard environment, filters and checks
+. ./common/rc
+. ./common/populate
+. ./common/filter
+
+# real QA test starts here
+_supported_fs xfs
+
+_require_scratch_xfs_crc		# needsrepair only exists for v5
+_require_populate_commands
+
+rm -f ${RESULT_DIR}/require_scratch	# we take care of checking the fs
+rm -f $seqres.full
+
+max_writes=200			# 200 loops should be enough for anyone
+nr_incr=$((13 / TIME_FACTOR))
+test $nr_incr -lt 1 && nr_incr=1
+for ((nr_writes = 1; nr_writes < max_writes; nr_writes += nr_incr)); do
+	test -w /dev/ttyprintk && \
+		echo "fail after $nr_writes writes" >> /dev/ttyprintk
+	echo "fail after $nr_writes writes" >> $seqres.full
+
+	# Populate the filesystem
+	_scratch_populate_cached nofill >> $seqres.full 2>&1
+
+	# Start a repair and force it to abort after some number of writes
+	LIBXFS_DEBUG_WRITE_CRASH=ddev=$nr_writes _scratch_xfs_repair 2>> $seqres.full
+	res=$?
+	if [ $res -ne 0 ] && [ $res -ne 137 ]; then
+		echo "repair failed with $res??"
+		break
+	elif [ $res -eq 0 ]; then
+		[ $nr_writes -eq 1 ] && \
+			echo "ran to completion on the first try?"
+		break
+	fi
+
+	_scratch_xfs_db -c 'version' >> $seqres.full
+	if _check_scratch_xfs_features NEEDSREPAIR > /dev/null; then
+		# NEEDSREPAIR is set, so check that we can't mount.
+		_try_scratch_mount &>> $seqres.full
+		if [ $? -eq 0 ]; then
+			echo "Should not be able to mount after repair crash"
+			_scratch_unmount
+		fi
+	elif _scratch_xfs_repair -n &>> $seqres.full; then
+		# NEEDSREPAIR was not set, but repair -n didn't find problems.
+		# It's possible that the write failure injector triggered on
+		# the write that clears NEEDSREPAIR.
+		true
+	else
+		# NEEDSREPAIR was not set, but there are errors!
+		echo "NEEDSREPAIR should be set on corrupt fs"
+	fi
+
+	# Repair properly this time and retry the mount
+	_scratch_xfs_repair 2>> $seqres.full
+	_scratch_xfs_db -c 'version' >> $seqres.full
+	_check_scratch_xfs_features NEEDSREPAIR > /dev/null && \
+		echo "Repair failed to clear NEEDSREPAIR on the $nr_writes writes test"
+
+	# Make sure all the checking tools think this fs is ok
+	_scratch_mount
+	_check_scratch_fs
+	_scratch_unmount
+done
+
+# success, all done
+echo Silence is golden.
+status=0
+exit
