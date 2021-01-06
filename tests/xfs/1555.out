@@ -1,10 +1,41 @@
 QA output created by 1555
 Format and populate
 Fuzz block map for BLOCK
+u3.bmx[0].startblock = firstbit: offline scrub didn't fail.
 Done fuzzing dir map BLOCK
 Fuzz block map for LEAF
+u3.bmx[0].startblock = firstbit: offline scrub didn't fail.
+u3.bmx[0].startblock = add: offline re-scrub failed (1).
+u3.bmx[0].startblock = add: offline post-mod scrub failed (1).
+u3.bmx[1].startblock = firstbit: offline scrub didn't fail.
+u3.bmx[2].startblock = firstbit: offline scrub didn't fail.
+u3.bmx[2].startblock = add: offline repair failed (1).
+u3.bmx[2].startblock = add: offline re-scrub failed (1).
+u3.bmx[2].startblock = add: pre-mod mount failed (32).
+u3.bmx[3].startblock = firstbit: offline scrub didn't fail.
+u3.bmx[3].startblock = add: offline repair failed (1).
+u3.bmx[3].startblock = add: offline re-scrub failed (1).
+u3.bmx[3].startblock = add: pre-mod mount failed (32).
 Done fuzzing dir map LEAF
 Fuzz block map for LEAFN
+u3.bmx[0].startblock = firstbit: offline scrub didn't fail.
+u3.bmx[0].startblock = sub: offline re-scrub failed (1).
+u3.bmx[0].startblock = sub: offline post-mod scrub failed (1).
+u3.bmx[1].startblock = firstbit: offline scrub didn't fail.
+u3.bmx[2].startblock = firstbit: offline scrub didn't fail.
+u3.bmx[3].startblock = firstbit: offline scrub didn't fail.
 Done fuzzing dir map LEAFN
 Fuzz block map for NODE
+u3.bmx[0].startblock = firstbit: offline scrub didn't fail.
+u3.bmx[0].startblock = add: offline re-scrub failed (1).
+u3.bmx[0].startblock = add: offline post-mod scrub failed (1).
+u3.bmx[1].startblock = firstbit: offline scrub didn't fail.
+u3.bmx[2].startblock = firstbit: offline scrub didn't fail.
+u3.bmx[3].startblock = firstbit: offline scrub didn't fail.
+u3.bmx[4].startblock = firstbit: offline scrub didn't fail.
+u3.bmx[5].startblock = firstbit: offline scrub didn't fail.
+u3.bmx[6].startblock = firstbit: offline scrub didn't fail.
+u3.bmx[7].startblock = firstbit: offline scrub didn't fail.
+u3.bmx[8].startblock = firstbit: offline scrub didn't fail.
+u3.bmx[9].startblock = firstbit: offline scrub didn't fail.
 Done fuzzing dir map NODE
