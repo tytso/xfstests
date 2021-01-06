@@ -1,0 +1,51 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (c) 2021 Oracle.  All Rights Reserved.
+#
+# FS QA Test No. 1557
+#
+# Populate a XFS filesystem and fuzz the attr mappings of every xattr type.
+# Use xfs_repair to fix the corruption.
+#
+seq=`basename $0`
+seqres=$RESULT_DIR/$seq
+echo "QA output created by $seq"
+
+here=`pwd`
+tmp=/tmp/$$
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 7 15
+
+_cleanup()
+{
+	cd /
+	rm -rf $tmp.*
+}
+
+# get standard environment, filters and checks
+. ./common/rc
+. ./common/filter
+. ./common/populate
+. ./common/fuzzy
+
+# real QA test starts here
+_supported_fs xfs
+_require_scratch_xfs_fuzz_fields
+
+echo "Format and populate"
+_scratch_populate_cached nofill > $seqres.full 2>&1
+
+# Now fuzz the block maps of each attr type.
+for attrtype in EXTENTS_REMOTE3K EXTENTS_REMOTE4K LEAF NODE; do
+	echo "Fuzz block map for ${attrtype}"
+	_scratch_mount
+	inum=$(stat -c '%i' $SCRATCH_MNT/ATTR.FMT_${attrtype})
+	_scratch_unmount
+
+	_scratch_xfs_fuzz_metadata 'a*.bmx' 'offline'  "inode ${inum}" >> $seqres.full
+	echo "Done fuzzing attr map ${attrtype}"
+done
+
+# success, all done
+status=0
+exit
