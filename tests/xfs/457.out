@@ -1,4 +1,9 @@
 QA output created by 457
 Format and populate
 Fuzz bnobt recs
+leftsib = add: offline scrub didn't fail.
+rightsib = ones: offline scrub didn't fail.
+rightsib = middlebit: offline scrub didn't fail.
+rightsib = lastbit: offline scrub didn't fail.
+rightsib = add: offline scrub didn't fail.
 Done fuzzing bnobt recs
