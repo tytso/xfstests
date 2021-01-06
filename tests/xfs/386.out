@@ -2,4 +2,53 @@ QA output created by 386
 Format and populate
 Find data-format dir block
 Fuzz data-format dir block
+bhdr.hdr.crc = zeroes: offline scrub didn't fail.
+bhdr.hdr.crc = ones: offline scrub didn't fail.
+bhdr.hdr.crc = firstbit: offline scrub didn't fail.
+bhdr.hdr.crc = middlebit: offline scrub didn't fail.
+bhdr.hdr.crc = lastbit: offline scrub didn't fail.
+bhdr.hdr.crc = add: offline scrub didn't fail.
+bhdr.hdr.crc = sub: offline scrub didn't fail.
+bhdr.hdr.owner = zeroes: offline re-scrub failed (1).
+bhdr.hdr.owner = zeroes: offline post-mod scrub failed (1).
+bhdr.hdr.owner = ones: offline re-scrub failed (1).
+bhdr.hdr.owner = ones: offline post-mod scrub failed (1).
+bhdr.hdr.owner = firstbit: offline re-scrub failed (1).
+bhdr.hdr.owner = firstbit: offline post-mod scrub failed (1).
+bhdr.hdr.owner = middlebit: offline re-scrub failed (1).
+bhdr.hdr.owner = middlebit: offline post-mod scrub failed (1).
+bhdr.hdr.owner = lastbit: offline re-scrub failed (1).
+bhdr.hdr.owner = lastbit: offline post-mod scrub failed (1).
+bhdr.hdr.owner = add: offline re-scrub failed (1).
+bhdr.hdr.owner = add: offline post-mod scrub failed (1).
+bhdr.hdr.owner = sub: offline re-scrub failed (1).
+bhdr.hdr.owner = sub: offline post-mod scrub failed (1).
+bu[0].filetype = zeroes: offline scrub didn't fail.
+bu[0].filetype = zeroes: online post-mod scrub failed (1).
+bu[0].filetype = ones: offline scrub didn't fail.
+bu[0].filetype = ones: online post-mod scrub failed (1).
+bu[0].filetype = firstbit: offline scrub didn't fail.
+bu[0].filetype = firstbit: online post-mod scrub failed (1).
+bu[0].filetype = middlebit: offline scrub didn't fail.
+bu[0].filetype = middlebit: online post-mod scrub failed (1).
+bu[0].filetype = lastbit: offline scrub didn't fail.
+bu[0].filetype = lastbit: online post-mod scrub failed (1).
+bu[0].filetype = add: offline scrub didn't fail.
+bu[0].filetype = add: online post-mod scrub failed (1).
+bu[0].filetype = sub: offline scrub didn't fail.
+bu[0].filetype = sub: online post-mod scrub failed (1).
+bu[1].filetype = zeroes: offline scrub didn't fail.
+bu[1].filetype = zeroes: online post-mod scrub failed (1).
+bu[1].filetype = ones: offline scrub didn't fail.
+bu[1].filetype = ones: online post-mod scrub failed (1).
+bu[1].filetype = firstbit: offline scrub didn't fail.
+bu[1].filetype = firstbit: online post-mod scrub failed (1).
+bu[1].filetype = middlebit: offline scrub didn't fail.
+bu[1].filetype = middlebit: online post-mod scrub failed (1).
+bu[1].filetype = lastbit: offline scrub didn't fail.
+bu[1].filetype = lastbit: online post-mod scrub failed (1).
+bu[1].filetype = add: offline scrub didn't fail.
+bu[1].filetype = add: online post-mod scrub failed (1).
+bu[1].filetype = sub: offline scrub didn't fail.
+bu[1].filetype = sub: online post-mod scrub failed (1).
 Done fuzzing data-format dir block

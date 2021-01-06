@@ -1,4 +1,10 @@
 QA output created by 372
 Format and populate
 Fuzz refcountbt
+leftsib = add: offline scrub didn't fail.
+rightsib = add: offline scrub didn't fail.
+keys[1].startblock = zeroes: offline scrub didn't fail.
+keys[1].startblock = lastbit: offline scrub didn't fail.
+keys[1].startblock = sub: offline scrub didn't fail.
+keys[2].startblock = lastbit: offline scrub didn't fail.
 Done fuzzing refcountbt

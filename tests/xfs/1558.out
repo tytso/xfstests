@@ -1,10 +1,18 @@
 QA output created by 1558
 Format and populate
 Fuzz block map for EXTENTS_REMOTE3K
+a.bmx[0].startblock = firstbit: offline scrub didn't fail.
+a.bmx[1].startblock = firstbit: offline scrub didn't fail.
+a.bmx[1].startblock = lastbit: online post-mod scrub failed (1).
 Done fuzzing attr map EXTENTS_REMOTE3K
 Fuzz block map for EXTENTS_REMOTE4K
+a.bmx[0].startblock = firstbit: offline scrub didn't fail.
+a.bmx[1].startblock = firstbit: offline scrub didn't fail.
+a.bmx[1].startblock = lastbit: online post-mod scrub failed (1).
+a.bmx[1].blockcount = lastbit: online post-mod scrub failed (1).
 Done fuzzing attr map EXTENTS_REMOTE4K
 Fuzz block map for LEAF
+a.bmx[0].startblock = firstbit: offline scrub didn't fail.
 Done fuzzing attr map LEAF
 Fuzz block map for NODE
 Done fuzzing attr map NODE
