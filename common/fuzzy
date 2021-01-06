@@ -367,14 +367,15 @@ __stress_scrub_loop() {
 	local end="$1"
 	local runningfile="$2"
 	local scrub_tgt="$3"
-	shift; shift; shift
+	local start_agno="$4"
+	shift; shift; shift; shift
 	local agcount="$(_xfs_mount_agcount $SCRATCH_MNT)"
 
 	local xfs_io_args=()
 	for arg in "$@"; do
 		if echo "$arg" | grep -q -w '%agno%'; then
 			# Substitute the AG number
-			for ((agno = 0; agno < agcount; agno++)); do
+			for ((agno = start_agno; agno < agcount; agno++)); do
 				local ag_arg="$(echo "$arg" | sed -e "s|%agno%|$agno|g")"
 				xfs_io_args+=('-c' "$ag_arg")
 			done
@@ -384,20 +385,26 @@ __stress_scrub_loop() {
 	done
 
 	local extra_filters=()
-	local target_cmd=(echo "$scrub_tgt")
 	case "$scrub_tgt" in
 	"%file%"|"%datafile%"|"%attrfile%")
 		extra_filters+=('No such file or directory' 'No such device or address')
-		target_cmd=(find "$SCRATCH_MNT" -print)
 		;;
 	"%dir%")
 		extra_filters+=('No such file or directory' 'Not a directory')
-		target_cmd=(find "$SCRATCH_MNT" -type d -print)
 		;;
 	"%regfile%"|"%cowfile%")
 		extra_filters+=('No such file or directory')
-		target_cmd=(find "$SCRATCH_MNT" -type f -print)
 		;;
+	esac
+
+	local target_cmd=(echo "$scrub_tgt")
+	case "$scrub_tgt" in
+	"%file%")	target_cmd=($here/src/xfsfind -q  "$SCRATCH_MNT");;
+	"%attrfile%")	target_cmd=($here/src/xfsfind -qa "$SCRATCH_MNT");;
+	"%datafile%")	target_cmd=($here/src/xfsfind -qb "$SCRATCH_MNT");;
+	"%dir%")	target_cmd=($here/src/xfsfind -qd "$SCRATCH_MNT");;
+	"%regfile%")	target_cmd=($here/src/xfsfind -qr "$SCRATCH_MNT");;
+	"%cowfile%")	target_cmd=($here/src/xfsfind -qs "$SCRATCH_MNT");;
 	esac
 
 	while __stress_scrub_running "$end" "$runningfile"; do
@@ -424,6 +431,7 @@ __stress_scrub_fsstress_loop() {
 # Make sure we have everything we need to run stress and scrub
 _require_xfs_stress_scrub() {
 	_require_xfs_io_command "scrub"
+	_require_test_program "xfsfind"
 	_require_command "$KILLALL_PROG" killall
 	command -v _filter_scratch &>/dev/null || \
 		_notrun 'scrub stress test requires common/filter'
@@ -448,7 +456,8 @@ _scratch_xfs_stress_scrub_cleanup() {
 # filesystem before we start running them in a loop.
 __stress_scrub_check_commands() {
 	local scrub_tgt="$1"
-	shift
+	local start_agno="$2"
+	shift; shift
 
 	local cooked_tgt="$scrub_tgt"
 	case "$scrub_tgt" in
@@ -473,7 +482,7 @@ __stress_scrub_check_commands() {
 	esac
 
 	for arg in "$@"; do
-		local cooked_arg="$(echo "$arg" | sed -e "s/%agno%/0/g")"
+		local cooked_arg="$(echo "$arg" | sed -e "s/%agno%/$start_agno/g")"
 		testio=`$XFS_IO_PROG -x -c "$cooked_arg" "$cooked_tgt" 2>&1`
 		echo $testio | grep -q "Inappropriate ioctl" && \
 			_notrun "kernel scrub ioctl is missing"
@@ -495,6 +504,7 @@ _require_xfs_scrub_freezeok() {
 # for 30*TIME_FACTOR seconds to see if the filesystem goes down.  Various
 # options include:
 #
+# -a	For %agno% substitution, start with this AG instead of AG 0.
 # -f	Run a freeze/thaw loop while we're doing other things.
 # -s	Pass this command to xfs_io to test scrub
 # -t	Run online scrub against this file; $SCRATCH_MNT is the default.
@@ -513,20 +523,22 @@ _scratch_xfs_stress_scrub() {
 	local scrub_tgt="$SCRATCH_MNT"
 	local runningfile="$tmp.fsstress"
 	local freeze=
+	local start_agno=0
 
 	rm -f "$runningfile"
 	touch "$runningfile"
 
 	OPTIND=1
-	while getopts "fs:t:" c; do
+	while getopts "a:fs:t:" c; do
 		case "$c" in
+			a) start_agno="$OPTARG";;
 			f) freeze=yes;;
 			s) scrub_args+=("$OPTARG");;
 			t) scrub_tgt="$OPTARG";;
 		esac
 	done
 
-	__stress_scrub_check_commands "$scrub_tgt" "${scrub_args[@]}"
+	__stress_scrub_check_commands "$scrub_tgt" "$start_agno" "${scrub_args[@]}"
 
 	local start="$(date +%s)"
 	local end="$((start + (30 * TIME_FACTOR) ))"
@@ -538,7 +550,7 @@ _scratch_xfs_stress_scrub() {
 		__stress_scrub_freeze_loop "$end" "$runningfile" &
 
 	test "${#scrub_args[@]}" -gt 0 && \
-		__stress_scrub_loop "$end" "$runningfile" "$scrub_tgt" "${scrub_args[@]}" &
+		__stress_scrub_loop "$end" "$runningfile" "$scrub_tgt" "$start_agno" "${scrub_args[@]}" &
 
 	# Wait until the designated end time or fsstress dies, then kill all of
 	# our background processes.
