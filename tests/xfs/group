@@ -547,6 +547,7 @@
 756 auto quick rw scrub
 762 auto quick rw scrub realtime
 775 auto quick rw realtime
+919 auto quick clone realtime
 1202 auto quick swapext
 1208 auto quick swapext
 1209 auto quick swapext
