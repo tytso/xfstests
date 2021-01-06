@@ -1,0 +1,89 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (c) 2021 Oracle.  All Rights Reserved.
+#
+# FS QA Test No. 733
+#
+# Race scrub and ro remount for a while to see if we crash or livelock.
+#
+. ./common/preamble
+_begin_fstest scrub dangerous
+
+# Override the default cleanup function.
+_cleanup()
+{
+	cd /
+	_scratch_remount rw
+	rm -rf $tmp.*
+}
+
+# Import common functions.
+. ./common/filter
+. ./common/fuzzy
+. ./common/xfs
+
+# real QA test starts here
+_supported_fs xfs
+_require_xfs_scratch_rmapbt
+_require_xfs_io_command "scrub"
+_require_command "$KILLALL_PROG" killall
+
+echo "Format and populate"
+_scratch_mkfs > "$seqres.full" 2>&1
+_scratch_mount
+
+cpus=$(( $(src/feature -o) * 4 * LOAD_FACTOR))
+
+# Use fsstress to create a directory tree for the first scrub run to check
+FSSTRESS_ARGS=$(_scale_fsstress_args -p 4 -d $SCRATCH_MNT -n 2000 $FSSTRESS_AVOID)
+$FSSTRESS_PROG $FSSTRESS_ARGS >> $seqres.full
+
+echo "Concurrent remount and scrub"
+filter_output() {
+	egrep -v '(Device or resource busy|Invalid argument)'
+}
+remount_loop() {
+	local end="$1"
+
+	while [ "$(date +%s)" -lt $end ]; do
+		_scratch_unmount >> $seqres.full 2>&1
+		_try_scratch_mount >> $seqres.full 2>&1
+		_scratch_remount ro >> $seqres.full 2>&1
+	done
+}
+scrub_loop() {
+	local end="$1"
+	local switch="$2"
+	local arg="-n"
+
+	while [ "$(date +%s)" -lt "$end" ]; do
+		_scratch_scrub $arg 2>&1 | filter_output >> $seqres.full
+		if [ -n "$arg" ] && [ "$(date +%s)" -ge "$switch" ]; then
+			echo "Enabling repair mode"
+			arg=""
+		fi
+	done
+}
+
+start=$(date +%s)
+end=$((start + (30 * TIME_FACTOR) ))
+
+echo "Loop started at $(date --date="@${start}"), ending at $(date --date="@${end}")" >> $seqres.full
+remount_loop $end &
+scrub_loop $end $(((start + end) / 2)) &
+
+# Wait until 2 seconds after the loops should have finished...
+while [ "$(date +%s)" -lt $((end + 2)) ]; do
+	sleep 1
+done
+
+# ...and clean up after the loops in case they didn't do it themselves.
+$KILLALL_PROG -TERM xfs_io >> $seqres.full 2>&1
+_scratch_remount rw
+
+echo "Loop finished at $(date)" >> $seqres.full
+echo "Test done"
+
+# success, all done
+status=0
+exit
