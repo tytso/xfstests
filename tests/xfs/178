@@ -45,6 +45,7 @@ _supported_fs xfs
 #             fix filesystem, new mkfs.xfs will be fine.
 
 _require_scratch
+_scratch_xfs_force_no_metadir
 _scratch_mkfs_xfs | _filter_mkfs 2>$tmp.mkfs
 test "${PIPESTATUS[0]}" -eq 0 || _fail "mkfs failed!"
 
