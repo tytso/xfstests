@@ -549,6 +549,7 @@
 762 auto quick rw scrub realtime
 775 auto quick rw realtime
 1202 auto quick swapext
+1208 auto quick swapext
 1500 dangerous_fuzzers dangerous_bothrepair
 1501 dangerous_fuzzers dangerous_bothrepair
 1502 dangerous_fuzzers dangerous_bothrepair

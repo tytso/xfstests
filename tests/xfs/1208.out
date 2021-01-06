@@ -1,0 +1,10 @@
+QA output created by 1208
+before commit
+c7221b1494117327570a0958b0abca51  TEST_DIR/test-1208/a
+30cc2b6b307081e10972317013efb0f3  TEST_DIR/test-1208/b
+30cc2b6b307081e10972317013efb0f3  TEST_DIR/test-1208/c
+swapext: Input/output error
+after commit
+30cc2b6b307081e10972317013efb0f3  TEST_DIR/test-1208/a
+c7221b1494117327570a0958b0abca51  TEST_DIR/test-1208/b
+30cc2b6b307081e10972317013efb0f3  TEST_DIR/test-1208/c
