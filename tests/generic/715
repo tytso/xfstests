@@ -1,0 +1,84 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (c) 2021 Oracle.  All Rights Reserved.
+#
+# FS QA Test No. 715
+#
+# Check that we can't modify a file that's been marked immutable, regardless
+# of whether the file description was created before or after the file was
+# marked immutable.
+
+. ./common/preamble
+_begin_fstest auto quick rw
+
+# Override the default cleanup function.
+_cleanup()
+{
+	cd /
+	rm -rf $tmp.* $testfile $testfile.moo
+}
+
+# Import common functions.
+. ./common/filter
+
+# real QA test starts here
+_supported_fs generic
+_require_command "$CHATTR_PROG" chattr
+_require_chattr i
+
+testfile=$TEST_DIR/$seq.txt
+
+filter_cmd() {
+	_filter_test_dir | _filter_xfs_io | sed -e 's/Operation not supported/Operation not permitted/g'
+}
+
+# First we make sure that we can't open immutable files for writing
+$XFS_IO_PROG -f -c 'pwrite -S 0x59 0 170000' -c fsync $testfile >> $seqres.full
+$CHATTR_PROG +i $testfile 2>&1 | _filter_test_dir
+
+echo "*** checking rw open" | tee -a $seqres.full
+$XFS_IO_PROG -c 'quit' $testfile 2>&1 | _filter_test_dir
+md5sum $testfile | _filter_test_dir
+
+echo "*** checking ro open" | tee -a $seqres.full
+$XFS_IO_PROG -r -c 'quit' $testfile 2>&1 | _filter_test_dir
+md5sum $testfile | _filter_test_dir
+
+$CHATTR_PROG -i $testfile 2>&1 | _filter_test_dir
+
+# Now we make sure we can't use existing fds for writes to immutable files
+echo "*** write to immutable"
+src/immutable_write 0 $testfile 2>&1 | filter_cmd
+echo "*** write to clean mmap"
+src/immutable_write 1 $testfile 2>&1 | filter_cmd
+echo "*** write to dirty mmap"
+src/immutable_write 2 $testfile 2>&1 | filter_cmd
+echo "*** truncate"
+src/immutable_write 3 $testfile 2>&1 | filter_cmd
+echo "*** fallocate"
+src/immutable_write 4 $testfile 2>&1 | filter_cmd
+echo "*** fchmod dirty mmap"
+src/immutable_write 5 $testfile 2>&1 | filter_cmd
+echo "*** copy_file_range"
+src/immutable_write 6 $testfile 2>&1 | filter_cmd
+echo "*** reflink"
+src/immutable_write 7 $testfile 2>&1 | filter_cmd
+echo "*** futimes"
+src/immutable_write 8 $testfile 2>&1 | filter_cmd
+
+# Make sure we can still read files after setting immutable.
+echo "*** read files with a readonly fd"
+$CHATTR_PROG +i $testfile
+$XFS_IO_PROG -r -c 'pread 0 64k' -c 'mmap -r 0 64k' -c 'mread 0 64k' $testfile 2>1 | filter_cmd
+$CHATTR_PROG -i $testfile
+
+# Now try again with the GETFLAGS/SETFLAGS ioctl -- there aren't any
+# filesystems that support SETXATTR and don't support SETFLAGS.
+echo "*** try chattr program"
+$CHATTR_PROG +i $testfile
+$CHATTR_PROG +i $testfile
+$CHATTR_PROG -i $testfile
+
+# success, all done
+status=0
+exit
