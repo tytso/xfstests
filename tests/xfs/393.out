@@ -2,4 +2,9 @@ QA output created by 393
 Format and populate
 Find leafn-format dir block
 Fuzz leafn-format dir block
+lents[0].hashval = lastbit: online scrub didn't fail.
+lents[2].hashval = lastbit: online scrub didn't fail.
+lents[4].hashval = lastbit: online scrub didn't fail.
+lents[6].hashval = lastbit: online scrub didn't fail.
+lents[8].hashval = lastbit: online scrub didn't fail.
 Done fuzzing leafn-format dir block
