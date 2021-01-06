@@ -1,4 +1,16 @@
 QA output created by 1539
 Format and populate
 Fuzz rtrefcountbt recs
+leftsib = add: offline scrub didn't fail.
+rightsib = ones: offline scrub didn't fail.
+rightsib = firstbit: offline scrub didn't fail.
+rightsib = lastbit: offline scrub didn't fail.
+rightsib = add: offline scrub didn't fail.
+owner = zeroes: offline scrub didn't fail.
+owner = ones: offline scrub didn't fail.
+owner = firstbit: offline scrub didn't fail.
+owner = middlebit: offline scrub didn't fail.
+owner = lastbit: offline scrub didn't fail.
+owner = add: offline scrub didn't fail.
+owner = sub: offline scrub didn't fail.
 Done fuzzing rtrefcountbt recs
