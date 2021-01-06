@@ -73,6 +73,7 @@ HAVE_FSXATTR_XFLAG_HASATTR = @have_fsxattr_xflag_hasattr@
 HAVE_NFTW = @have_nftw@
 HAVE_BMV_OF_SHARED = @have_bmv_of_shared@
 HAVE_RLIMIT_NOFILE = @have_rlimit_nofile@
+HAVE_FIEXCHANGE = @have_fiexchange@
 
 GCCFLAGS = -funsigned-char -fno-strict-aliasing -Wall
 
