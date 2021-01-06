@@ -11,7 +11,12 @@
 . ./common/preamble
 _begin_fstest dangerous_scrub dangerous_online_repair
 
-_register_cleanup "_cleanup" BUS
+_cleanup()
+{
+	cd /
+	$XFS_IO_PROG -x -c 'thaw' $SCRATCH_MNT > /dev/null 2>&1
+	rm -rf $tmp.*
+}
 
 # Import common functions.
 . ./common/filter
@@ -60,7 +65,7 @@ repair_loop() {
 	end="$1"
 
 	while [ "$(date +%s)" -lt $end ]; do
-		$XFS_IO_PROG -x -c 'repair rmapbt 0' -c 'repair rmapbt 1' $SCRATCH_MNT 2>&1 | filter_output
+		$XFS_IO_PROG -x -c 'repair -f rmapbt 0' -c 'repair -f rmapbt 1' $SCRATCH_MNT 2>&1 | filter_output
 	done
 }
 stress_loop() {
