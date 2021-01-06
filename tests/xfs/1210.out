@@ -1,0 +1,18 @@
+QA output created by 1210
+Format filesystem
+Make sure atomicswap gets turned on during usage.
+1fed14479747f703642f26a1eba137dd  SCRATCH_MNT/a
+794faddd00bd8ef1ccfdf4fea4381fbe  SCRATCH_MNT/b
+Check swap results
+794faddd00bd8ef1ccfdf4fea4381fbe  SCRATCH_MNT/a
+1fed14479747f703642f26a1eba137dd  SCRATCH_MNT/b
+Check set after a shutdown
+swapext: Input/output error
+Check clear after recovery
+1fed14479747f703642f26a1eba137dd  SCRATCH_MNT/a
+794faddd00bd8ef1ccfdf4fea4381fbe  SCRATCH_MNT/b
+Check set after a second shutdown
+swapext: Input/output error
+Check clear after readonly recovery
+794faddd00bd8ef1ccfdf4fea4381fbe  SCRATCH_MNT/a
+1fed14479747f703642f26a1eba137dd  SCRATCH_MNT/b

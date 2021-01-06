@@ -1,0 +1,15 @@
+QA output created by 1209
+Format filesystem
+Make sure atomicswap gets turned on during usage.
+1fed14479747f703642f26a1eba137dd  SCRATCH_MNT/a
+794faddd00bd8ef1ccfdf4fea4381fbe  SCRATCH_MNT/b
+Check swap results
+794faddd00bd8ef1ccfdf4fea4381fbe  SCRATCH_MNT/a
+1fed14479747f703642f26a1eba137dd  SCRATCH_MNT/b
+Check clear after unmount
+Check clear after use and a readonly remount
+1fed14479747f703642f26a1eba137dd  SCRATCH_MNT/a
+794faddd00bd8ef1ccfdf4fea4381fbe  SCRATCH_MNT/b
+Check clear after use and a freeze
+794faddd00bd8ef1ccfdf4fea4381fbe  SCRATCH_MNT/a
+1fed14479747f703642f26a1eba137dd  SCRATCH_MNT/b

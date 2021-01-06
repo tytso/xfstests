@@ -1,0 +1,90 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (c) 2021 Oracle.  All Rights Reserved.
+#
+# FS QA Test No. 1209
+#
+# Check for proper operation of the atomicswap log incompat feature flag.
+# That is to say:
+# - It gets turned on after we try to use swapext;
+# - It gets cleared on a clean unmount;
+# - It gets cleared after swapext is used and the fs is remounted read only;
+# - It is still set after swapext is used and the fs is frozen.
+
+seq=`basename $0`
+seqres=$RESULT_DIR/$seq
+echo "QA output created by $seq"
+
+here=`pwd`
+tmp=/tmp/$$
+status=1    # failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+	cd /
+	rm -f $tmp.*
+}
+
+# get standard environment, filters and checks
+. ./common/rc
+. ./common/filter
+
+# real QA test starts here
+_supported_fs xfs
+_require_xfs_scratch_atomicswap
+
+rm -f $seqres.full
+
+has_atomicswap() {
+	local val="$(_scratch_xfs_db -f -c 'sb 0' -c 'print features_log_incompat' | cut -d ' ' -f 3)"
+	echo "current log incompat: $val" >> $seqres.full
+	# XFS_SB_FEAT_INCOMPAT_LOG_ATOMIC_SWAP == 1
+	test "$(( $val & 0x1 ))" -eq 1 && return 0
+	return 1
+}
+
+echo "Format filesystem" | tee -a $seqres.full
+_scratch_mkfs -m reflink=1,rmapbt=1 > $seqres.full
+has_atomicswap && echo "atomic swap feature should not be enabled"
+
+echo "Make sure atomicswap gets turned on during usage." | tee -a $seqres.full
+_scratch_mount
+blksz=65536
+_pwrite_byte 0x59 0 $blksz $SCRATCH_MNT/a >> $seqres.full
+_pwrite_byte 0x60 0 $blksz $SCRATCH_MNT/b >> $seqres.full
+md5sum $SCRATCH_MNT/a $SCRATCH_MNT/b | _filter_scratch
+
+$XFS_IO_PROG -c "swapext -a $SCRATCH_MNT/b" $SCRATCH_MNT/a
+has_atomicswap || echo "atomic swap feature should be enabled"
+
+echo "Check swap results" | tee -a $seqres.full
+_scratch_cycle_mount
+md5sum $SCRATCH_MNT/a $SCRATCH_MNT/b | _filter_scratch
+
+echo "Check clear after unmount" | tee -a $seqres.full
+_scratch_unmount
+has_atomicswap && echo "atomic swap feature should not be enabled"
+
+echo "Check clear after use and a readonly remount" | tee -a $seqres.full
+_scratch_mount
+$XFS_IO_PROG -c "swapext -a $SCRATCH_MNT/b" $SCRATCH_MNT/a
+md5sum $SCRATCH_MNT/a $SCRATCH_MNT/b | _filter_scratch
+
+has_atomicswap || echo "atomic swap feature should be enabled"
+_scratch_mount -o remount,ro
+has_atomicswap && echo "atomic swap feature should not be enabled"
+_scratch_cycle_mount
+
+echo "Check clear after use and a freeze" | tee -a $seqres.full
+$XFS_IO_PROG -c "swapext -a $SCRATCH_MNT/b" $SCRATCH_MNT/a
+md5sum $SCRATCH_MNT/a $SCRATCH_MNT/b | _filter_scratch
+
+has_atomicswap || echo "atomic swap feature should be enabled"
+$XFS_IO_PROG -x -c 'freeze' $SCRATCH_MNT
+has_atomicswap || echo "atomic swap feature should be enabled"
+$XFS_IO_PROG -x -c 'thaw' $SCRATCH_MNT
+_scratch_cycle_mount
+
+status=0
+exit
