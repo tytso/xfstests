@@ -591,6 +591,14 @@
 1535 dangerous_fuzzers dangerous_bothrepair
 1536 dangerous_fuzzers dangerous_bothrepair
 1537 dangerous_fuzzers dangerous_bothrepair
+1538 dangerous_fuzzers dangerous_scrub dangerous_online_repair realtime
+1539 dangerous_fuzzers dangerous_scrub dangerous_repair realtime
+1540 dangerous_fuzzers dangerous_norepair realtime
+1541 dangerous_fuzzers dangerous_bothrepair realtime
+1542 dangerous_fuzzers dangerous_scrub dangerous_online_repair realtime
+1543 dangerous_fuzzers dangerous_scrub dangerous_repair realtime
+1544 dangerous_fuzzers dangerous_norepair realtime
+1545 dangerous_fuzzers dangerous_bothrepair realtime
 1546 dangerous_fuzzers dangerous_scrub dangerous_online_repair
 1547 dangerous_fuzzers dangerous_scrub dangerous_repair
 1548 dangerous_fuzzers dangerous_norepair
