@@ -532,5 +532,6 @@
 537 auto quick
 538 auto stress
 539 auto quick mount
+741 auto quick rw
 747 auto quick scrub
 775 auto quick rw realtime

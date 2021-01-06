@@ -1,0 +1,34 @@
+QA output created by 741
+*** checking allocsp
+ce6c1b3863d0495541b38a794f62dd81  TEST_DIR/741.txt
+XFS_IOC_ALLOCSP64: Operation not permitted
+ce6c1b3863d0495541b38a794f62dd81  TEST_DIR/741.txt
+*** checking chproj
+ce6c1b3863d0495541b38a794f62dd81  TEST_DIR/741.txt
+setprojid: Operation not permitted
+ce6c1b3863d0495541b38a794f62dd81  TEST_DIR/741.txt
+*** checking extsize
+ce6c1b3863d0495541b38a794f62dd81  TEST_DIR/741.txt
+xfs_io: FS_IOC_FSSETXATTR TEST_DIR/741.txt: Operation not permitted
+d41d8cd98f00b204e9800998ecf8427e  TEST_DIR/741.txt
+*** checking change extsize
+ce6c1b3863d0495541b38a794f62dd81  TEST_DIR/741.txt
+xfs_io: FS_IOC_FSSETXATTR TEST_DIR/741.txt: Operation not permitted
+d41d8cd98f00b204e9800998ecf8427e  TEST_DIR/741.txt
+*** checking nodump
+ce6c1b3863d0495541b38a794f62dd81  TEST_DIR/741.txt
+xfs_io: cannot set flags on TEST_DIR/741.txt: Operation not permitted
+ce6c1b3863d0495541b38a794f62dd81  TEST_DIR/741.txt
+*** checking unresvsp
+ce6c1b3863d0495541b38a794f62dd81  TEST_DIR/741.txt
+XFS_IOC_UNRESVSP64: Operation not permitted
+ce6c1b3863d0495541b38a794f62dd81  TEST_DIR/741.txt
+*** checking zero
+ce6c1b3863d0495541b38a794f62dd81  TEST_DIR/741.txt
+XFS_IOC_ZERO_RANGE: Operation not permitted
+ce6c1b3863d0495541b38a794f62dd81  TEST_DIR/741.txt
+*** checking chattr with chproj
+ce6c1b3863d0495541b38a794f62dd81  TEST_DIR/741.txt
+ce6c1b3863d0495541b38a794f62dd81  TEST_DIR/741.txt
+*** change project id
+setprojid 2: Operation not permitted
