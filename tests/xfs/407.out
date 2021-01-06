@@ -1,4 +1,30 @@
 QA output created by 407
 Format and populate
 Fuzz rtrmapbt recs
-Done fuzzing rtrmapbt recs
+recs[1].startblock = zeroes: online repair failed (1).
+recs[1].startblock = zeroes: online re-scrub failed (5).
+recs[1].startblock = zeroes: online post-mod scrub failed (1).
+recs[1].startblock = zeroes: offline post-mod scrub failed (1).
+recs[1].startblock = ones: online repair failed (1).
+recs[1].startblock = ones: online re-scrub failed (5).
+recs[1].startblock = ones: offline re-scrub failed (1).
+recs[1].startblock = ones: online post-mod scrub failed (4).
+recs[1].startblock = ones: offline post-mod scrub failed (1).
+recs[1].startblock = middlebit: online repair failed (1).
+recs[1].startblock = middlebit: online re-scrub failed (5).
+recs[1].startblock = middlebit: offline re-scrub failed (1).
+recs[1].startblock = middlebit: online post-mod scrub failed (4).
+recs[1].startblock = middlebit: offline post-mod scrub failed (1).
+recs[1].startblock = lastbit: online repair failed (1).
+recs[1].startblock = lastbit: online re-scrub failed (5).
+recs[1].startblock = lastbit: online post-mod scrub failed (4).
+recs[1].startblock = lastbit: offline post-mod scrub failed (1).
+recs[1].startblock = add: online repair failed (1).
+recs[1].startblock = add: online re-scrub failed (5).
+recs[1].startblock = add: online post-mod scrub failed (1).
+recs[1].startblock = add: offline post-mod scrub failed (1).
+recs[1].startblock = sub: online repair failed (1).
+recs[1].startblock = sub: online re-scrub failed (5).
+recs[1].startblock = sub: offline re-scrub failed (1).
+recs[1].startblock = sub: online post-mod scrub failed (4).
+recs[1].startblock = sub: offline post-mod scrub failed (1).
