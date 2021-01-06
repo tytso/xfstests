@@ -1,0 +1,95 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (c) 2021 Oracle.  All Rights Reserved.
+#
+# FS QA Test No. 762
+#
+# Race fsstress and fscounter scrub on the realtime device for a while to see
+# if we crash or livelock.  Summary counter repair requires us to freeze the
+# filesystem to stop all filesystem activity, so we can't have userspace
+# wandering in and thawing it.
+#
+. ./common/preamble
+_begin_fstest auto quick rw scrub realtime
+
+# Import common functions.
+. ./common/filter
+
+# real QA test starts here
+_supported_fs xfs
+_require_realtime
+_require_xfs_io_command "scrub"
+_require_command "$KILLALL_PROG" killall
+
+echo "Format and populate"
+_scratch_mkfs > "$seqres.full" 2>&1
+_scratch_mount
+
+$XFS_IO_PROG -c 'scrub -f probe' $SCRATCH_MNT 2>&1 | \
+	grep -q 'Invalid argument' && \
+	_notrun "xfs scrub does not support freeze"
+
+# Force all files to be allocated on the realtime device
+_xfs_force_bdev realtime $SCRATCH_MNT
+
+freeze_scrub=y
+$XFS_IO_PROG -c 'scrub -f fscounters' $SCRATCH_MNT 2>&1 | \
+	egrep -q '(Invalid argument|invalid option)' && freeze_scrub=n
+
+cpus=$(( $(src/feature -o) * 4 * LOAD_FACTOR))
+
+# Use fsstress to create a directory tree for the first scrub run to check
+FSSTRESS_ARGS=$(_scale_fsstress_args -p 4 -d $SCRATCH_MNT -n 2000 $FSSTRESS_AVOID)
+$FSSTRESS_PROG $FSSTRESS_ARGS >> $seqres.full
+
+echo "Concurrent scrub"
+scrub_loop() {
+	end="$1"
+
+	while [ "$(date +%s)" -lt $end ]; do
+		# First we run scrub without freeze permission so that we can
+		# ensure that it returns "freeze required" and not "corruption
+		# detected".  This is to make sure that we aren't returning
+		# false corruption reports when there's merely a fsstress race.
+		$XFS_IO_PROG -c 'scrub fscounters' $SCRATCH_MNT 2>&1 | \
+			egrep -v '(Scan was not complete|Freeze required)'
+
+		# Next, if xfs_io scrub supports giving the kernel freeze
+		# permission, we run scrub again so that we can actually
+		# test that the fscounters repair produces no corruption report.
+		# Freezing means we should never see incomplete scans or
+		# corruption reports.
+		test "$freeze_scrub" = "y" && \
+			$XFS_IO_PROG -c 'scrub -f fscounters' $SCRATCH_MNT
+	done
+}
+stress_loop() {
+	end="$1"
+
+	while [ "$(date +%s)" -lt $end ]; do
+		$FSSTRESS_PROG $FSSTRESS_ARGS >> $seqres.full
+	done
+}
+
+start=$(date +%s)
+end=$((start + (30 * TIME_FACTOR) ))
+
+echo "Loop started at $(date --date="@${start}"), ending at $(date --date="@${end}")" >> $seqres.full
+stress_loop $end &
+scrub_loop $end &
+
+# Wait until 2 seconds after the loops should have finished...
+while [ "$(date +%s)" -lt $((end + 2)) ]; do
+	sleep 1
+done
+
+# ...and clean up after the loops in case they didn't do it themselves.
+$KILLALL_PROG -TERM xfs_io fsstress >> $seqres.full 2>&1
+$XFS_IO_PROG -x -c 'thaw' $SCRATCH_MNT >> $seqres.full 2>&1
+
+echo "Loop finished at $(date)" >> $seqres.full
+echo "Test done"
+
+# success, all done
+status=0
+exit
