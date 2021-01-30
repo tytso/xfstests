@@ -1,0 +1,57 @@
+QA output created by 767
+Format filesystem
+
+Write 128rx to root
+0[real] 128 0 0 0 ---
+
+Write 64rx to root, 4444, and 5555.
+0[real] 192 0 0 0 ---
+4444[real] 64 0 0 0 ---
+5555[real] 64 0 0 0 ---
+
+Move 64rx from root to 5555
+0[real] 128 0 0 0 ---
+4444[real] 64 0 0 0 ---
+5555[real] 128 0 0 0 ---
+
+Move 64rx from 5555 to 4444
+0[real] 128 0 0 0 ---
+4444[real] 128 0 0 0 ---
+5555[real] 64 0 0 0 ---
+
+Set hard limit of 1024rx and check enforcement
+pwrite: Disk quota exceeded
+fsgqa[real] 1024 0 1024 0 ---
+
+Set soft limit of 512rx and check warning enforcement
+fsgqa[real] 512 512 0 0 ---
+Bump warning count to 1.
+fsgqa[real] 513 512 0 1 ---
+Bump warning count to 2.
+fsgqa[real] 514 512 0 2 ---
+Bump warning count to 3.
+fsgqa[real] 515 512 0 3 ---
+Bump warning count to 4.
+pwrite: Disk quota exceeded
+fsgqa[real] 515 512 0 3 ---
+Bump warning count to 5.
+pwrite: Disk quota exceeded
+fsgqa[real] 515 512 0 3 ---
+
+Set soft limit of 512rx and check timelimit enforcement
+fsgqa[real] 512 512 0 0 ---
+fsgqa[real] 513 512 0 1 ---
+Try again after 1s
+fsgqa[real] 514 512 0 2 ---
+Try again after 3s
+pwrite: Disk quota exceeded
+fsgqa[real] 514 512 0 2 ---
+
+Extend time limits and warnings
+fsgqa[real] 512 512 0 0 [--------]
+fsgqa[real] 513 512 0 1 [2_days]
+pwrite: Disk quota exceeded
+fsgqa[real] 513 512 0 77 [3_days]
+
+Test quota applied to bmbt
+SCRATCH_MNT/file2: Disk quota exceeded
