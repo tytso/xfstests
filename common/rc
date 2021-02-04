@@ -2494,10 +2494,10 @@ _require_scratch_swapfile()
 	statx_attr="$($XFS_IO_PROG -c 'statx -r' $SCRATCH_MNT/swap 2>/dev/null | grep 'stat.attributes = ' | awk '{print $3}')"
 	test "$((statx_attr & 0x200000))" -gt 0 && _notrun "swapfiles not supported on DAX"
 
-	# ext* and xfs have supported all variants of swap files since their
+	# ext* has supported all variants of swap files since their
 	# introduction, so swapon should not fail.
 	case "$FSTYP" in
-	ext2|ext3|ext4|xfs)
+	ext2|ext3|ext4)
 		if ! swapon "$SCRATCH_MNT/swap" >/dev/null 2>&1; then
 			_scratch_unmount
 			_fail "swapon failed for $FSTYP"
