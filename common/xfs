@@ -1440,3 +1440,26 @@ _scratch_xfs_force_no_metadir()
 		MKFS_OPTIONS="-m metadir=0 $MKFS_OPTIONS"
 	fi
 }
+
+# Decide if a mount filesystem has metadata directory trees.
+_xfs_mount_has_metadir() {
+	local mount="$1"
+
+	# spaceman (and its info command) predate metadir
+	test ! -e "$XFS_SPACEMAN_PROG" && return 1
+	$XFS_SPACEMAN_PROG -c "info" "$mount" | grep -q 'metadir=1'
+}
+
+# Compute the number of files in the metadata directory tree.
+_xfs_calc_metadir_files() {
+	local mount="$1"
+
+	if ! _xfs_mount_has_metadir "$mount"; then
+		echo 0
+		return
+	fi
+
+	local regfiles="$($XFS_IO_PROG -c 'bulkstat' "$mount" | grep '^bs_ino' | wc -l)"
+	local metafiles="$($XFS_IO_PROG -c 'bulkstat -m' "$mount" 2>&1 | grep '^bs_ino' | wc -l)"
+	echo $((metafiles - regfiles))
+}
