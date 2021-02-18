@@ -45,6 +45,7 @@ _require_test_program "idmapped-mounts/mount-idmapped"
 _scratch_mkfs >/dev/null 2>&1
 _scratch_mount
 bsize=$(_get_file_block_size $SCRATCH_MNT)
+qhidden_rootfiles=$(_xfs_calc_metadir_files $SCRATCH_MNT)
 _scratch_unmount
 
 bsoft=$(( 200 * $bsize ))
