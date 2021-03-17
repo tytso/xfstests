@@ -549,6 +549,7 @@
 762 auto quick rw scrub realtime
 767 auto quick quota realtime
 771 scrub dangerous
+772 dangerous_scrub dangerous_online_repair
 775 auto quick rw realtime
 919 auto quick clone realtime
 1202 auto quick swapext
