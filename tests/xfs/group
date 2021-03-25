@@ -522,5 +522,7 @@
 537 auto quick
 538 auto stress
 539 auto quick mount
+764 auto quick admin
 768 auto quick repair
 770 auto repair
+773 auto quick admin
