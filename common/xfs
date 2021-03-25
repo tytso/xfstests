@@ -1112,3 +1112,24 @@ _check_scratch_xfs_features()
 	echo "${output[@]}"
 	test "${found}" -eq "$#"
 }
+
+# Decide if xfs_repair knows how to set (or clear) a filesystem feature.
+_require_xfs_repair_upgrade()
+{
+	local type="$1"
+
+	$XFS_REPAIR_PROG -c "$type=garbagevalue" 2>&1 | \
+		grep -q 'unknown option' && \
+		_notrun "xfs_repair does not support upgrading fs with $type"
+}
+
+_require_xfs_scratch_inobtcount()
+{
+	_require_scratch
+
+	_scratch_mkfs -m inobtcount=1 &> /dev/null || \
+		_notrun "mkfs.xfs doesn't have inobtcount feature"
+	_try_scratch_mount || \
+		_notrun "inobtcount not supported by scratch filesystem type: $FSTYP"
+	_scratch_unmount
+}
