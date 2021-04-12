@@ -10,3 +10,16 @@
 #
 VALID_TEST_ID="[0-9]\{3\}"
 VALID_TEST_NAME="$VALID_TEST_ID-\?[[:alnum:]-]*"
+
+# Initialize the global seq, seqres, here, tmp, and status variables to their
+# defaults.  Group memberships are the only arguments to this helper.
+_set_seq_and_groups()
+{
+	seq=`basename $0`
+	seqres=$RESULT_DIR/$seq
+	echo "QA output created by $seq"
+
+	here=`pwd`
+	tmp=/tmp/$$
+	status=1	# failure is the default!
+}
