@@ -7,6 +7,9 @@ include $(TOPDIR)/include/builddefs
 
 SHARED_DIR = shared
 TARGET_DIR = $(PKG_LIB_DIR)/$(TESTS_DIR)/$(SHARED_DIR)
+DIRT = group
+
+default: $(DIRT)
 
 include $(BUILDRULES)
 

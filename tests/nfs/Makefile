@@ -7,6 +7,9 @@ include $(TOPDIR)/include/builddefs
 
 NFS_DIR = nfs
 TARGET_DIR = $(PKG_LIB_DIR)/$(TESTS_DIR)/$(NFS_DIR)
+DIRT = group
+
+default: $(DIRT)
 
 include $(BUILDRULES)
 

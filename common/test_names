@@ -16,6 +16,12 @@ VALID_TEST_NAME="$VALID_TEST_ID-\?[[:alnum:]-]*"
 _set_seq_and_groups()
 {
 	seq=`basename $0`
+
+	if [ -n "$GENERATE_GROUPS" ]; then
+		echo "$seq $@"
+		exit 0
+	fi
+
 	seqres=$RESULT_DIR/$seq
 	echo "QA output created by $seq"
 

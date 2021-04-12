@@ -5,6 +5,9 @@ include $(TOPDIR)/include/builddefs
 
 CEPH_DIR = ceph
 TARGET_DIR = $(PKG_LIB_DIR)/$(TESTS_DIR)/$(CEPH_DIR)
+DIRT = group
+
+default: $(DIRT)
 
 include $(BUILDRULES)
 

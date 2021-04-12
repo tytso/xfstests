@@ -7,6 +7,9 @@ include $(TOPDIR)/include/builddefs
 
 CIFS_DIR = cifs
 TARGET_DIR = $(PKG_LIB_DIR)/$(TESTS_DIR)/$(CIFS_DIR)
+DIRT = group
+
+default: $(DIRT)
 
 include $(BUILDRULES)
 

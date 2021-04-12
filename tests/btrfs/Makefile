@@ -7,6 +7,9 @@ include $(TOPDIR)/include/builddefs
 
 BTRFS_DIR = btrfs
 TARGET_DIR = $(PKG_LIB_DIR)/$(TESTS_DIR)/$(BTRFS_DIR)
+DIRT = group
+
+default: $(DIRT)
 
 include $(BUILDRULES)
 

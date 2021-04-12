@@ -7,6 +7,9 @@ include $(TOPDIR)/include/builddefs
 
 XFS_DIR = xfs
 TARGET_DIR = $(PKG_LIB_DIR)/$(TESTS_DIR)/$(XFS_DIR)
+DIRT = group
+
+default: $(DIRT)
 
 include $(BUILDRULES)
 

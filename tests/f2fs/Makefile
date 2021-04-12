@@ -8,6 +8,9 @@ include $(TOPDIR)/include/builddefs
 
 F2FS_DIR = f2fs
 TARGET_DIR = $(PKG_LIB_DIR)/$(TESTS_DIR)/$(F2FS_DIR)
+DIRT = group
+
+default: $(DIRT)
 
 include $(BUILDRULES)
 

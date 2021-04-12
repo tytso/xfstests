@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Generate a group file from the _set_test_seqnum call in each test.
+
+if [ "$1" = "--help" ]; then
+	echo "Usage: (cd tests/XXX/ ; ../../tools/mkgroupfile [output])"
+	exit 1
+fi
+
+test_dir="$PWD"
+groupfile="$1"
+
+generate_groupfile() {
+	cat << ENDL
+# QA groups control file, automatically generated.
+# See _set_seq_and_groups in each test for details.
+
+ENDL
+	cd ../../
+	export GENERATE_GROUPS=yes
+	grep -R -l "^_set_seq_and_groups" "$test_dir/" 2>/dev/null | while read testfile; do
+		test -x "$testfile" && "$testfile"
+	done | sort -g
+	cd "$test_dir"
+}
+
+if [ -z "$groupfile" ] || [ "$groupfile" = "-" ]; then
+	# Dump the group file to stdout and exit
+	generate_groupfile
+	exit 0
+fi
+
+# Otherwise, write the group file to disk somewhere.
+ngroupfile="${groupfile}.new"
+rm -f "$ngroupfile"
+generate_groupfile >> "$ngroupfile"
+mv "$ngroupfile" "$groupfile"

@@ -7,6 +7,9 @@ include $(TOPDIR)/include/builddefs
 
 PERF_DIR = perf
 TARGET_DIR = $(PKG_LIB_DIR)/$(TESTS_DIR)/$(PERF_DIR)
+DIRT = group
+
+default: $(DIRT)
 
 include $(BUILDRULES)
 

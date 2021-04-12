@@ -7,6 +7,9 @@ include $(TOPDIR)/include/builddefs
 
 GENERIC_DIR = generic
 TARGET_DIR = $(PKG_LIB_DIR)/$(TESTS_DIR)/$(GENERIC_DIR)
+DIRT = group
+
+default: $(DIRT)
 
 include $(BUILDRULES)
 

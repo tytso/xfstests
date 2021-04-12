@@ -132,3 +132,9 @@ FILTER = $(basename $(EXTFILTER4) $(BASIC_OUTFILES))
 # finally, select the test files by filtering against against the
 # stripped output files and sort them to remove duplicates.
 TESTS = $(sort $(filter $(ALLFILES), $(FILTER)))
+
+.PHONY: group
+
+group:
+	@echo " [GROUP] $$PWD/$@"
+	$(Q)$(TOPDIR)/tools/mkgroupfile $@
