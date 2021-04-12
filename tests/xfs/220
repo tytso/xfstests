@@ -9,13 +9,9 @@
 # Based on bug reports from Utako Kusaka <u-kusaka@wm.jp.nec.com> and
 # Ryota Yamauchi <r-yamauchi@vf.jp.nec.com>.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto quota quick
 
-here=`pwd`
-tmp=/tmp/$$
-status=1	# failure is the default!
 
 _cleanup()
 {

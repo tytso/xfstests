@@ -8,9 +8,8 @@
 # b5b6077 ext4: fix wrong assert in ext4_mb_normalize_request()
 # This testcase checks whether this bug has been fixed.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto quick
 
 trap "_cleanup; exit \$status" 0 1 2 3 15
 

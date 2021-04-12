@@ -7,13 +7,9 @@
 # Check behavior of chown with both user and group quota enabled,
 # and changing both user and group together via chown(2).
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups quota auto quick
 
-here=`pwd`
-tmp=/tmp/$$
-status=1	# failure is the default!
 
 # get standard environment, filters and checks
 . ./common/rc

@@ -8,11 +8,8 @@
 # we created a file.  A bug caught during code review of xfs patches revealed
 # that there weren't any sanity checks of the btime values.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
-tmp=/tmp/$$
-status=1	# failure is the default!
+. ./common/test_names
+_set_seq_and_groups auto quick
 testfile=$TEST_DIR/$seq.txt
 trap "_cleanup; exit \$status" 0 1 2 3 15
 

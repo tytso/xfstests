@@ -9,13 +9,9 @@
 # MOUNT_OPTIONS can be set to gquota to test group quota,
 # defaults to uquota if MOUNT_OPTIONS is not set.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups quota db auto quick
 
-here=`pwd`
-tmp=/tmp/$$
-status=1	# failure is the default!
 
 # get standard environment, filters and checks
 . ./common/rc

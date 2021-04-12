@@ -8,12 +8,9 @@
 # In the case of fsync, filesystem should recover all the inode metadata, while
 # recovering i_blocks and i_size at least for fdatasync.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups shutdown auto quick metadata punch
 
-here=`pwd`
-tmp=/tmp/$$
 status=0	# failure will be detected in runtime!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 

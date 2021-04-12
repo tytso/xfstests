@@ -7,14 +7,10 @@
 # Run fsstress and fio(dio/aio and mmap) and simulate disk failure
 # check filesystem consistency at the end.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups aio dangerous enospc rw stress
 
-here=`pwd`
-tmp=/tmp/$$
 fio_config=$tmp.fio
-status=1	# failure is the default!
 
 # get standard environment, filters and checks
 . ./common/rc

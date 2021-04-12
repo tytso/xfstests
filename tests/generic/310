@@ -23,12 +23,9 @@
 #
 # http://marc.info/?l=linux-kernel&m=136123703211869&w=2
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto
 
-here=`pwd`
-status=1	# failure is the default!
 
 _cleanup()
 {

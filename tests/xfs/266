@@ -6,12 +6,9 @@
 #
 # Test incremental dumps with -D (skip unchanged dirs)
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups dump ioctl auto quick
 
-here=`pwd`
-tmp=/tmp/$$
 status=0	# success is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 

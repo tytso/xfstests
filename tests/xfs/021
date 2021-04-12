@@ -6,12 +6,9 @@
 #
 # xfs_db type attr test (pv 797508 linux-xfs & IRIX)
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups db attr auto quick
 
-here=`pwd`
-tmp=/tmp/$$
 status=0	# success is the default!
 # get standard environment, filters and checks
 . ./common/rc

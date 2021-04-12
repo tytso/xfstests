@@ -6,13 +6,9 @@
 #
 # Check several growfs corner cases
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups growfs auto quick
 
-here=`pwd`
-tmp=/tmp/$$
-status=1
 
 trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

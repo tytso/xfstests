@@ -11,11 +11,8 @@
 # commit ac765f83f1397646 ("Btrfs: fix data corruption due to cloning of eof
 # block"), or cause silent data corruption for older kernels.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
-tmp=/tmp/$$
-status=1	# failure is the default!
+. ./common/test_names
+_set_seq_and_groups auto quick send clone
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _cleanup()

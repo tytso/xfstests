@@ -10,14 +10,10 @@
 # userspace doesn't get an error when reading the file back so we have to grok
 # dmesg to see if there was a csum error.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto quick balance
 
-here=`pwd`
-tmp=/tmp/$$
 
-status=1	# failure is the default!
 
 _cleanup()
 {

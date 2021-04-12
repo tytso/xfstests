@@ -7,14 +7,10 @@
 # Test very basic thin device usage, exhaustion, and growth
 #
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto quick rw thin
 
-here=`pwd`
-tmp=/tmp/$$
 
-status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 BACKING_SIZE=$((500 * 1024 * 1024 / 512))	# 500M

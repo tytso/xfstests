@@ -10,9 +10,8 @@
 # Regression test for commit:
 # 0b23076 ext3: fix update of mtime and ctime on rename
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto quick
 
 status=0	# success is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15

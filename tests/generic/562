@@ -8,11 +8,8 @@
 # many small extents, when the fs is nearly full, the clone operation does
 # not fail and produces the correct result.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
-tmp=/tmp/$$
-status=1	# failure is the default!
+. ./common/test_names
+_set_seq_and_groups auto clone punch
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _cleanup()

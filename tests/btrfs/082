@@ -15,13 +15,9 @@
 #     btrfs: fix crash in remount(thread_pool=) case
 #     800ee2247f483b6d05ed47ef3bbc90b56451746c
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto quick remount
 
-here=`pwd`
-tmp=/tmp/$$
-status=1	# failure is the default!
 
 _cleanup()
 {

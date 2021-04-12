@@ -15,13 +15,9 @@
 #     dksc0d1s4: Process [fsstress] ran out of disk space
 #     dksc0d1s4: Process [fsstress] ran out of disk space
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups rw auto enospc stress
 
-here=`pwd`
-tmp=/tmp/$$
-status=1
 
 _cleanup()
 {

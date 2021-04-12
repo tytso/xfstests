@@ -7,11 +7,9 @@
 # Test wiping of ext4_dir_entry2 data upon file removal, conversion
 # to htree, and splitting of htree nodes
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto quick dir
 
-status=1       # failure is the default!
 
 # get standard environment, filters and checks
 . ./common/rc

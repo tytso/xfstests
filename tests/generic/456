@@ -14,13 +14,9 @@
 # i_disksize and fixed by commit 801674f34ecf ("ext4: do not zeroout extents
 # beyond i_disksize").
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto quick metadata collapse zero prealloc
 
-here=`pwd`
-tmp=/tmp/$$
-status=1	# failure is the default!
 
 _cleanup()
 {

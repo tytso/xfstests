@@ -9,13 +9,9 @@
 # Only happens on 32-bit kernels without CONFIG_LBD, but it should be harmless
 # to run this everywhere.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups metadata auto quick
 
-here=`pwd`
-tmp=/tmp/$$
-status=1	# failure is the default!
 
 _cleanup()
 {

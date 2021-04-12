@@ -9,13 +9,9 @@
 # run filefrag to get the extent mapping and follow the backrefs.
 # We check to end up back at the original file with the correct offset.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto rw metadata
 
-here=`pwd`
-tmp=/tmp/$$
-status=1
 noise_pid=0
 
 _cleanup()

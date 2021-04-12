@@ -8,11 +8,8 @@
 # then verify that all files and directories exist, with the same data and
 # metadata they had before the power failure.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
-tmp=/tmp/$$
-status=1	# failure is the default!
+. ./common/test_names
+_set_seq_and_groups auto quick log
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _cleanup()

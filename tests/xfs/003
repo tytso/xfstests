@@ -6,16 +6,13 @@
 #
 # exercise xfs_db bug #784078
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups db auto quick
 
 # get standard environment, filters and checks
 . ./common/rc
 . ./common/filter
 
-tmp=/tmp/$$
-here=`pwd`
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

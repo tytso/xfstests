@@ -7,12 +7,9 @@
 # Test out ACLs.
 #
 #!/bin/bash
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
+. ./common/test_names
+_set_seq_and_groups acl auto quick
 
-here=`pwd`
-tmp=/tmp/$$
-status=1	# FAILure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # get standard environment, filters and checks
@@ -67,7 +64,6 @@ rm -rf $seq.dir1
 mkdir $seq.dir1
 cd $seq.dir1
 
-echo "QA output created by $seq"
 echo ""
 echo "=== Test minimal ACE ==="
 

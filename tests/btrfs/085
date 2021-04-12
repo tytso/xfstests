@@ -13,13 +13,9 @@
 #    (i.e. btrfs subvol set-default)
 # 3) Non-default subvolume lookup
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto quick metadata subvol
 
-here=`pwd`
-tmp=/tmp/$$
-status=1	# failure is the default!
 
 _cleanup()
 {

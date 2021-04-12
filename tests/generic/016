@@ -10,13 +10,9 @@
 # type of extents. These tests are based on generic/255 test case.
 # For the type of tests, check the description of _test_generic_punch
 # in common/rc.
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto quick prealloc punch collapse
 
-here=`pwd`
-tmp=/tmp/$$
-status=1	# failure is the default!
 
 _cleanup()
 {

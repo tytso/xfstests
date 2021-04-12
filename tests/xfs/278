@@ -8,12 +8,9 @@
 # at the first run. See also commit 198b747f255346bca64408875763b6ca0ed3d57d
 # from xfsprogs tree.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups repair auto
 
-here=`pwd`
-tmp=/tmp/$$
 status=0	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 

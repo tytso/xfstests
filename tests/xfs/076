@@ -17,13 +17,9 @@
 # space, allocates inodes to ENOSPC and then verifies that most of the available
 # inodes (.i.e., free space) have been consumed.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto enospc punch
 
-here=`pwd`
-tmp=/tmp/$$
-status=1	# failure is the default!
 
 # get standard environment, filters and checks
 . ./common/rc

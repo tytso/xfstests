@@ -15,16 +15,13 @@
 # config has one line per file with filename and byte size, else use
 # the default one below.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups rw dir udf auto quick
 
 # get standard environment, filters and checks
 . ./common/rc
 . ./common/filter
 
-tmp=/tmp/$$
-here=`pwd`
 status=1
 done_cleanup=false
 trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15

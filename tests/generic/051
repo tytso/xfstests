@@ -8,13 +8,9 @@
 # it and check that recovery runs to completion and everything can be
 # successfully removed afterwards..
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups shutdown auto stress log metadata repair
 
-here=`pwd`
-tmp=/tmp/$$
-status=1	# failure is the default!
 
 # get standard environment, filters and checks
 . ./common/rc

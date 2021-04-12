@@ -6,12 +6,9 @@
 #
 # exercise xfs_db bug #789674 and other freesp functionality
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups db auto quick
 
-here=`pwd`
-tmp=/tmp/$$
 status=0
 
 _cleanup()

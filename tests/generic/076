@@ -6,13 +6,9 @@
 #
 # Test blockdev reads in parallel with filesystem reads/writes
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups metadata rw udf auto quick stress
 
-here=`pwd`
-tmp=/tmp/$$
-status=1
 
 _lets_get_pidst()
 {

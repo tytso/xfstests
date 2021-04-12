@@ -6,15 +6,11 @@
 #
 # btrfs send ENOENT regression test, from a user report on linux-btrfs
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto quick send
 
-here=`pwd`
-tmp=/tmp/$$
 tmp_dir=send_temp_$seq
 
-status=1	# failure is the default!
 
 _cleanup()
 {

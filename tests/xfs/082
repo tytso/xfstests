@@ -7,13 +7,9 @@
 # Test out the v2 stripe logs with logprint
 #
 seqfull=$0
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups deprecated # log logprint v2log
 
-here=`pwd`
-tmp=/tmp/$$
-status=1	# failure is the default!
 
 # get standard environment, filters and checks
 . ./common/rc

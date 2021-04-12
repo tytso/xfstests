@@ -11,13 +11,9 @@
 #
 #     https://patchwork.kernel.org/patch/3046931/
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups acl auto quick
 
-here=`pwd`
-tmp=/tmp/$$
-status=1	# FAILure is the default!
 
 _cleanup()
 {

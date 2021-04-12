@@ -9,11 +9,8 @@
 # file F2 from directory B into directory C, fsync inode F1, power fail and
 # remount the filesystem, file F2 exists and is located only in directory C.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
-tmp=/tmp/$$
-status=1	# failure is the default!
+. ./common/test_names
+_set_seq_and_groups auto quick metadata log
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _cleanup()

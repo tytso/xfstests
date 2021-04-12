@@ -12,12 +12,9 @@
 # creator
 owner=list.btrfs@jan-o-sch.net
 
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto quick rw metadata send seek
 
-tmp=/tmp/$$
-status=1
 
 _cleanup()
 {

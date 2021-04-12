@@ -21,13 +21,9 @@
 # Also test the mtime and ctime properties of the file change after punching
 # holes with ranges that operate only on a single block of the file.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups metadata auto quick punch log
 
-here=`pwd`
-tmp=/tmp/$$
-status=1	# failure is the default!
 
 _cleanup()
 {

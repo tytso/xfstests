@@ -7,13 +7,9 @@
 # Run unionmount testsuite to verify correctness
 # with multi lower layers on same fs as upper
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto union rotate samefs
 
-here=`pwd`
-tmp=/tmp/$$
-status=1	# failure is the default!
 trap "_unionmount_testsuite_cleanup; exit \$status" 0 1 2 3 15
 
 # get standard environment, filters and checks

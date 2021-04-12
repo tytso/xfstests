@@ -8,11 +8,8 @@
 # more space left to allocate in the filesystem and then snapshot the file's
 # subvolume, after a clean shutdown the data was not lost.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
-tmp=/tmp/$$
-status=1	# failure is the default!
+. ./common/test_names
+_set_seq_and_groups auto quick snapshot
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _cleanup()

@@ -14,13 +14,9 @@
 # It's a regression test for:
 # 'commit 88149082bb8e ("fs: Handle I_DONTCACHE in iput_final() instead of generic_drop_inode()"'
 
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto attr quick dax
 
-here=`pwd`
-tmp=/tmp/$$
-status=1        # failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _cleanup()

@@ -12,13 +12,9 @@
 #
 # http://oss.sgi.com/bugzilla/show_bug.cgi?id=808
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups dir auto quick
 
-here=`pwd`
-tmp=/tmp/$$
-status=1	# failure is the default!
 
 _cleanup()
 {

@@ -17,12 +17,9 @@
 # tests that were handcrafted to reproduce bugs in btrfs, so it's also a
 # regression test of sorts.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto metadata log
 
-here=`pwd`
-status=1	# failure is the default!
 
 _cleanup()
 {

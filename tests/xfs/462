@@ -7,13 +7,9 @@
 # Populate a XFS filesystem and fuzz every rmapbt field.
 # Do not fix the filesystem, to test metadata verifiers.
 
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups dangerous_fuzzers dangerous_norepair
 
-here=`pwd`
-tmp=/tmp/$$
-status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 7 15
 
 _cleanup()

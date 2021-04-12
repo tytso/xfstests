@@ -7,11 +7,8 @@
 # Test log tree replay when qgroups are enabled and orphan roots (deleted
 # snapshots) exist.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
-tmp=/tmp/$$
-status=1	# failure is the default!
+. ./common/test_names
+_set_seq_and_groups auto quick snapshot metadata qgroup log
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _cleanup()

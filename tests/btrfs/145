@@ -8,12 +8,9 @@
 # then rename some file inode B to the name inode A had, for the case where the
 # directory inode A is an ancestor of inode B in the parent snapshot.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto quick send
 
-tmp=/tmp/$$
-status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _cleanup()

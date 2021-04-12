@@ -10,13 +10,9 @@
 # Due to bugs here and there, we sometimes matched on partial
 # strings with those names, and threw off xfs_repair.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups attr acl repair quick auto
 
-here=`pwd`
-tmp=/tmp/$$
-status=1	# failure is the default!
 
 # get standard environment, filters and checks
 . ./common/rc

@@ -6,12 +6,9 @@
 #
 # Run fsx with log writes to verify power fail safeness.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto log replay
 
-here=`pwd`
-status=1	# failure is the default!
 
 _cleanup()
 {

@@ -9,13 +9,9 @@
 # This bug is going to be fixed by a patch for the kernel titled
 # "btrfs: qgroup: Don't trigger backref walk at delayed ref insert time".
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto qgroup dangerous
 
-here=`pwd`
-tmp=/tmp/$$
-status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _cleanup()

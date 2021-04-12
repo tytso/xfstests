@@ -8,12 +8,10 @@
 # Regression test for commit:
 # c5c72d8 ext4: fix online resizing for ext3-compat file systems
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto rw resize quick
 
 PIDS=""
-status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _cleanup()

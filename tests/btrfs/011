@@ -19,13 +19,9 @@
 # To check the filesystems after replacing a device, a scrub run is
 # performed, a btrfsck run, and finally the filesystem is remounted.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto replace volume
 
-here=`pwd`
-tmp=/tmp/$$
-status=1
 noise_pid=0
 
 _cleanup()

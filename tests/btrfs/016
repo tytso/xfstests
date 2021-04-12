@@ -6,14 +6,12 @@
 #
 # btrfs send hole punch test
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto quick send
 
 tmp=`mktemp -d`
 tmp_dir=send_temp_$seq
 
-status=1	# failure is the default!
 
 _cleanup()
 {

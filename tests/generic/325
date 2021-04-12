@@ -15,12 +15,9 @@
 #
 #     Btrfs: fix fsync data loss after a ranged fsync
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto quick data log
 
-here=`pwd`
-status=1	# failure is the default!
 
 _cleanup()
 {

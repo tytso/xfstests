@@ -6,15 +6,11 @@
 #
 # Buffered random write performance test.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto
 
-here=`pwd`
-tmp=/tmp/$$
 fio_config=$tmp.fio
 fio_results=$tmp.json
-status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # get standard environment, filters and checks

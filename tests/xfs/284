@@ -7,13 +7,9 @@
 # Do xfs_metadump, xfs_mdrestore, xfs_copy, xfs_db, xfs_repair and mkfs.xfs
 # on mounted XFS to make sure they refuse to proceed.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto quick dump copy db mkfs repair
 
-here=`pwd`
-tmp=/tmp/$$
-status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _cleanup()

@@ -11,13 +11,9 @@
 # the indoes to be swapped. It also is good for validating fsr's attribute fork
 # generation code.
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto fsr
 
-here=`pwd`
-tmp=/tmp/$$
-status=1	# failure is the default!
 
 _cleanup()
 {

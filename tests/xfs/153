@@ -9,13 +9,9 @@
 # Exercises basic XFS quota functionality
 #       uquota, gquota, uqnoenforce, gqnoenforce
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto quick quota idmapped
 
-here=`pwd`
-tmp=/tmp/$$
-status=1	# failure is the default!
 
 # get standard environment, filters and checks
 . ./common/rc

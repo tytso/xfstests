@@ -6,13 +6,9 @@
 #
 # btrfs vol tests
 #
-seq=`basename $0`
-seqres=$RESULT_DIR/$seq
-echo "QA output created by $seq"
+. ./common/test_names
+_set_seq_and_groups auto replace volume balance
 
-here=`pwd`
-tmp=/tmp/$$
-status=1	# failure is the default!
 dev_removed=0
 removed_dev_htl=""
 trap "_cleanup; exit \$status" 0 1 2 3 15
