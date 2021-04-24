@@ -13,6 +13,7 @@ _begin_fstest auto repair
 . ./common/filter
 
 _supported_fs xfs
+_require_command "$XFS_MDRESTORE_PROG" "xfs_mdrestore"
 
 # real QA test starts here
 _require_scratch
@@ -92,7 +93,7 @@ _scratch_xfs_check >> $seqres.full 2>&1 || _fail "xfs_check failed"
 # Yes they can!  Now...
 # Can xfs_metadump cope with this monster?
 _scratch_xfs_metadump $tmp.metadump || _fail "xfs_metadump failed"
-xfs_mdrestore $tmp.metadump $tmp.img || _fail "xfs_mdrestore failed"
+$XFS_MDRESTORE_PROG $tmp.metadump $tmp.img || _fail "xfs_mdrestore failed"
 [ "$USE_EXTERNAL" = yes ] && [ -n "$SCRATCH_RTDEV" ] && \
 	rt_repair_opts="-r $SCRATCH_RTDEV"
 [ "$USE_EXTERNAL" = yes ] && [ -n "$SCRATCH_LOGDEV" ] && \
