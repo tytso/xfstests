@@ -52,6 +52,11 @@ echo "Format and mount"
 _scratch_mkfs > $seqres.full 2>&1
 _scratch_mount >> $seqres.full 2>&1
 
+# XFS does not support delayed allocation on realtime volumes (even for COW)
+# so skip this test on those platforms.
+$XFS_IO_PROG -c 'stat -v' $SCRATCH_MNT | grep -q "xflags.*rt-inherit" &&
+	_notrun "delalloc not used for CoW on realtime device"
+
 testdir=$SCRATCH_MNT/test-$seq
 mkdir $testdir
 
