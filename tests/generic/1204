@@ -61,6 +61,7 @@ dir=$TEST_DIR/test-$seq
 mkdir -p $dir
 blksz=65536
 nrblks=57
+_require_congruent_file_oplen $dir $blksz
 
 # Set up some simple files for a first test.
 rm -rf $dir/a $dir/b
