@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# Move group tags from the groups file into the test files themselves.
+
+if [ -z "$1" ] || [ "$1" = "--help" ]; then
+	echo "Usage: $0 test_dir [test_dirs...]"
+	exit 1
+fi
+
+obliterate_group_file() {
+	sed -e 's/^#.*$//g' < group | while read test groups; do
+		if [ -z "$test" ]; then
+			continue;
+		elif [ ! -e "$test" ]; then
+			echo "Ignoring unknown test file \"$test\"."
+			continue
+		fi
+		sed -e '/^seqres=\$RESULT_DIR\/\$seq$/d' \
+		    -e '/^echo "QA output created by \$seq"$/d' \
+		    -e '/^here=`pwd`$/d' \
+		    -e '/^tmp=\/tmp\/\$\$$/d' \
+		    -e '/^status=1.*failure.*is.*the.*default/d' \
+		    -e '/^status=1.*FAILure.*is.*the.*default/d' \
+		    -e '/^status=1.*success.*is.*the.*default/d' \
+		    -e '/^status=1.*default.*failure/d' \
+		    -e '/^echo.*QA output created by.*seq/d' \
+		    -e 's|^seq=.*$|. ./common/test_names\n_set_seq_and_groups '"$groups"'|g' \
+		    -i "$test"
+		if grep -q '^status=1$' "$test"; then
+			# Replace the "status=1" lines that don't have the usual
+			# "failure is the default" message if there's no other
+			# code between _set_seq_and_groups and status=1.
+			awk '
+BEGIN {
+	saw_groupinfo = 0;
+}
+{
+	if ($0 ~ /^_set_seq_and_groups/) {
+		saw_groupinfo = 1;
+		printf("%s\n", $0);
+	} else if ($0 ~ /^status=1$/) {
+		if (saw_groupinfo == 0) {
+			printf("%s\n", $0);
+		}
+	} else if ($0 == "") {
+		printf("\n");
+	} else {
+		saw_groupinfo = 0;
+		printf("%s\n", $0);
+	}
+}
+' < "$test" > "$test.new"
+			cat "$test.new" > "$test"
+			rm -f "$test.new"
+		fi
+	done
+}
+
+curr_dir="$PWD"
+for tdir in "$@"; do
+	cd "tests/$tdir"
+	obliterate_group_file
+	cd "$curr_dir"
+done
