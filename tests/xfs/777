@@ -1,0 +1,48 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (c) 2021, Oracle.  All Rights Reserved.
+#
+# FS QA Test No. 777
+#
+# Functional test for getting and setting labels on mounted filesystems with
+# xfs_admin -l and -L.
+#
+. ./common/preamble
+_begin_fstest auto quick admin
+
+# Import common functions.
+. ./common/filter
+
+# real QA test starts here
+_require_scratch
+
+# xfs_admin.sh gained the ability to use xfs_io at the same time that it
+# gained the ability to perform label operations on mounted filesystems
+grep -q 'IO_OPTS' $XFS_ADMIN_PROG || \
+	_notrun 'xfs_admin does not support online operations'
+
+echo "Format and mount"
+_scratch_mkfs -L label0 &> $seqres.full
+
+echo "Read label offline"
+_scratch_xfs_admin -l
+
+echo "Write label offline"
+_scratch_xfs_admin -L new_label
+
+echo "Reread label offline"
+_scratch_xfs_admin -l
+
+_scratch_mount
+
+echo "Read label online"
+_scratch_xfs_admin -l
+
+echo "Write label online"
+_scratch_xfs_admin -L last-label
+
+echo "Reread label online"
+_scratch_xfs_admin -l
+
+status=0
+exit

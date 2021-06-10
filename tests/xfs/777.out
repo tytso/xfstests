@@ -1,0 +1,15 @@
+QA output created by 777
+Format and mount
+Read label offline
+label = "label0"
+Write label offline
+writing all SBs
+new label = "new_label"
+Reread label offline
+label = "new_label"
+Read label online
+label = "new_label"
+Write label online
+label = "last-label"
+Reread label online
+label = "last-label"
