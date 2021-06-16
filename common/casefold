@@ -46,6 +46,23 @@ _require_scratch_casefold()
 	_require_command "$LSATTR_PROG" lsattr
 }
 
+_require_encrypted_casefold ()
+{
+    case $FSTYP in
+	ext4)
+	    if test ! -f /sys/fs/ext4/features/casefold ; then
+		_notrun "casefolding not supported"
+	    fi
+	    if test ! -f /sys/fs/ext4/features/encryption ; then
+		_notrun "file system encryption not supported"
+	    fi
+	    if test ! -f /sys/fs/ext4/features/encrypted_casefold ; then
+		_notrun "encrypted casefolding not supported"
+	    fi
+	    ;;
+	esac
+}
+
 _scratch_mkfs_casefold()
 {
 	case $FSTYP in
