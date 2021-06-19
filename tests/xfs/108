@@ -47,6 +47,7 @@ test_accounting()
 	for file in $SCRATCH_MNT/{buffer,direct,mmap}; do
 		$here/src/lstat64 $file | head -3 | _filter_scratch
 	done
+	sync
 	$XFS_QUOTA_PROG -c "quota -hnb -$type $id" $QARGS | _filter_quota
 	$XFS_QUOTA_PROG -c "quota -hni -$type $id" $QARGS | _filter_quota
 	$XFS_QUOTA_PROG -c "quota -hnr -$type $id" $QARGS | _filter_quota
