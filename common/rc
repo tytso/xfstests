@@ -2765,13 +2765,6 @@ _require_debugfs()
     [ -d "$DEBUGFS_MNT/boot_params" ] || _notrun "Debugfs not mounted"
 }
 
-_require_fail_make_request()
-{
-    [ -f "$DEBUGFS_MNT/fail_make_request/probability" ] \
-	|| _notrun "$DEBUGFS_MNT/fail_make_request \
- not found. Seems that CONFIG_FAULT_INJECTION_DEBUG_FS kernel config option not enabled"
-}
-
 # Disable extent zeroing for ext4 on the given device
 _ext4_disable_extent_zeroout()
 {
