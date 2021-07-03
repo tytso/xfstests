@@ -14,6 +14,10 @@ export FLAKEY_LOGNAME="flakey-logtest.$seq"
 
 _init_flakey()
 {
+	if test "$USE_EXTERNAL" = yes -a ! -z "$SCRATCH_LOGDEV" ; then
+		_notrun "dmflakey tests don't work with an external log device"
+	fi
+
 	# Scratch device
 	local BLK_DEV_SIZE=`blockdev --getsz $SCRATCH_DEV`
 	export FLAKEY_DEV="/dev/mapper/$FLAKEY_NAME"
