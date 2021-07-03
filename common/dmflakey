@@ -12,6 +12,10 @@ _init_flakey()
 {
 	# Scratch device
 	local BLK_DEV_SIZE=`blockdev --getsz $SCRATCH_DEV`
+
+	if test "$USE_EXTERNAL" = yes -a ! -z "$SCRATCH_LOGDEV" ; then
+		_notrun "dmflakey tests don't work with an external log device"
+	fi
 	FLAKEY_DEV=/dev/mapper/flakey-test
 	FLAKEY_TABLE="0 $BLK_DEV_SIZE flakey $SCRATCH_DEV 0 180 0"
 	FLAKEY_TABLE_DROP="0 $BLK_DEV_SIZE flakey $SCRATCH_DEV 0 0 180 1 drop_writes"
