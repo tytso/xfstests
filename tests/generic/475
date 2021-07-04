@@ -33,6 +33,10 @@ _require_scratch
 _require_dm_target error
 _require_command "$KILLALL_PROG" "killall"
 
+if test "$USE_EXTERNAL" = yes -a ! -z "$SCRATCH_LOGDEV" ; then
+    _notrun "Cannot have external log device"
+fi
+
 echo "Silence is golden."
 
 _scratch_mkfs >> $seqres.full 2>&1
