@@ -12,7 +12,7 @@
 # in writeback on the host that cause VM guests to fail to recover.
 #
 . ./common/preamble
-_begin_fstest shutdown auto log metadata eio
+_begin_fstest shutdown auto log metadata eio recoveryloop
 
 _cleanup()
 {
