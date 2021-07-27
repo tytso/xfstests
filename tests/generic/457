@@ -27,6 +27,7 @@ _supported_fs generic
 _require_test
 _require_scratch_reflink
 _require_no_logdev
+_require_no_realtime
 _require_cp_reflink
 _require_log_writes
 _require_dm_target thin-pool
