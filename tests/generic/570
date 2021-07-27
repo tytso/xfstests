@@ -27,7 +27,7 @@ _require_scratch_nocheck
 _require_block_device $SCRATCH_DEV
 test -e /dev/snapshot && _notrun "userspace hibernation to swap is enabled"
 
-$MKSWAP_PROG "$SCRATCH_DEV" >> $seqres.full
+$MKSWAP_PROG -f "$SCRATCH_DEV" &>> $seqres.full || echo "mkswap failed?"
 
 # Can you modify the swap dev via previously open file descriptors?
 for verb in 1 2 3 4; do
