@@ -140,6 +140,10 @@ case "$FSTYP" in
 	 ;;
     pvfs2)
 	;;
+    ntfs)
+	;;
+    ntfs3)
+	;;
     ubifs)
 	[ "$UBIUPDATEVOL_PROG" = "" ] && _fatal "ubiupdatevol not found"
 	;;
@@ -714,6 +718,9 @@ _test_mkfs()
     ext2|ext3|ext4)
 	$MKFS_PROG -t $FSTYP -- -F $MKFS_OPTIONS $* $TEST_DEV
 	;;
+    ntfs|ntfs3)
+	$MKFS_NTFS_PROG $MKFS_OPTIONS $* $TEST_DEV > /dev/null
+	;;
     *)
 	yes | $MKFS_PROG -t $FSTYP -- $MKFS_OPTIONS $* $TEST_DEV
 	;;
@@ -752,6 +759,9 @@ _mkfs_dev()
     xfs)
 	$MKFS_PROG -t $FSTYP -- -f $MKFS_OPTIONS $* \
 		2>$tmp.mkfserr 1>$tmp.mkfsstd
+	;;
+    ntfs|ntfs3)
+        $MKFS_NTFS_PROG $MKFS_OPTIONS $* 2>$tmp.mkfserr 1>$tmp.mkfsstd
 	;;
     *)
 	yes | $MKFS_PROG -t $FSTYP -- $MKFS_OPTIONS $* \
@@ -849,6 +859,10 @@ _scratch_mkfs()
 	ocfs2)
 		mkfs_cmd="yes | $MKFS_PROG -t $FSTYP --"
 		mkfs_filter="grep -v -e ^mkfs\.ocfs2"
+		;;
+	ntfs|ntfs3)
+		mkfs_cmd="$MKFS_NTFS_PROG"
+		mkfs_filter="cat"
 		;;
 	*)
 		mkfs_cmd="yes | $MKFS_PROG -t $FSTYP --"
@@ -1130,6 +1144,10 @@ _scratch_mkfs_sized()
 	bcachefs)
 		$MKFS_PROG -t $FSTYP -- $MKFS_OPTIONS --fs_size=$fssize --block_size=$blocksize $SCRATCH_DEV
 		;;
+	ntfs|ntfs3)
+		${MKFS_NTFS_PROG} $MKFS_OPTIONS $SCRATCH_DEV \
+			$(expr $blocks / 2)
+		;;
 	*)
 		_notrun "Filesystem $FSTYP not supported in _scratch_mkfs_sized"
 		;;
@@ -1212,6 +1230,9 @@ _scratch_mkfs_blocksized()
 		${MKFS_PROG} -t $FSTYP $MKFS_OPTIONS --block_size=$blocksize \
 								$SCRATCH_DEV
 		;;
+	ntfs|ntfs3)
+		${MKFS_NTFS_PROG} -F $MKFS_OPTIONS -s $blocksize $SCRATCH_DEV
+		;;
 	*)
 		_notrun "Filesystem $FSTYP not supported in _scratch_mkfs_blocksized"
 		;;
@@ -1286,6 +1307,10 @@ _repair_scratch_fs()
 	# want the test to fail:
 	_check_scratch_fs
 	;;
+    ntfs|ntfs3)
+	$FSCK_NTFS_PROG $SCRATCH_DEV
+	return $?
+	;;
     *)
 	local dev=$SCRATCH_DEV
 	local fstyp=$FSTYP
@@ -1332,6 +1357,10 @@ _repair_test_fs()
 			_xfs_repair_test_fs "$@" >>$tmp.repair 2>&1
 			res=$?
 		fi
+		;;
+	ntfs|ntfs3)
+		$FSCK_NTFS_PROG $TEST_DEV > $tmp.repair 2>&1
+		return $?
 		;;
 	*)
 		# Let's hope fsck -y suffices...
@@ -1472,8 +1501,11 @@ _fs_type()
     # Fix the filesystem type up here so that the callers don't
     # have to bother with this quirk.
     #
-    _df_device $1 | $AWK_PROG '{ print $2 }' | \
-        sed -e 's/nfs4/nfs/' -e 's/fuse.glusterfs/glusterfs/'
+    local sed_prog="-e s/nfs4/nfs/ -e s/fuse.glusterfs/glusterfs/"
+    if [ $FSTYP = ntfs ]; then
+	sed_prog="$sed_prog -e s/fuseblk/ntfs/"
+    fi
+    _df_device $1 | $AWK_PROG '{ print $2 }' | sed $sed_prog
 }
 
 # return the FS mount options of a mounted device
@@ -2980,6 +3012,9 @@ _is_dev_mounted()
 		exit 1
 	fi
 
+	if [ $fstype = ntfs ]; then
+	    fstype=fuseblk
+	fi
 	findmnt -rncv -S $dev -t $fstype -o TARGET | head -1
 }
 
@@ -3100,11 +3135,15 @@ _pre_fsck_prepare()
 _check_generic_filesystem()
 {
     local device=$1
+    local fsck_type=$2
 
     # If type is set, we're mounted
     local type=`_fs_type $device`
     local ok=1
 
+    if [ -z "$fsck_type" ]; then
+       fsck_type="$FSTYP"
+    fi
     if [ "$type" = "$FSTYP" ]
     then
         # mounted ...
@@ -3112,7 +3151,7 @@ _check_generic_filesystem()
     fi
 
     _pre_fsck_prepare $device
-    fsck -t $FSTYP $FSCK_OPTIONS $device >$tmp.fsck 2>&1
+    fsck -t $fsck_type $FSCK_OPTIONS $device >$tmp.fsck 2>&1
     if [ $? -ne 0 ]
     then
 	_log_err "_check_generic_filesystem: filesystem on $device is inconsistent"
@@ -3233,6 +3272,9 @@ _check_test_fs()
     btrfs)
 	_check_btrfs_filesystem $TEST_DEV
 	;;
+    ntfs|ntfs3)
+	_check_generic_filesystem $TEST_DEV $ntfs
+	;;
     tmpfs)
 	# no way to check consistency for tmpfs
 	;;
@@ -3293,6 +3335,9 @@ _check_scratch_fs()
 	;;
     btrfs)
 	_check_btrfs_filesystem $device
+	;;
+    ntfs|ntfs3)
+	_check_generic_filesystem $device ntfs
 	;;
     tmpfs)
 	# no way to check consistency for tmpfs
