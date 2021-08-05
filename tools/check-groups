@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Make sure that all groups listed in a group.list file are mentioned in the
+# group description file.
+
+if [ -z "$1" ] || [ "$1" = "--help" ]; then
+	echo "Usage: $0 path_to_group_names [group.list files...]"
+	exit 1
+fi
+
+groups_doc_file="$1"
+shift
+
+get_group_list() {
+	for file in "$@"; do
+		while read testname groups; do
+			test -z "${testname}" && continue
+			test "${testname:0:1}" = "#" && continue
+
+			echo "${groups}" | tr ' ' '\n'
+		done < "${file}"
+	done | sort | uniq
+}
+
+ret=0
+while read group; do
+	if ! grep -q "^${group}[[:space:]]" "${groups_doc_file}"; then
+		echo "${group}: group not mentioned in documentation." 1>&2
+		ret=1
+	fi
+done < <(get_group_list "$@")
+
+exit "${ret}"

@@ -6,3 +6,4 @@
 group.list:
 	@echo " [GROUP] $$PWD/$@"
 	$(Q)$(TOPDIR)/tools/mkgroupfile $@
+	$(Q)$(TOPDIR)/tools/check-groups $(TOPDIR)/doc/group-names.txt $@
