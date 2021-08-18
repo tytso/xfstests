@@ -1,0 +1,9 @@
+QA output created by 728
+Allocating 52428800 memory.
+Dirtying memory.
+Now mlocking memory.
+Allocating 52428800 memory.
+Dirtying memory.
+Now activating swapfile2.
+Now deactivating swapfile1.
+Silence is golden
