@@ -167,6 +167,7 @@ tags
 /src/unwritten_mmap
 /src/unwritten_sync
 /src/usemem
+/src/usemem_and_swapoff
 /src/writemod
 /src/writev_on_pagefault
 /src/xfsctl
