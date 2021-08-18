@@ -2674,10 +2674,8 @@ _format_swapfile() {
 }
 
 _swapon_file() {
-	local fname="$1"
-
 	# Ignore permission complaints on filesystems that don't support perms
-	$(swapon "$fname" 2> >(grep -v "insecure permissions" >&2))
+	$(swapon "$@" 2> >(grep -v "insecure permissions" >&2))
 }
 
 # Check that the filesystem supports swapfiles
