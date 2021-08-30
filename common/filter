@@ -661,5 +661,16 @@ _filter_quota_report()
 		s|^(.*?) (\d+) (\d+) (\d+)|$1 @{[$2 * 1024 /'$bsize']} @{[$3 * 1024 /'$bsize']} @{[$4 * 1024 /'$bsize']}|'
 }
 
+#
+# Bash 5.1+ adds "line 1: " when printing an error running an executable
+# for example, "bash -c /etc/passwd" will result in the error
+# "bash: line 1: /etc/passwd: Permission denied" where as earlier
+# versions of bash will omit the "line 1: " annotation.
+#
+_filter_bash()
+{
+	sed -e "s/^bash: line 1: /bash: /"
+}
+
 # make sure this script returns success
 /bin/true
