@@ -1,0 +1,56 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (c) 2021 Oracle.  All Rights Reserved.
+#
+# FS QA Test 731
+#
+# Basic testing of FALLOC_FL_ZEROINIT_RANGE, which is to say that we can
+# zero parts of a file and not end up with unwritten extents.
+#
+. ./common/preamble
+_begin_fstest auto prealloc zero
+
+# Import common functions.
+. ./common/filter
+
+# real QA test starts here
+
+# Modify as appropriate.
+_supported_fs generic
+_require_scratch
+_require_xfs_io_command "fzeroinit"
+
+_scratch_mkfs >> $seqres.full
+_scratch_mount >> $seqres.full
+
+testfile=$SCRATCH_MNT/testfile
+goodfile=$SCRATCH_MNT/goodfile
+
+blksz=$(_get_file_block_size $TEST_DIR)
+
+# Set up good file and test file.  The sizes are variable based on the file
+# block size, so we can't encode md5sums in the golden output.
+$XFS_IO_PROG -f -c "pwrite -S 0x58 0 $((blksz * 6))" \
+	-c "pwrite -S 0x00 $((blksz * 2)) $((blksz * 2))" -c sync $goodfile >> $seqres.full
+good_checksum=$(md5sum $goodfile | _filter_scratch | awk '{print $1}')
+$XFS_IO_PROG -f -c "pwrite -S 0x58 0 $((blksz * 6))" -c sync $testfile >> $seqres.full
+_scratch_cycle_mount
+
+# Start the zeroing (which should run immediately) then crash the fs before
+# it has time to react
+$XFS_IO_PROG -c "fzeroinit $((blksz * 2)) $((blksz * 2))" $testfile >> $seqres.full
+_scratch_shutdown -v -f >> $seqres.full
+
+# Check that the files match
+_scratch_cycle_mount
+test_checksum=$(md5sum $testfile | _filter_scratch | awk '{print $1}')
+test "$test_checksum" = "$good_checksum" || \
+	echo "test and good file do not match"
+
+echo "test: $test_checksum" >> $seqres.full
+echo "good: $good_checksum" >> $seqres.full
+
+# success, all done
+echo Silence is golden
+status=0
+exit
