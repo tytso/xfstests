@@ -26,7 +26,6 @@ _register_cleanup "_cleanup" BUS
 _supported_fs xfs
 _require_realtime
 _require_scratch
-_require_xfs_scrub_freezeok
 _require_xfs_stress_online_repair
 
 _scratch_mkfs > "$seqres.full" 2>&1
@@ -35,7 +34,7 @@ _require_xfs_has_feature "$SCRATCH_MNT" realtime
 _require_xfs_has_feature "$SCRATCH_MNT" rmapbt
 _xfs_force_bdev realtime $SCRATCH_MNT
 
-_scratch_xfs_stress_online_repair -s "repair -f rtrmapbt"
+_scratch_xfs_stress_online_repair -s "repair rtrmapbt"
 
 # success, all done
 echo Silence is golden
