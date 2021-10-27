@@ -331,12 +331,20 @@ __stress_freeze_filter_output() {
 
 # Filter scrub output so that we don't tarnish the golden output if the fs is
 # too busy to scrub.  Note: Tests should _notrun if the scrub type is not
-# supported.
+# supported.  Callers can provide extra strings to filter out as function
+# arguments.
 __stress_scrub_filter_output() {
+	local extra_args=()
+
+	for arg in "$@"; do
+		extra_args+=(-e "/${arg}/d")
+	done
+
 	_filter_scratch | \
 		sed -e '/Device or resource busy/d' \
 		    -e '/Optimization possible/d' \
-		    -e '/No space left on device/d'
+		    -e '/No space left on device/d' \
+		    "${extra_args[@]}"
 }
 
 __stress_scrub_running() {
@@ -375,9 +383,30 @@ __stress_scrub_loop() {
 		fi
 	done
 
+	local extra_filters=()
+	local target_cmd=(echo "$scrub_tgt")
+	case "$scrub_tgt" in
+	"%file%"|"%datafile%"|"%attrfile%")
+		extra_filters+=('No such file or directory' 'No such device or address')
+		target_cmd=(find "$SCRATCH_MNT" -print)
+		;;
+	"%dir%")
+		extra_filters+=('No such file or directory' 'Not a directory')
+		target_cmd=(find "$SCRATCH_MNT" -type d -print)
+		;;
+	"%regfile%"|"%cowfile%")
+		extra_filters+=('No such file or directory')
+		target_cmd=(find "$SCRATCH_MNT" -type f -print)
+		;;
+	esac
+
 	while __stress_scrub_running "$end" "$runningfile"; do
-		$XFS_IO_PROG -x "${xfs_io_args[@]}" "$scrub_tgt" 2>&1 | \
-			__stress_scrub_filter_output
+		readarray -t fnames < <("${target_cmd[@]}" 2>/dev/null)
+		for fname in "${fnames[@]}"; do
+			$XFS_IO_PROG -x "${xfs_io_args[@]}" "$fname" 2>&1 | \
+				__stress_scrub_filter_output "${extra_filters[@]}"
+			__stress_scrub_running "$end" "$runningfile" || break
+		done
 	done
 }
 
@@ -421,9 +450,31 @@ __stress_scrub_check_commands() {
 	local scrub_tgt="$1"
 	shift
 
+	local cooked_tgt="$scrub_tgt"
+	case "$scrub_tgt" in
+	"%file%"|"%dir%")
+		cooked_tgt="$SCRATCH_MNT"
+		;;
+	"%regfile%"|"%datafile%")
+		cooked_tgt="$SCRATCH_MNT/testfile"
+		echo test > "$cooked_tgt"
+		;;
+	"%attrfile%")
+		cooked_tgt="$SCRATCH_MNT/testfile"
+		$XFS_IO_PROG -f -c 'pwrite -S 0x58 0 64k' "$cooked_tgt" &>/dev/null
+		attr -s attrname "$cooked_tgt" < "$cooked_tgt" &>/dev/null
+		;;
+	"%cowfile%")
+		cooked_tgt="$SCRATCH_MNT/testfile"
+		$XFS_IO_PROG -f -c 'pwrite -S 0x58 0 128k' "$cooked_tgt" &>/dev/null
+		_cp_reflink "$cooked_tgt" "$cooked_tgt.1"
+		$XFS_IO_PROG -f -c 'pwrite -S 0x58 0 1' "$cooked_tgt.1" &>/dev/null
+		;;
+	esac
+
 	for arg in "$@"; do
 		local cooked_arg="$(echo "$arg" | sed -e "s/%agno%/0/g")"
-		testio=`$XFS_IO_PROG -x -c "$cooked_arg" $scrub_tgt 2>&1`
+		testio=`$XFS_IO_PROG -x -c "$cooked_arg" "$cooked_tgt" 2>&1`
 		echo $testio | grep -q "Inappropriate ioctl" && \
 			_notrun "kernel scrub ioctl is missing"
 		echo $testio | grep -q "No such file or directory" && \
@@ -446,7 +497,17 @@ _require_xfs_scrub_freezeok() {
 #
 # -f	Run a freeze/thaw loop while we're doing other things.
 # -s	Pass this command to xfs_io to test scrub
-# -t	Run online scrub against this file; $SCRATCH_MNT is the default
+# -t	Run online scrub against this file; $SCRATCH_MNT is the default.
+#	Special values are as follows:
+#
+#	%file%		all files
+#	%regfile%	regular files
+#	%dir%		direct
+#	%datafile%	regular files with data blocks
+#	%attrfile%	regular files with xattr blocks
+#	%cowfile%	regular files with shared blocks
+#
+#	File selection races with fsstress, so the selection is best-effort.
 _scratch_xfs_stress_scrub() {
 	local scrub_args=()
 	local scrub_tgt="$SCRATCH_MNT"
