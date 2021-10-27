@@ -565,6 +565,13 @@ __stress_scrub_check_commands() {
 	done
 }
 
+# Skip test if the xfs_io scrub command does not support -f (freeze ok)
+_require_xfs_scrub_freezeok() {
+	$XFS_IO_PROG -c 'scrub -f probe' $TEST_DIR 2>&1 | \
+		grep -q 'Invalid argument' && \
+		_notrun "xfs scrub does not support freezeok flag"
+}
+
 # Start scrub, freeze, and fsstress in background looping processes, and wait
 # for 30*TIME_FACTOR seconds to see if the filesystem goes down.  Various
 # options include:
