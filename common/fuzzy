@@ -506,6 +506,12 @@ _scratch_xfs_stress_scrub() {
 		sleep 1
 	done
 	rm -f "$runningfile"
+
+	# If we can't stat the scratch filesystem, there's a reasonably good
+	# chance that the fs shut down, which is not good.
+	stat "$SCRATCH_MNT" &>/dev/null || \
+		echo "Did the scratch filesystem die?"
+
 	_scratch_xfs_stress_scrub_cleanup
 
 	echo "Loop finished at $(date)" >> $seqres.full
