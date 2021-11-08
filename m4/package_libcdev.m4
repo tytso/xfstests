@@ -110,3 +110,67 @@ AC_DEFUN([AC_HAVE_COPY_FILE_RANGE],
     AC_SUBST(have_copy_file_range)
   ])
 
+# Check if we have SEEK_DATA
+AC_DEFUN([AC_HAVE_SEEK_DATA],
+  [ AC_MSG_CHECKING([for SEEK_DATA])
+    AC_TRY_LINK([
+#define _GNU_SOURCE
+#include <sys/types.h>
+#include <unistd.h>
+    ], [
+         lseek(-1, 0, SEEK_DATA);
+    ], have_seek_data=yes
+       AC_MSG_RESULT(yes),
+       AC_MSG_RESULT(no))
+    AC_SUBST(have_seek_data)
+  ])
+
+# Check if we have FS_XFLAG_HASATTR from FSGETXATTR
+AC_DEFUN([AC_HAVE_FSXATTR_XFLAG_HASATTR],
+  [ AC_MSG_CHECKING([for FS_XFLAG_HASATTR])
+    AC_TRY_LINK([
+#define _GNU_SOURCE
+#include <linux/fs.h>
+#include <sys/ioctl.h>
+    ], [
+         struct fsxattr obj;
+         ioctl(-1, FS_IOC_FSGETXATTR, &obj);
+         obj.fsx_xflags |= FS_XFLAG_HASATTR;
+    ], have_fsxattr_xflag_hasattr=yes
+       AC_MSG_RESULT(yes),
+       AC_MSG_RESULT(no))
+    AC_SUBST(have_fsxattr_xflag_hasattr)
+  ])
+
+# Check if we have nftw
+AC_DEFUN([AC_HAVE_NFTW],
+  [ AC_MSG_CHECKING([for nftw])
+    AC_TRY_LINK([
+#define _GNU_SOURCE
+#include <stddef.h>
+#include <ftw.h>
+    ], [
+         nftw("/", (int (*)(const char *, const struct stat *, int, struct FTW *))1, 0, 0);
+    ], have_nftw=yes
+       AC_MSG_RESULT(yes),
+       AC_MSG_RESULT(no))
+    AC_SUBST(have_nftw)
+  ])
+
+# Check if we have RLIMIT_NOFILE
+AC_DEFUN([AC_HAVE_RLIMIT_NOFILE],
+  [ AC_MSG_CHECKING([for RLIMIT_NOFILE])
+    AC_TRY_LINK([
+#define _GNU_SOURCE
+#include <sys/time.h>
+#include <sys/resource.h>
+    ], [
+         struct rlimit rlimit;
+
+         rlimit.rlim_cur = 0;
+         getrlimit(RLIMIT_NOFILE, &rlimit);
+    ], have_rlimit_nofile=yes
+       AC_MSG_RESULT(yes),
+       AC_MSG_RESULT(no))
+    AC_SUBST(have_rlimit_nofile)
+  ])
