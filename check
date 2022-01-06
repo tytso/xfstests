@@ -887,6 +887,24 @@ function run_section()
 		     END {printf "%s", lasttime}' "$check.time"
 		rm -f core $seqres.notrun
 
+		# Are we taking snapshots of the test device before each test?
+		if [ -n "$SNAPSHOT_TEST_DEV_DIR" ]; then
+			_test_unmount
+			mkdir -p "$SNAPSHOT_TEST_DEV_DIR"
+			md="$SNAPSHOT_TEST_DEV_DIR/$(echo "$seqnum" | sed -e 's|/|.|g').md"
+			xfs_metadump -a -g -o $TEST_DEV "$md" > /dev/null
+			xz -9 -f "$md" &
+			_test_mount
+		fi
+
+		# Are we restoring a snapshot of the test device before each
+		# test?
+		if [ -n "$FORCE_TEST_DEV_SNAPSHOT" ]; then
+			_test_unmount
+			xfs_mdrestore -g "$FORCE_TEST_DEV_SNAPSHOT" $TEST_DEV
+			_test_mount
+		fi
+
 		start=`_wallclock`
 		$timestamp && _timestamp
 		[ ! -x $seq ] && chmod u+x $seq # ensure we can run it
