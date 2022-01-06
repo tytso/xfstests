@@ -32,6 +32,13 @@ _xfs_force_bdev data $SCRATCH_MNT
 
 bsize=$(_get_file_block_size $SCRATCH_MNT)
 
+# XXX don't let this run when dir block size or symlink rmt block size is
+# larger than a single fsblock due to latent kernel bugs --djwong
+test $bsize -gt 1024 || _notrun "requires blksz > 1k to avoid symlink rmt removal bug"
+$XFS_INFO_PROG $SCRATCH_MNT | _filter_mkfs 2>$tmp.info >> $seqres.full
+. $tmp.info
+test $dirbsize -eq $dbsize || _notrun "requires dirblksz == blksz to avoid dir shrink removal bug"
+
 echo "Consume free space"
 fillerdir=$SCRATCH_MNT/fillerdir
 nr_free_blks=$(stat -f -c '%f' $SCRATCH_MNT)
