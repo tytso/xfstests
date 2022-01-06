@@ -65,7 +65,8 @@ mkfs_filter()
 	    -e "s/, lazy-count=[0-9]//" \
 	    -e "/.*crc=/d" \
 	    -e "/^Default configuration/d" \
-	    -e 's/, parent=[01]//'
+	    -e 's/, parent=[01]//' \
+	    -e '/metadir=.*/d'
 }
 
 # mkfs slightly smaller than that, small log for speed.
