@@ -1,4 +1,5 @@
 QA output created by 411
 Format and populate
 Fuzz refcountbt
+numrecs = lastbit: online scrub didn't fail.
 Done fuzzing refcountbt

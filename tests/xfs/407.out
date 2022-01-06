@@ -1,4 +1,52 @@
 QA output created by 407
 Format and populate
 Fuzz rtrmapbt recs
+recs[2].owner = lastbit: offline re-scrub failed (1).
+recs[2].owner = lastbit: offline post-mod scrub failed (1).
+recs[2].owner = add: offline re-scrub failed (1).
+recs[2].owner = add: offline post-mod scrub failed (1).
+recs[2].owner = sub: offline re-scrub failed (1).
+recs[2].owner = sub: offline post-mod scrub failed (1).
+recs[3].owner = lastbit: offline re-scrub failed (1).
+recs[3].owner = lastbit: offline post-mod scrub failed (1).
+recs[3].owner = add: offline re-scrub failed (1).
+recs[3].owner = add: offline post-mod scrub failed (1).
+recs[3].owner = sub: offline re-scrub failed (1).
+recs[3].owner = sub: offline post-mod scrub failed (1).
+recs[4].owner = lastbit: offline re-scrub failed (1).
+recs[4].owner = lastbit: offline post-mod scrub failed (1).
+recs[4].owner = add: offline re-scrub failed (1).
+recs[4].owner = add: offline post-mod scrub failed (1).
+recs[4].owner = sub: offline re-scrub failed (1).
+recs[4].owner = sub: offline post-mod scrub failed (1).
+recs[5].owner = lastbit: offline re-scrub failed (1).
+recs[5].owner = lastbit: offline post-mod scrub failed (1).
+recs[5].owner = add: offline re-scrub failed (1).
+recs[5].owner = add: offline post-mod scrub failed (1).
+recs[5].owner = sub: offline re-scrub failed (1).
+recs[5].owner = sub: offline post-mod scrub failed (1).
+recs[6].owner = lastbit: offline re-scrub failed (1).
+recs[6].owner = lastbit: offline post-mod scrub failed (1).
+recs[6].owner = add: offline re-scrub failed (1).
+recs[6].owner = add: offline post-mod scrub failed (1).
+recs[6].owner = sub: offline re-scrub failed (1).
+recs[6].owner = sub: offline post-mod scrub failed (1).
+recs[7].owner = lastbit: offline re-scrub failed (1).
+recs[7].owner = lastbit: offline post-mod scrub failed (1).
+recs[7].owner = add: offline re-scrub failed (1).
+recs[7].owner = add: offline post-mod scrub failed (1).
+recs[7].owner = sub: offline re-scrub failed (1).
+recs[7].owner = sub: offline post-mod scrub failed (1).
+recs[8].owner = lastbit: offline re-scrub failed (1).
+recs[8].owner = lastbit: offline post-mod scrub failed (1).
+recs[8].owner = add: offline re-scrub failed (1).
+recs[8].owner = add: offline post-mod scrub failed (1).
+recs[8].owner = sub: offline re-scrub failed (1).
+recs[8].owner = sub: offline post-mod scrub failed (1).
+recs[9].owner = lastbit: offline re-scrub failed (1).
+recs[9].owner = lastbit: offline post-mod scrub failed (1).
+recs[9].owner = add: offline re-scrub failed (1).
+recs[9].owner = add: offline post-mod scrub failed (1).
+recs[9].owner = sub: offline re-scrub failed (1).
+recs[9].owner = sub: offline post-mod scrub failed (1).
 Done fuzzing rtrmapbt recs
