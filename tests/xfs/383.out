@@ -2,4 +2,8 @@ QA output created by 383
 Format and populate
 Find symlink remote block
 Fuzz symlink remote block
+data = ones: online scrub didn't fail.
+data = firstbit: online scrub didn't fail.
+data = middlebit: online scrub didn't fail.
+data = lastbit: online scrub didn't fail.
 Done fuzzing symlink remote block
