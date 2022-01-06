@@ -1909,6 +1909,10 @@ _scratch_xfs_find_rgbtree_height() {
 		path_format="/realtime/%u.rmap"
 		bt_prefix="u3.rtrmapbt"
 		;;
+	"refcnt")
+		path_format="/realtime/%u.refcount"
+		bt_prefix="u3.rtrefcbt"
+		;;
 	*)
 		_fail "Don't know about rt btree ${bt_type}"
 		;;
