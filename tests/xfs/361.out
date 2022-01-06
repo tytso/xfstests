@@ -1,4 +1,18 @@
 QA output created by 361
 Format and populate
 Fuzz bnobt keyptr
+keys[1].blockcount = zeroes: online scrub didn't fail.
+keys[1].blockcount = ones: online scrub didn't fail.
+keys[1].blockcount = firstbit: online scrub didn't fail.
+keys[1].blockcount = middlebit: online scrub didn't fail.
+keys[1].blockcount = lastbit: online scrub didn't fail.
+keys[1].blockcount = add: online scrub didn't fail.
+keys[1].blockcount = sub: online scrub didn't fail.
+keys[2].blockcount = zeroes: online scrub didn't fail.
+keys[2].blockcount = ones: online scrub didn't fail.
+keys[2].blockcount = firstbit: online scrub didn't fail.
+keys[2].blockcount = middlebit: online scrub didn't fail.
+keys[2].blockcount = lastbit: online scrub didn't fail.
+keys[2].blockcount = add: online scrub didn't fail.
+keys[2].blockcount = sub: online scrub didn't fail.
 Done fuzzing bnobt keyptr

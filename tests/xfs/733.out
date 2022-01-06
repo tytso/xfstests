@@ -3,8 +3,19 @@ Format and populate
 Fuzz block map for BLOCK
 Done fuzzing dir map BLOCK
 Fuzz block map for LEAF
+u3.bmx[0].startblock = ones: online repair failed (1).
+u3.bmx[0].blockcount = zeroes: online repair failed (1).
+u3.bmx[0].blockcount = firstbit: online repair failed (1).
+u3.bmx[2].blockcount = sub: online repair failed (1).
+u3.bmx[3].startblock = zeroes: online repair failed (1).
+u3.bmx[3].startblock = sub: online repair failed (1).
 Done fuzzing dir map LEAF
 Fuzz block map for LEAFN
+u3.bmx[1].startblock = middlebit: online repair failed (1).
+u3.bmx[2].startblock = sub: online repair failed (1).
+u3.bmx[3].startblock = ones: online repair failed (1).
+u3.bmx[3].blockcount = zeroes: online repair failed (1).
+u3.bmx[3].blockcount = sub: online repair failed (1).
 Done fuzzing dir map LEAFN
 Fuzz block map for NODE
 Done fuzzing dir map NODE
