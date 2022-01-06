@@ -1213,6 +1213,16 @@ _scratch_xfs_stress_scrub() {
 		esac
 	done
 
+	# XXX: Disable all the scrub loop tests for any kernel that isn't
+	# the djwong-dev kernel, because there are known problems (refcount
+	# can break if we lock the AGF while anyone's processing a chain;
+	# fscounters can't freeze the system) that clutter up the output.
+	if [ "${#one_scrub_args[@]}" -gt 0 ] || [ "${#xfs_scrub_args[@]}" -gt 0 ]; then
+		$XFS_IO_PROG -x -c 'repair -R probe' $TEST_DIR 2>&1 | \
+			grep -q 'Invalid argument' && \
+			_notrun "scrub loop disabled for non djwong-dev"
+	fi
+
 	__stress_scrub_check_commands "$scrub_tgt" "$start_agno" \
 			"${one_scrub_args[@]}"
 
