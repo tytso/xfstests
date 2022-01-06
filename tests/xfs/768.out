@@ -2,4 +2,24 @@ QA output created by 768
 Format and populate
 Find leafn-format dir block
 Fuzz leafn-format dir block
+lhdr.info.crc = zeroes: offline scrub didn't fail.
+lhdr.info.crc = ones: offline scrub didn't fail.
+lhdr.info.crc = firstbit: offline scrub didn't fail.
+lhdr.info.crc = middlebit: offline scrub didn't fail.
+lhdr.info.crc = lastbit: offline scrub didn't fail.
+lhdr.info.crc = add: offline scrub didn't fail.
+lhdr.info.crc = sub: offline scrub didn't fail.
+lents[0].hashval = zeroes: offline scrub didn't fail.
+lents[0].hashval = middlebit: offline scrub didn't fail.
+lents[0].hashval = lastbit: offline scrub didn't fail.
+lents[0].hashval = lastbit: online scrub didn't fail.
+lents[0].hashval = sub: offline scrub didn't fail.
+lents[2].hashval = lastbit: offline scrub didn't fail.
+lents[2].hashval = lastbit: online scrub didn't fail.
+lents[4].hashval = lastbit: offline scrub didn't fail.
+lents[4].hashval = lastbit: online scrub didn't fail.
+lents[6].hashval = lastbit: offline scrub didn't fail.
+lents[6].hashval = lastbit: online scrub didn't fail.
+lents[8].hashval = lastbit: offline scrub didn't fail.
+lents[8].hashval = lastbit: online scrub didn't fail.
 Done fuzzing leafn-format dir block
