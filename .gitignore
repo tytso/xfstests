@@ -179,6 +179,7 @@ tags
 /src/uring_read_fault
 /src/usemem
 /src/uuid_ioctl
+/src/usemem_and_swapoff
 /src/writemod
 /src/writev_on_pagefault
 /src/xfsctl

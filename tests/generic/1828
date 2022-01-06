@@ -1,0 +1,141 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (c) 2022-2024 Oracle.  All Rights Reserved.
+#
+# FS QA Test No. 1828
+#
+# Test swapping process pages in and out of a swapfile.  Because we cannot
+# direct the virtual memory manager to flush pages to swap and do not wish to
+# spend a large amount of time flooding the system with dirty anonymous pages,
+# some trickery is employed here to speed things up.
+#
+# Specifically, this test employs the memory cgroup controller to run a modest
+# memory consuming process with an artificially low limit on the amount of
+# physical memory that it can use.  Combined with swap files configured with
+# maximum priority, the hope is that the mem-user process will get paged out
+# to the swapfile and some clever uses of swapon/swapoff will force it to be
+# paged back in.
+#
+# Note that we use systemd-run to configure the memory controller so that we
+# don't have to open-code all the cgroupv1 and cgroupv2 configuration logic in
+# the form of shell scripts.
+#
+. ./common/preamble
+_begin_fstest auto swap
+
+# Override the default cleanup function.
+_cleanup()
+{
+	cd /
+	rm -f $tmp.*
+	test -n "$swapfile1" && swapoff $swapfile1 &> /dev/null
+	test -n "$swapfile2" && swapoff $swapfile2 &> /dev/null
+}
+
+. ./common/cgroup2
+
+# real QA test starts here
+_supported_fs generic
+_require_scratch_swapfile
+_require_command "$SYSTEMD_RUN_PROG" systemd-run
+_require_test_program "usemem_and_swapoff"
+_require_memcg
+
+_scratch_mkfs >> $seqres.full
+_scratch_mount >> $seqres.full
+
+swapfile1=$SCRATCH_MNT/swapfile1
+swapfile2=$SCRATCH_MNT/swapfile2
+_format_swapfile $swapfile1 100m >> $seqres.full
+_format_swapfile $swapfile2 100m >> $seqres.full
+
+# The maximum swap priority is 32767 as defined by the kernel swap flag mask.
+SWAP_FLAG_PRIO_MASK=32767	# 0x7ffff
+
+# Add the swapfile with the highest priority so that pages get sent here before
+# any other configured swap space.
+_swapon_file $swapfile1 -p $SWAP_FLAG_PRIO_MASK
+
+# Walk the swap list to make sure that our swapfile has the highest priority
+# to boost the chances that it will get used for /some/ swap activity.
+cat /proc/swaps >> $seqres.full
+saw_swapfile1=0
+saw_swapfile2=0
+while read fname type size used priority junk; do
+	test "$fname" = "Filename" && continue
+	if [ "$fname" -ef "$swapfile1" ]; then
+		test "$priority" -eq "$SWAP_FLAG_PRIO_MASK" || \
+			echo "swapfile1 has wrong priority $priority?"
+		saw_swapfile1=1
+		continue
+	fi
+	test "$fname" -ef "$swapfile2" && saw_swapfile2=1
+	test "$priority" -lt "$SWAP_FLAG_PRIO_MASK" || \
+		echo "$fname: swap at same priority as test swapfile, test may fail"
+done < /proc/swaps
+
+test "$saw_swapfile1" -gt 0 || \
+	echo "swapfile1 shold be present in /proc/swaps"
+test "$saw_swapfile2" -eq 0 || \
+	echo "swapfile2 should not be present in /proc/swaps"
+
+# Configure ourselves to run a test program in a specially crafted systemd
+# scope where DRAM usage is constrained to half the expected RAM usage.  The
+# test program will try to get itself swapped out to disk.
+runargs=(--quiet --scope --no-ask-password --same-dir -p MemoryMax=25M)
+cmdline="$here/src/usemem_and_swapoff $((50 * 1048576))"
+
+# The first time, the program allocates 50MB of space and dirties every page to
+# try to get the program swapped out to disk.  It will then try to mlock all
+# 50MB, which it shouldn't be able to do if the memory controller is doing its
+# job.  This is critical to test swapping the program back in.
+#
+# Note: The bash stdout/stderr redirection muddiness is needed to capture bash
+# complaining about the usemem_and_swapoff program being killed by the kernel.
+prog=( bash -c "$cmdline &> $tmp.prog" )
+( $SYSTEMD_RUN_PROG "${runargs[@]}" "${prog[@]}" &> $tmp.wrap ) ; ret=$?
+
+# Record the output of the first attempt.
+cat $tmp.prog | tee -a $seqres.full
+grep -q Killed $tmp.wrap || \
+	echo "mlock didn't cause OOM kill; memory limit enforcement might not be working"
+cat $tmp.wrap >> $seqres.full
+echo "return value $ret" >> $seqres.full
+
+# The second time, the program again allocates 50MB and dirties it.  However,
+# this time the program tries to enable swapfile2 and disable swapfile1, which
+# should result in the program being paged in from swapfile1 and paged out to
+# swapfile2.  The program should be able to continue accessing its memory.
+prog=( bash -c "$cmdline $swapfile1 $swapfile2 &> $tmp.prog" )
+( $SYSTEMD_RUN_PROG "${runargs[@]}" "${prog[@]}" &> $tmp.wrap ) ; ret=$?
+
+# Record the output of the second attempt.
+cat $tmp.prog | tee -a $seqres.full
+grep -q Killed $tmp.wrap && echo "swapfile swap should not have killed program"
+cat $tmp.wrap >> $seqres.full
+echo "return value $ret" >> $seqres.full
+
+# Make sure the final state of the swap devices is what we think it should be.
+cat /proc/swaps >> $seqres.full
+saw_swapfile1=0
+saw_swapfile2=0
+while read fname type size used priority junk; do
+	test "$fname" = "Filename" && continue
+	test "$fname" -ef "$swapfile1" && saw_swapfile1=1
+	if [ "$fname" -ef "$swapfile2" ]; then
+		test "$priority" -eq "$SWAP_FLAG_PRIO_MASK" || \
+			echo "swapfile2 has wrong priority $priority?"
+		saw_swapfile2=1
+		continue
+	fi
+done < /proc/swaps
+
+test "$saw_swapfile1" -eq 0 || \
+	echo "swapfile1 should not be present in /proc/swaps"
+test "$saw_swapfile2" -eq 1 || \
+	echo "swapfile2 should be present in /proc/swaps"
+
+# success, all done
+echo Silence is golden
+status=0
+exit
