@@ -1,4 +1,8 @@
 QA output created by 1543
 Format and populate
 Fuzz rtrefcountbt keyptrs
+u3.rtrefcbt.keys[1].startblock = zeroes: offline scrub didn't fail.
+u3.rtrefcbt.keys[1].startblock = lastbit: offline scrub didn't fail.
+u3.rtrefcbt.keys[1].startblock = sub: offline scrub didn't fail.
+u3.rtrefcbt.keys[2].startblock = lastbit: offline scrub didn't fail.
 Done fuzzing rtrefcountbt keyptrs
