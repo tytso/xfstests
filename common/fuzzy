@@ -978,7 +978,7 @@ __scratch_xfs_stress_setup_force_rebuild() {
 	local output="$($XFS_IO_PROG -x -c 'repair -R probe' $SCRATCH_MNT 2>&1)"
 
 	if [ -z "$output" ]; then
-		export SCRUBSTRESS_USE_FORCE_REBUILD=1
+		SCRUBSTRESS_USE_FORCE_REBUILD=1
 		return
 	fi
 
