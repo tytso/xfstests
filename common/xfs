@@ -1493,7 +1493,7 @@ _scratch_get_bmx_prefix() {
 
 _scratch_get_iext_count()
 {
-	local ino=$1
+	local selector=$1
 	local whichfork=$2
 	local field=""
 
@@ -1508,7 +1508,7 @@ _scratch_get_iext_count()
 			return 1
 	esac
 
-	_scratch_xfs_get_metadata_field $field "inode $ino"
+	_scratch_xfs_get_metadata_field $field "$selector"
 }
 
 #
@@ -1913,4 +1913,32 @@ _require_xfs_parent()
 	_try_scratch_mount >/dev/null 2>&1 \
 		|| _notrun "kernel does not support parent pointers"
 	_scratch_unmount
+}
+
+# Find a metadata file within an xfs filesystem.  The sole argument is the
+# name of the field within the superblock.
+_scratch_xfs_find_metafile()
+{
+	local metafile="$1"
+	local selector=
+
+	if ! _check_scratch_xfs_features METADIR > /dev/null; then
+		sb_field="$(_scratch_xfs_get_sb_field "$metafile")"
+		if echo "$sb_field" | grep -q -w 'not found'; then
+			return 1
+		fi
+		selector="inode $sb_field"
+	else
+		case "${metafile}" in
+		"rootino")	selector="path /";;
+		"uquotino")	selector="path -m /quota/user";;
+		"gquotino")	selector="path -m /quota/group";;
+		"pquotino")	selector="path -m /quota/project";;
+		"rbmino")	selector="path -m /realtime/bitmap";;
+		"rsumino")	selector="path -m /realtime/summary";;
+		esac
+	fi
+
+	echo "${selector}"
+	return 0
 }
