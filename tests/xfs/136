@@ -9,7 +9,7 @@
 # extents and the attributes 
 #
 . ./common/preamble
-_begin_fstest attr2
+_begin_fstest attr2 broken
 
 # Import common functions.
 . ./common/filter

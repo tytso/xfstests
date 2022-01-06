@@ -8,7 +8,7 @@
 # Multi-file data streams should always write into seperate AGs.
 #
 . ./common/preamble
-_begin_fstest rw filestreams
+_begin_fstest rw filestreams broken
 
 # Import common functions.
 . ./common/filter

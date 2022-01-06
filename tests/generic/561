@@ -8,7 +8,7 @@
 # same directory/files
 #
 . ./common/preamble
-_begin_fstest auto stress dedupe
+_begin_fstest auto stress dedupe broken
 
 # Override the default cleanup function.
 _cleanup()

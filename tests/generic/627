@@ -69,7 +69,7 @@ verify_backlog=1024
 verify_async=4
 direct=1
 random_generator=lfsr
-blocksize_range=4k-8200k
+blocksize_range=4k-128k
 rw=randwrite
 filename=test-file
 

@@ -12,7 +12,7 @@
 # proper XFS functionalilty, this is an xfsprogs maintainer test.
 #
 . ./common/preamble
-_begin_fstest other auto
+_begin_fstest other auto broken
 
 # Import common functions.
 . ./common/filter
