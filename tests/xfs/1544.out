@@ -1,4 +1,16 @@
 QA output created by 1544
 Format and populate
 Fuzz rtrefcountbt keyptrs
+u3.rtrefcbt.level = ones: mount failed (32).
+u3.rtrefcbt.level = firstbit: mount failed (32).
+u3.rtrefcbt.level = middlebit: mount failed (32).
+u3.rtrefcbt.level = add: mount failed (32).
+u3.rtrefcbt.level = sub: mount failed (32).
+u3.rtrefcbt.numrecs = ones: mount failed (32).
+u3.rtrefcbt.numrecs = firstbit: mount failed (32).
+u3.rtrefcbt.numrecs = middlebit: mount failed (32).
+u3.rtrefcbt.numrecs = add: mount failed (32).
+u3.rtrefcbt.numrecs = sub: mount failed (32).
+u3.rtrefcbt.keys[1].startblock = zeroes: offline scrub didn't fail.
+u3.rtrefcbt.keys[1].startblock = lastbit: offline scrub didn't fail.
 Done fuzzing rtrefcountbt keyptrs
