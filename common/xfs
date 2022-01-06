@@ -2113,3 +2113,44 @@ _xfs_statfs_field()
 {
 	$XFS_IO_PROG -c 'statfs' "$1" | grep -E "$2" | cut -d ' ' -f 3
 }
+
+# Resolve a metadata directory tree path and return the inode number.
+_scratch_metadir_lookup() {
+	local res="$(_scratch_xfs_db -c "ls -i -m $1")"
+	test "${PIPESTATUS[0]}" -eq 0 && echo "$res"
+}
+
+# Figure out which directory entry we have to change to update the rtrmap
+# inode pointer.  The last line of output is inumber field within a metadata
+# object; any previous lines are the accessor commands that must be fed to
+# xfs_db to get to the correct directory block.
+_scratch_find_rt_metadir_entry() {
+	local sfkey="$(_scratch_xfs_db -c 'path -m /realtime' -c print | \
+		grep "\"$1\"" | \
+		sed -e 's/.name.*$//g' -e 's/\[/\\[/g' -e 's/\]/\\]/g' )"
+	if [ -n "$sfkey" ]; then
+		echo 'path -m /realtime'
+		_scratch_xfs_db -c 'path -m /realtime' -c print | \
+			grep "${sfkey}.inumber" | awk '{print $1}'
+		return 0
+	fi
+
+	local size=$(_scratch_xfs_db -c 'path -m /realtime' -c 'print core.size' | awk '{print $3}')
+	local blksz=$(_scratch_xfs_db -c 'sb 0' -c 'print blocksize' | awk '{print $3}')
+	local dirblklog=$(_scratch_xfs_db -c 'sb 0' -c 'print dirblklog' | awk '{print $3}')
+	local dirblksz=$((blksz << dirblklog ))
+	for ((fileoff = 0; fileoff < (size / dirblksz); fileoff++)); do
+		local dbkey="$(_scratch_xfs_db -c 'path -m /realtime' -c "dblock $fileoff" -c 'print' | \
+			grep "\"$1\"" | \
+			sed -e 's/.name.*$//g' -e 's/\[/\\[/g' -e 's/\]/\\]/g' )"
+		if [ -n "$dbkey" ]; then
+			echo 'path -m /realtime'
+			echo "dblock $fileoff"
+			_scratch_xfs_db -c 'path -m /realtime' -c "dblock $fileoff" -c print | \
+				grep "${dbkey}.inumber" | awk '{print $1}'
+			return 0
+		fi
+	done
+
+	return 1
+}
