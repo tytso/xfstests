@@ -35,6 +35,7 @@ offsetof(xfs_sb_t, sb_logsunit) = 196
 offsetof(xfs_sb_t, sb_lsn) = 240
 offsetof(xfs_sb_t, sb_magicnum) = 0
 offsetof(xfs_sb_t, sb_meta_uuid) = 248
+offsetof(xfs_sb_t, sb_metadirino) = 264
 offsetof(xfs_sb_t, sb_pquotino) = 232
 offsetof(xfs_sb_t, sb_qflags) = 176
 offsetof(xfs_sb_t, sb_rblocks) = 16
