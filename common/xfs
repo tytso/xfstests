@@ -203,6 +203,15 @@ _xfs_is_realtime_file()
 	$XFS_IO_PROG -c 'stat -v' "$1" | grep -q -w realtime
 }
 
+# Get the directory block size of a mounted filesystem.
+_xfs_get_dir_blocksize()
+{
+	local fs="$1"
+
+	$XFS_INFO_PROG "$fs" | grep 'naming.*bsize' | \
+		sed -e 's/^.*bsize=//g' -e 's/\([0-9]*\).*$/\1/g'
+}
+
 # Set or clear the realtime status of every supplied path.  The first argument
 # is either 'data' or 'realtime'.  All other arguments should be paths to
 # existing directories or empty regular files.
