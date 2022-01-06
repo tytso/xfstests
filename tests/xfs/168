@@ -98,14 +98,18 @@ while [ $totalcount -gt 0 ]; do
 
 		size=`expr $dblocks \* $dbsize`
 		_scratch_unmount
-		_scratch_xfs_repair -n >> $seqres.full 2>&1 || \
+		if ! _scratch_xfs_repair -n >> $seqres.full 2>&1; then
+			_scratch_xfs_metadump "${seqres}.iloop.${sizeb}.md"
 			_fail "xfs_repair failed with shrinking $sizeb"
+		fi
 		_scratch_mount
 	done
 
 	_scratch_unmount
-	_scratch_xfs_repair -n >> $seqres.full 2>&1 || \
+	if ! _scratch_xfs_repair -n >> $seqres.full 2>&1; then
+		_scratch_xfs_metadump "${seqres}.oloop.${sizeb}.md"
 		_fail "xfs_repair failed with shrinking $sizeb"
+	fi
 	totalcount=`expr $totalcount - 1`
 done
 
