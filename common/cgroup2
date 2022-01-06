@@ -17,4 +17,9 @@ _require_cgroup2()
 	fi
 }
 
+_require_memcg()
+{
+	test -e "$CGROUP2_PATH/memory.stat" || _notrun "memcg required for test"
+}
+
 /bin/true
