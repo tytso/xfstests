@@ -2,26 +2,9 @@ QA output created by 754
 Format and populate
 Fuzz inobt
 leftsib = add: offline scrub didn't fail.
+rightsib = ones: offline scrub didn't fail.
+rightsib = middlebit: offline scrub didn't fail.
+rightsib = lastbit: offline scrub didn't fail.
 rightsib = add: offline scrub didn't fail.
-keys[1].startino = zeroes: offline scrub didn't fail.
-keys[1].startino = ones: offline scrub didn't fail.
-keys[1].startino = firstbit: offline scrub didn't fail.
-keys[1].startino = middlebit: offline scrub didn't fail.
-keys[1].startino = lastbit: offline scrub didn't fail.
-keys[1].startino = add: offline scrub didn't fail.
-keys[1].startino = sub: offline scrub didn't fail.
-keys[2].startino = zeroes: offline scrub didn't fail.
-keys[2].startino = ones: offline scrub didn't fail.
-keys[2].startino = firstbit: offline scrub didn't fail.
-keys[2].startino = middlebit: offline scrub didn't fail.
-keys[2].startino = lastbit: offline scrub didn't fail.
-keys[2].startino = add: offline scrub didn't fail.
-keys[2].startino = sub: offline scrub didn't fail.
-keys[3].startino = zeroes: offline scrub didn't fail.
-keys[3].startino = ones: offline scrub didn't fail.
-keys[3].startino = firstbit: offline scrub didn't fail.
-keys[3].startino = middlebit: offline scrub didn't fail.
-keys[3].startino = lastbit: offline scrub didn't fail.
-keys[3].startino = add: offline scrub didn't fail.
-keys[3].startino = sub: offline scrub didn't fail.
+rightsib = sub: offline scrub didn't fail.
 Done fuzzing inobt

@@ -2,4 +2,11 @@ QA output created by 768
 Format and populate
 Find leafn-format dir block
 Fuzz leafn-format dir block
+lhdr.info.crc = zeroes: offline scrub didn't fail.
+lhdr.info.crc = ones: offline scrub didn't fail.
+lhdr.info.crc = firstbit: offline scrub didn't fail.
+lhdr.info.crc = middlebit: offline scrub didn't fail.
+lhdr.info.crc = lastbit: offline scrub didn't fail.
+lhdr.info.crc = add: offline scrub didn't fail.
+lhdr.info.crc = sub: offline scrub didn't fail.
 Done fuzzing leafn-format dir block

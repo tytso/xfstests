@@ -2,4 +2,15 @@ QA output created by 766
 Format and populate
 Find data-format dir block
 Fuzz data-format dir block
+dhdr.hdr.crc = zeroes: offline scrub didn't fail.
+dhdr.hdr.crc = ones: offline scrub didn't fail.
+dhdr.hdr.crc = firstbit: offline scrub didn't fail.
+dhdr.hdr.crc = middlebit: offline scrub didn't fail.
+dhdr.hdr.crc = lastbit: offline scrub didn't fail.
+dhdr.hdr.crc = add: offline scrub didn't fail.
+dhdr.hdr.crc = sub: offline scrub didn't fail.
+du[4].name = lastbit: offline re-scrub failed (1).
+du[4].name = lastbit: online re-scrub failed (5).
+du[4].name = lastbit: online post-mod scrub failed (1).
+du[4].name = lastbit: offline post-mod scrub failed (1).
 Done fuzzing data-format dir block
