@@ -1,4 +1,19 @@
 QA output created by 364
 Format and populate
 Fuzz inobt
+leftsib = add: offline scrub didn't fail.
+rightsib = add: offline scrub didn't fail.
+recs[5].holemask = firstbit: online post-mod scrub failed (1).
+recs[5].holemask = middlebit: offline repair failed (134).
+recs[5].holemask = middlebit: offline re-scrub failed (1).
+recs[5].holemask = middlebit: pre-mod mount failed (32).
+recs[7].holemask = firstbit: offline repair failed (134).
+recs[7].holemask = firstbit: offline re-scrub failed (1).
+recs[7].holemask = firstbit: pre-mod mount failed (32).
+recs[7].holemask = middlebit: offline repair failed (134).
+recs[7].holemask = middlebit: offline re-scrub failed (1).
+recs[7].holemask = middlebit: pre-mod mount failed (32).
+recs[9].holemask = firstbit: offline repair failed (134).
+recs[9].holemask = firstbit: offline re-scrub failed (1).
+recs[9].holemask = firstbit: pre-mod mount failed (32).
 Done fuzzing inobt

@@ -1,4 +1,34 @@
 QA output created by 360
 Format and populate
 Fuzz bnobt keyptr
+leftsib = add: offline scrub didn't fail.
+rightsib = add: offline scrub didn't fail.
+keys[1].startblock = zeroes: offline scrub didn't fail.
+keys[1].startblock = ones: offline scrub didn't fail.
+keys[1].startblock = firstbit: offline scrub didn't fail.
+keys[1].startblock = middlebit: offline scrub didn't fail.
+keys[1].startblock = lastbit: offline scrub didn't fail.
+keys[1].startblock = add: offline scrub didn't fail.
+keys[1].startblock = sub: offline scrub didn't fail.
+keys[1].blockcount = zeroes: offline scrub didn't fail.
+keys[1].blockcount = ones: offline scrub didn't fail.
+keys[1].blockcount = firstbit: offline scrub didn't fail.
+keys[1].blockcount = middlebit: offline scrub didn't fail.
+keys[1].blockcount = lastbit: offline scrub didn't fail.
+keys[1].blockcount = add: offline scrub didn't fail.
+keys[1].blockcount = sub: offline scrub didn't fail.
+keys[2].startblock = zeroes: offline scrub didn't fail.
+keys[2].startblock = ones: offline scrub didn't fail.
+keys[2].startblock = firstbit: offline scrub didn't fail.
+keys[2].startblock = middlebit: offline scrub didn't fail.
+keys[2].startblock = lastbit: offline scrub didn't fail.
+keys[2].startblock = add: offline scrub didn't fail.
+keys[2].startblock = sub: offline scrub didn't fail.
+keys[2].blockcount = zeroes: offline scrub didn't fail.
+keys[2].blockcount = ones: offline scrub didn't fail.
+keys[2].blockcount = firstbit: offline scrub didn't fail.
+keys[2].blockcount = middlebit: offline scrub didn't fail.
+keys[2].blockcount = lastbit: offline scrub didn't fail.
+keys[2].blockcount = add: offline scrub didn't fail.
+keys[2].blockcount = sub: offline scrub didn't fail.
 Done fuzzing bnobt keyptr
