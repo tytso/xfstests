@@ -247,7 +247,14 @@ _supports_filetype()
 	local fstyp=`$DF_PROG $dir | tail -1 | $AWK_PROG '{print $2}'`
 	case "$fstyp" in
 	xfs)
-		$XFS_INFO_PROG $dir | grep -q "ftype=1"
+		# If _xfs_has_feature is not present, grep xfs_info directly.
+		# This can happen if we're testing overlayfs atop XFS and have
+		# not sourced ./common/xfs.
+		if command -v "_xfs_has_feature" &>/dev/null; then
+			_xfs_has_feature $dir ftype
+		else
+			$XFS_INFO_PROG $dir | grep -q "ftype=1"
+		fi
 		;;
 	ext2|ext3|ext4)
 		local dev=`$DF_PROG $dir | tail -1 | $AWK_PROG '{print $1}'`
