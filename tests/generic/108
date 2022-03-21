@@ -17,7 +17,7 @@ _begin_fstest auto quick rw
 _cleanup()
 {
 	cd /
-	echo running > /sys/block/`_short_dev $SCSI_DEBUG_DEV`/device/state
+	_set_bdev_property $SCSI_DEBUG_DEV /device/state running
 	$UMOUNT_PROG $SCRATCH_MNT >>$seqres.full 2>&1
 	$LVM_PROG vgremove -f $vgname >>$seqres.full 2>&1
 	$LVM_PROG pvremove -f $SCRATCH_DEV $SCSI_DEBUG_DEV >>$seqres.full 2>&1
@@ -42,8 +42,8 @@ _require_non_zoned_device $SCRATCH_DEV
 lvname=lv_$seq
 vgname=vg_$seq
 
-physical=$(cat /sys/block/$(_short_dev $SCRATCH_DEV)/queue/physical_block_size)
-logical=$(cat /sys/block/$(_short_dev $SCRATCH_DEV)/queue/logical_block_size)
+physical=$(_get_bdev_property $SCRATCH_DEV /queue/physical_block_size)
+logical=$(_get_bdev_property $SCRATCH_DEV /queue/logical_block_size)
 
 # _get_scsi_debug_dev returns a scsi debug device with 128M in size by default
 SCSI_DEBUG_DEV=`_get_scsi_debug_dev ${physical:-512} ${logical:-512} 0 300`
@@ -70,7 +70,7 @@ _mount /dev/mapper/$vgname-$lvname $SCRATCH_MNT
 $XFS_IO_PROG -f -c "pwrite 0 16M" -c fsync $SCRATCH_MNT/testfile >>$seqres.full
 
 # offline the scsi debug device
-echo offline > /sys/block/`_short_dev $SCSI_DEBUG_DEV`/device/state
+_set_bdev_property $SCSI_DEBUG_DEV /device/state offline
 
 # write to an allocated area of the test file with writes which spans both disks
 # and call fsync, the fsync should report failure

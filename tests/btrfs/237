@@ -35,7 +35,7 @@ get_data_bg()
 		grep -Eo "CHUNK_ITEM [[:digit:]]+" | cut -d ' ' -f 2
 }
 
-zonesize=$(cat /sys/block/$(_short_dev $SCRATCH_DEV)/queue/chunk_sectors)
+zonesize=$(_get_bdev_property $SCRATCH_DEV /queue/chunk_sectors)
 zonesize=$((zonesize << 9))
 
 _scratch_mkfs >/dev/null 2>&1

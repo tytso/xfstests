@@ -2020,6 +2020,59 @@ _require_sane_bdev_flush()
 	fi
 }
 
+# Map a block device to its counterpart in sysfs.  Partition block devices are
+# mapped to the parent block device.
+_sysfs_block() {
+	local dev="$1"
+	local shortdev="$(_short_dev "$dev")"
+
+	# Full block devices are simple
+	local ret="/sys/block/$shortdev"
+	if [ -e "$ret" ]; then
+		readlink -m "$ret"
+		return 0
+	fi
+
+	# Partitions are a little trickier
+	ret="/sys/class/block/$shortdev"
+	if [ -e "$ret/partition" ]; then
+		readlink -m "$ret/.."
+		return 0
+	fi
+
+	# Don't know what to do here???
+	return 1
+}
+
+# Retrieve a block device property from sysfs
+_get_bdev_property() {
+	local dev="$1"
+	local path="$2"
+
+	local property="$(_sysfs_block "$dev")/$path"
+	if [ $? -eq 0 ] && [ -r "$property" ]; then
+		cat "$property"
+		return 0
+	fi
+
+	return 1
+}
+
+# Set a block device property in sysfs
+_set_bdev_property() {
+	local dev="$1"
+	local path="$2"
+	local value="$3"
+
+	local property="$(_sysfs_block "$dev")/$path"
+	if [ $? -eq 0 ] && [ -w "$property" ]; then
+		echo "$value" > "$property"
+		return 0
+	fi
+
+	return 1
+}
+
 # Decide if the scratch filesystem is likely to be mounted in fsdax mode.
 # It goes 3 ways based on mount options::
 #	1. "dax" or "dax=always" means always test using DAX
@@ -2035,6 +2088,8 @@ __scratch_uses_fsdax()
 	echo $ops | egrep -qw "dax(=always| |$)" && return 0
 	echo $ops | grep -qw "dax=never" && return 1
 
+	# Do not use _sysfs_block or _get_bdev_property here because pmem
+	# devices do not support fsdax mode on partitions.
 	local sysfs="/sys/block/$(_short_dev $SCRATCH_DEV)"
 	test -e "${sysfs}/dax" && return 0
 	test "$(cat "${sysfs}/queue/dax" 2>/dev/null)" = "1" && return 0
@@ -2091,11 +2146,7 @@ _zone_type()
 	fi
 	local sdev=`_short_dev $target`
 
-	if [ -e /sys/block/${sdev}/queue/zoned ]; then
-		cat /sys/block/${sdev}/queue/zoned
-	else
-		echo none
-	fi
+	_get_bdev_property "${sdev}" /queue/zoned || echo none
 }
 
 _require_zoned_device()
