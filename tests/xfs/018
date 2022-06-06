@@ -54,6 +54,45 @@ test_attr_replay()
 	echo ""
 }
 
+test_attr_replay_loop()
+{
+	testfile=$testdir/$1
+	attr_name=$2
+	attr_value=$3
+	flag=$4
+	error_tag=$5
+
+	# Inject error
+	_scratch_inject_error $error_tag
+
+	# Set attribute; hopefully 1000 of them is enough to cause whatever
+	# attr structure shape change that the caller wants to test.
+	for ((i = 0; i < 1024; i++)); do
+		echo "$attr_value" | \
+			${ATTR_PROG} -$flag "$attr_name$i" $testfile > $tmp.out 2> $tmp.err
+		cat $tmp.out $tmp.err >> $seqres.full
+		cat $tmp.err | _filter_scratch | sed -e 's/attr_name[0-9]*/attr_nameXXXX/g'
+		touch $testfile &>/dev/null || break
+	done
+
+	# FS should be shut down, touch will fail
+	touch $testfile 2>&1 | _filter_scratch
+
+	# Remount to replay log
+	_scratch_remount_dump_log >> $seqres.full
+
+	# FS should be online, touch should succeed
+	touch $testfile
+
+	# Verify attr recovery
+	$ATTR_PROG -l $testfile >> $seqres.full
+	echo "Checking contents of $attr_name$i" >> $seqres.full
+	echo -n "${attr_name}XXXX: "
+	$ATTR_PROG -q -g $attr_name$i $testfile 2> /dev/null | md5sum;
+
+	echo ""
+}
+
 create_test_file()
 {
 	filename=$testdir/$1
@@ -88,6 +127,7 @@ echo 1 > /sys/fs/xfs/debug/larp
 attr16="0123456789ABCDEF"
 attr64="$attr16$attr16$attr16$attr16"
 attr256="$attr64$attr64$attr64$attr64"
+attr512="$attr256$attr256"
 attr1k="$attr256$attr256$attr256$attr256"
 attr4k="$attr1k$attr1k$attr1k$attr1k"
 attr8k="$attr4k$attr4k"
@@ -140,12 +180,14 @@ test_attr_replay extent_file1 "attr_name2" $attr1k "s" "larp"
 test_attr_replay extent_file1 "attr_name2" $attr1k "r" "larp"
 
 # extent, inject error on split
-create_test_file extent_file2 3 $attr1k
-test_attr_replay extent_file2 "attr_name4" $attr1k "s" "da_leaf_split"
+create_test_file extent_file2 0 $attr1k
+test_attr_replay_loop extent_file2 "attr_name" $attr1k "s" "da_leaf_split"
 
-# extent, inject error on fork transition
-create_test_file extent_file3 3 $attr1k
-test_attr_replay extent_file3 "attr_name4" $attr1k "s" "attr_leaf_to_node"
+# extent, inject error on fork transition.  The attr value must be less than
+# a full filesystem block so that the attrs don't use remote xattr values,
+# which means we miss the leaf to node transition.
+create_test_file extent_file3 0 $attr1k
+test_attr_replay_loop extent_file3 "attr_name" $attr512 "s" "attr_leaf_to_node"
 
 # extent, remote
 create_test_file extent_file4 1 $attr1k
