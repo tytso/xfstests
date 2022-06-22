@@ -732,6 +732,14 @@ _check_xfs_filesystem()
 		# before executing a scrub operation.
 		$XFS_IO_PROG -c syncfs $mntpt >> $seqres.full 2>&1
 
+		# XXX for any kernel that isn't djwong-dev, freeze and thaw
+		# the filesystem before scrubbing to force background inodegc
+		# to complete before we run scrub.  There's a nasty concurrency
+		# bug in scrub that's fixed in djwong-dev and nowhere else.
+		$XFS_IO_PROG -x -c 'repair -R probe' $mntpt 2>&1 | \
+			grep -q 'Invalid argument' && \
+			$XFS_IO_PROG -x -c 'freeze' -c 'thaw' $mntpt >> $seqres.full 2>&1
+
 		"$XFS_SCRUB_PROG" -v -d -n $mntpt > $tmp.scrub 2>&1
 		if [ $? -ne 0 ]; then
 			_log_err "_check_xfs_filesystem: filesystem on $device failed scrub"
