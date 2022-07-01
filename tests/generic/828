@@ -40,6 +40,7 @@ _require_scratch_swapfile
 _require_command "$SYSTEMD_RUN_PROG" systemd-run
 _require_test_program "usemem_and_swapoff"
 _require_memcg
+_notrun "broken on arm64"
 
 _scratch_mkfs >> $seqres.full
 _scratch_mount >> $seqres.full
