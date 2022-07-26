@@ -4925,6 +4925,22 @@ hexdump()
 	_fail "Use _hexdump(), please!"
 }
 
+_save_coredump()
+{
+	local path="$1"
+
+	local core_hash="$(_md5_checksum "$path")"
+	local out_file="$RESULT_BASE/$seqnum.core.$core_hash"
+
+	if [ -s "$out_file" ]; then
+		rm -f "$path"
+		return
+	fi
+	rm -f "$out_file"
+
+	mv "$path" "$out_file"
+}
+
 init_rc
 
 ################################################################################
