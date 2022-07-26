@@ -4932,11 +4932,24 @@ _save_coredump()
 	local core_hash="$(_md5_checksum "$path")"
 	local out_file="$RESULT_BASE/$seqnum.core.$core_hash"
 
+	if [ "$COMPRESS_COREDUMPS" = "1" ]; then
+		out_file="${out_file}.gz"
+	fi
+
 	if [ -s "$out_file" ]; then
 		rm -f "$path"
 		return
 	fi
 	rm -f "$out_file"
+
+	if [ "$COMPRESS_COREDUMPS" = "1" ]; then
+		if gzip -9 < "$path" > "$out_file"; then
+			rm -f "$path"
+		else
+			rm -f "$out_file"
+		fi
+		return
+	fi
 
 	mv "$path" "$out_file"
 }
