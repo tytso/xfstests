@@ -100,7 +100,7 @@ test "$ddbytes" -lt "$((rtbytes + (10 * rtextsize) ))" || \
 # easy because fallocate for the first rt file always starts allocating at
 # physical offset zero.
 alloc_rtx="$((rtbytes / rtextsize))"
-$XFS_IO_PROG -c "falloc 0 $((alloc_rtx * rtextsize))" $rtfile
+$XFS_IO_PROG -c "falloc 0 $((alloc_rtx * rtextsize))" $rtfile &>> $seqres.full
 
 expected_end="$(( (alloc_rtx * rtextsize - 1) / 512 ))"
 
