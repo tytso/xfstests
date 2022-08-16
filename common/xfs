@@ -282,10 +282,10 @@ _xfs_check()
 {
 	OPTS=" "
 	DBOPTS=" "
-	USAGE="Usage: xfs_check [-fsvV] [-l logdev] [-i ino]... [-b bno]... special"
+	USAGE="Usage: xfs_check [-fsvV] [-l logdev] [-r rtdev] [-i ino]... [-b bno]... special"
 
 	OPTIND=1
-	while getopts "b:fi:l:stvV" c; do
+	while getopts "b:fi:l:stvVR:" c; do
 		case $c in
 			s) OPTS=$OPTS"-s ";;
 			t) OPTS=$OPTS"-t ";;
@@ -297,6 +297,7 @@ _xfs_check()
 			V) $XFS_DB_PROG -p xfs_check -V
 			   return $?
 			   ;;
+			r) DBOPTS="$DBOPTS -R $OPTARG";;
 		esac
 	done
 	set -- extra $@
@@ -340,6 +341,10 @@ _scratch_xfs_db_options()
 	SCRATCH_OPTIONS=""
 	[ "$USE_EXTERNAL" = yes -a ! -z "$SCRATCH_LOGDEV" ] && \
 		SCRATCH_OPTIONS="-l$SCRATCH_LOGDEV"
+	if [ "$USE_EXTERNAL" = yes ] && [ ! -z "$SCRATCH_RTDEV" ]; then
+		$XFS_DB_PROG --help 2>&1 | grep -q -- '-R rtdev' && \
+			SCRATCH_OPTIONS="$SCRATCH_OPTIONS -R$SCRATCH_RTDEV"
+	fi
 	echo $SCRATCH_OPTIONS $* $SCRATCH_DEV
 }
 
@@ -404,6 +409,11 @@ _scratch_xfs_check()
 		SCRATCH_OPTIONS="-l $SCRATCH_LOGDEV"
 	[ "$LARGE_SCRATCH_DEV" = yes ] && \
 		SCRATCH_OPTIONS=$SCRATCH_OPTIONS" -t"
+	if [ "$USE_EXTERNAL" = yes ] && [ ! -z "$SCRATCH_RTDEV" ]; then
+		$XFS_DB_PROG --help 2>&1 | grep -q -- '-R rtdev' || \
+			_notrun 'xfs_db does not support rt devices'
+		SCRATCH_OPTIONS="$SCRATCH_OPTIONS -R$SCRATCH_RTDEV"
+	fi
 	_xfs_check $SCRATCH_OPTIONS $* $SCRATCH_DEV
 }
 
