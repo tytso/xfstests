@@ -66,7 +66,8 @@ mkfs_filter()
 	    -e "/.*crc=/d" \
 	    -e "/^Default configuration/d" \
 	    -e 's/, parent=[01]//' \
-	    -e '/metadir=.*/d'
+	    -e '/metadir=.*/d' \
+	    -e '/rgcount=/d'
 }
 
 # mkfs slightly smaller than that, small log for speed.
