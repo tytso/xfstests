@@ -7364,6 +7364,7 @@ static int setattr_fix_968219708108(const struct vfstest_info *info)
 		/*
 		 * The {g,u}id 0 is not mapped in this idmapped mount so this
 		 * needs to fail with EINVAL.
+		 * errno should be EOVERFLOW after kernel commit b27c82e12965.
 		 */
 		if (!fchownat(open_tree_fd, FILE1, 0, 0, AT_SYMLINK_NOFOLLOW))
 			die("failure: change ownership");
@@ -7454,6 +7455,7 @@ static int setattr_fix_968219708108(const struct vfstest_info *info)
 		/*
 		 * The {g,u}id 0 is not mapped in this idmapped mount so this
 		 * needs to fail with EINVAL.
+		 * errno should be EOVERFLOW after kernel commit b27c82e12965.
 		 */
 		if (!fchownat(open_tree_fd, FILE1, 0, 0, AT_SYMLINK_NOFOLLOW))
 			die("failure: change ownership");
