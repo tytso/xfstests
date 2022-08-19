@@ -17,6 +17,8 @@ _begin_fstest auto quick rw
 . ./common/filter
 . ./common/attr
 
+_notrun "This test is broken."
+
 # real QA test starts here
 _require_odirect
 _require_test
