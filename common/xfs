@@ -683,7 +683,8 @@ _xfs_metadump() {
 _xfs_mdrestore() {
 	local metadump="$1"
 	local device="$2"
-	shift; shift
+	local logdev="$3"
+	shift; shift; shift
 	local options="$@"
 
 	# If we're configured for compressed dumps and there isn't already an
@@ -697,6 +698,18 @@ _xfs_mdrestore() {
 	test -r "$metadump" || return 1
 
 	$XFS_MDRESTORE_PROG $options "${metadump}" "${device}"
+	res=$?
+	test $res -ne 0 && return $res
+
+	# mdrestore does not know how to restore an external log.  If there is
+	# one, we need to erase the log header and run xfs_repair to format a
+	# new log header onto the log device.
+	if [ "$logdev" != "none" ]; then
+		$XFS_IO_PROG -d -c 'pwrite -S 0 -q 0 1m' "$logdev"
+		_scratch_xfs_repair >> $seqres.full 2>&1
+		res=$?
+	fi
+	return $res
 }
 
 # Snapshot the metadata on the scratch device
@@ -718,7 +731,11 @@ _scratch_xfs_mdrestore()
 	local metadump=$1
 	shift
 
-	_xfs_mdrestore "$metadump" "$SCRATCH_DEV" "$@"
+	local logdev=none
+	[ "$USE_EXTERNAL" = yes -a ! -z "$SCRATCH_LOGDEV" ] && \
+		logdev=$SCRATCH_LOGDEV
+
+	_xfs_mdrestore "$metadump" "$SCRATCH_DEV" "$logdev" "$@"
 }
 
 # Do not use xfs_repair (offline fsck) to rebuild the filesystem
