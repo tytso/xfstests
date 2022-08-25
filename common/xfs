@@ -668,9 +668,20 @@ _xfs_metadump() {
 	shift; shift; shift; shift
 	local options="$@"
 	test -z "$options" && options="-a -o"
+	local metadump_has_dash_x
+
+	# Does metadump support capturing from external devices?
+	$XFS_METADUMP_PROG --help 2>&1 | grep -q -- '-[a-zA-Z]*[wW]x' && \
+			metadump_has_dash_x=1
 
 	if [ "$logdev" != "none" ]; then
 		options="$options -l $logdev"
+
+		# Tell metadump to capture the log device
+		if [ -n "$metadump_has_dash_x" ]; then
+			options="$options -x"
+			unset metadump_has_dash_x
+		fi
 	fi
 
 	$XFS_METADUMP_PROG $options "$device" "$metadump"
@@ -686,6 +697,12 @@ _xfs_mdrestore() {
 	local logdev="$3"
 	shift; shift; shift
 	local options="$@"
+	local need_repair
+	local mdrestore_has_dash_l
+
+	# Does mdrestore support restoring to external devices?
+	$XFS_MDRESTORE_PROG --help 2>&1 | grep -q -- '-l logdev' &&
+			mdrestore_has_dash_l=1
 
 	# If we're configured for compressed dumps and there isn't already an
 	# uncompressed dump, see if we can use DUMP_COMPRESSOR to decompress
@@ -697,19 +714,38 @@ _xfs_mdrestore() {
 	fi
 	test -r "$metadump" || return 1
 
+	if [ "$logdev" != "none" ]; then
+		# We have an external log device.  If mdrestore supports
+		# restoring to it, configure ourselves to do that.
+		if [ -n "$mdrestore_has_dash_l" ]; then
+			options="$options -l $logdev"
+		fi
+
+		# Wipe the log device.  If mdrestore doesn't support restoring
+		# to external log devices or the metadump file doesn't capture
+		# the log contents, this is our only chance to signal that the
+		# log header needs to be rewritten.
+		$XFS_IO_PROG -d -c 'pwrite -S 0 -q 0 1m' "$logdev"
+	fi
+
 	$XFS_MDRESTORE_PROG $options "${metadump}" "${device}"
 	res=$?
 	test $res -ne 0 && return $res
 
-	# mdrestore does not know how to restore an external log.  If there is
-	# one, we need to erase the log header and run xfs_repair to format a
-	# new log header onto the log device.
+	# If there's an external log, check to see if the restore rewrote the
+	# log header.  If not, we need to run xfs_repair to format a new log
+	# header onto the log device.
 	if [ "$logdev" != "none" ]; then
-		$XFS_IO_PROG -d -c 'pwrite -S 0 -q 0 1m' "$logdev"
-		_scratch_xfs_repair >> $seqres.full 2>&1
-		res=$?
+		magic="$($XFS_IO_PROG -c 'pread -q -v 0 4' "$logdev")"
+		if [ "$magic" = "00000000:  00 00 00 00  ...." ]; then
+			need_repair=1
+		fi
 	fi
-	return $res
+
+	test -z "$need_repair" && return 0
+
+	echo "repairing fs to fix uncaptured parts of fs." >> $seqres.full
+	_scratch_xfs_repair >> $seqres.full 2>&1
 }
 
 # Snapshot the metadata on the scratch device
