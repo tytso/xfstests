@@ -678,20 +678,36 @@ _xfs_metadump() {
 	local metadump="$1"
 	local device="$2"
 	local logdev="$3"
-	local compressopt="$4"
-	shift; shift; shift; shift
+	local rtdev="$4"
+	local compressopt="$5"
+	shift; shift; shift; shift; shift
 	local options="$@"
 	test -z "$options" && options="-a -o"
 	local metadump_has_dash_x
+	local metadump_has_dash_R
 
 	# Does metadump support capturing from external devices?
 	$XFS_METADUMP_PROG --help 2>&1 | grep -q -- '-[a-zA-Z]*[wW]x' && \
 			metadump_has_dash_x=1
+	# Does metadump support capturing realtime devices?
+	$XFS_METADUMP_PROG --help 2>&1 | grep -q -- '-R rtdev' && \
+			metadump_has_dash_R=1
 
 	if [ "$logdev" != "none" ]; then
 		options="$options -l $logdev"
 
 		# Tell metadump to capture the log device
+		if [ -n "$metadump_has_dash_x" ]; then
+			options="$options -x"
+			unset metadump_has_dash_x
+		fi
+	fi
+
+	# Capture the realtime device, if possible
+	if [ "$rtdev" != "none" ] && [ -n "$metadump_has_dash_R" ]; then
+		options="$options -R $rtdev"
+
+		# Tell metadump to capture the rt device
 		if [ -n "$metadump_has_dash_x" ]; then
 			options="$options -x"
 			unset metadump_has_dash_x
@@ -709,14 +725,19 @@ _xfs_mdrestore() {
 	local metadump="$1"
 	local device="$2"
 	local logdev="$3"
-	shift; shift; shift
+	local rtdev="$4"
+	shift; shift; shift; shift
 	local options="$@"
 	local need_repair
 	local mdrestore_has_dash_l
+	local mdrestore_has_dash_R
 
 	# Does mdrestore support restoring to external devices?
 	$XFS_MDRESTORE_PROG --help 2>&1 | grep -q -- '-l logdev' &&
 			mdrestore_has_dash_l=1
+	# Does mdrestore support restoring to realtime devices?
+	$XFS_MDRESTORE_PROG --help 2>&1 | grep -q -- '-R rtdev' &&
+			mdrestore_has_dash_R=1
 
 	# If we're configured for compressed dumps and there isn't already an
 	# uncompressed dump, see if we can use DUMP_COMPRESSOR to decompress
@@ -742,6 +763,20 @@ _xfs_mdrestore() {
 		$XFS_IO_PROG -d -c 'pwrite -S 0 -q 0 1m' "$logdev"
 	fi
 
+	if [ "$rtdev" != "none" ]; then
+		# We have a realtime device.  If mdrestore supports restoring
+		# to it, configure ourselves to do that.
+		if [ -n "$mdrestore_has_dash_R" ]; then
+			options="$options -R $rtdev"
+		fi
+
+		# Wipe the realtime device.  If mdrestore doesn't support
+		# restoring to realtime devices or the metadump file doesn't
+		# capture the realtime group headers, this is our only chance
+		# to signal that the log header needs to be rewritten.
+		$XFS_IO_PROG -d -c 'pwrite -S 0 -q 0 1m' "$rtdev"
+	fi
+
 	$XFS_MDRESTORE_PROG $options "${metadump}" "${device}"
 	res=$?
 	test $res -ne 0 && return $res
@@ -751,6 +786,16 @@ _xfs_mdrestore() {
 	# header onto the log device.
 	if [ "$logdev" != "none" ]; then
 		magic="$($XFS_IO_PROG -c 'pread -q -v 0 4' "$logdev")"
+		if [ "$magic" = "00000000:  00 00 00 00  ...." ]; then
+			need_repair=1
+		fi
+	fi
+
+	# If there's a realtime device, check to see if the restore rewrote the
+	# rt group headers.  If not, we need to run xfs_repair to format new
+	# group headers onto the realtime device.
+	if [ "$rtdev" != "none" ] && [ -z "$need_repair" ]; then
+		magic="$($XFS_IO_PROG -c 'pread -q -v 0 4' "$rtdev")"
 		if [ "$magic" = "00000000:  00 00 00 00  ...." ]; then
 			need_repair=1
 		fi
@@ -767,12 +812,16 @@ _scratch_xfs_metadump()
 {
 	local metadump=$1
 	shift
-	local logdev=none
 
+	local logdev=none
 	[ "$USE_EXTERNAL" = yes -a ! -z "$SCRATCH_LOGDEV" ] && \
 		logdev=$SCRATCH_LOGDEV
 
-	_xfs_metadump "$metadump" "$SCRATCH_DEV" "$logdev" nocompress "$@"
+	local rtdev=none
+	[ "$USE_EXTERNAL" = yes -a ! -z "$SCRATCH_RTDEV" ] && \
+		rtdev=$SCRATCH_RTDEV
+
+	_xfs_metadump "$metadump" "$SCRATCH_DEV" "$logdev" "$rtdev" nocompress "$@"
 }
 
 # Restore snapshotted metadata on the scratch device
@@ -785,7 +834,11 @@ _scratch_xfs_mdrestore()
 	[ "$USE_EXTERNAL" = yes -a ! -z "$SCRATCH_LOGDEV" ] && \
 		logdev=$SCRATCH_LOGDEV
 
-	_xfs_mdrestore "$metadump" "$SCRATCH_DEV" "$logdev" "$@"
+	local rtdev=none
+	[ "$USE_EXTERNAL" = yes -a ! -z "$SCRATCH_RTDEV" ] && \
+		rtdev=$SCRATCH_RTDEV
+
+	_xfs_mdrestore "$metadump" "$SCRATCH_DEV" "$logdev" "$rtdev" "$@"
 }
 
 # run xfs_check and friends on a FS.
@@ -912,7 +965,7 @@ _check_xfs_filesystem()
 	if [ "$ok" -ne 1 ] && [ "$DUMP_CORRUPT_FS" = "1" ]; then
 		local flatdev="$(basename "$device")"
 		_xfs_metadump "$seqres.$flatdev.check.md" "$device" "$logdev" \
-			compress >> $seqres.full
+			"$rtdev" compress >> $seqres.full
 	fi
 
 	# Optionally test the index rebuilding behavior.
@@ -945,7 +998,7 @@ _check_xfs_filesystem()
 		if [ "$rebuild_ok" -ne 1 ] && [ "$DUMP_CORRUPT_FS" = "1" ]; then
 			local flatdev="$(basename "$device")"
 			_xfs_metadump "$seqres.$flatdev.rebuild.md" "$device" \
-				"$logdev" compress >> $seqres.full
+				"$logdev" "$rtdev" compress >> $seqres.full
 		fi
 	fi
 
@@ -1026,7 +1079,7 @@ _check_xfs_filesystem()
 		if [ "$orebuild_ok" -ne 1 ] && [ "$DUMP_CORRUPT_FS" = "1" ]; then
 			local flatdev="$(basename "$device")"
 			_xfs_metadump "$seqres.$flatdev.orebuild.md" "$device" \
-				"$logdev" compress >> $seqres.full
+				"$logdev" "$rtdev" compress >> $seqres.full
 		fi
 	fi
 
