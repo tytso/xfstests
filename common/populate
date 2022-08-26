@@ -1003,7 +1003,11 @@ _scratch_populate_restore_cached() {
 
 	case "${FSTYP}" in
 	"xfs")
-		_xfs_mdrestore "${metadump}" "${SCRATCH_DEV}" "${logdev}"
+		local rtdev=none
+		[ "$USE_EXTERNAL" = yes -a ! -z "$SCRATCH_RTDEV" ] && \
+			rtdev=$SCRATCH_RTDEV
+
+		_xfs_mdrestore "${metadump}" "${SCRATCH_DEV}" "${logdev}" "${rtdev}"
 		return $?
 		;;
 	"ext2"|"ext3"|"ext4")
@@ -1025,8 +1029,12 @@ _scratch_populate_save_metadump()
 		[ "$USE_EXTERNAL" = yes -a ! -z "$SCRATCH_LOGDEV" ] && \
 			logdev=$SCRATCH_LOGDEV
 
+		local rtdev=none
+		[ "$USE_EXTERNAL" = yes -a ! -z "$SCRATCH_RTDEV" ] && \
+			rtdev=$SCRATCH_RTDEV
+
 		_xfs_metadump "$metadump_file" "$SCRATCH_DEV" "$logdev" \
-				compress
+				"$rtdev" compress
 		res=$?
 		;;
 	"ext2"|"ext3"|"ext4")
