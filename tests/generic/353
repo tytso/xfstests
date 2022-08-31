@@ -29,7 +29,8 @@ _require_xfs_io_command "fiemap"
 _scratch_mkfs > /dev/null 2>&1
 _scratch_mount
 
-blocksize=64k
+blocksize=65536
+_require_congruent_file_oplen $SCRATCH_MNT $blocksize
 file1="$SCRATCH_MNT/file1"
 file2="$SCRATCH_MNT/file2"
 
