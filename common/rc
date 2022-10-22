@@ -1502,6 +1502,21 @@ _fixed_by_kernel_commit()
 	_fixed_by_git_commit kernel $*
 }
 
+_wants_git_commit()
+{
+	local pkg=$1
+	shift
+
+	echo "This test wants $pkg fix:" >> $seqres.hints
+	echo "      $*" >> $seqres.hints
+	echo >> $seqres.hints
+}
+
+_wants_kernel_commit()
+{
+	_wants_git_commit kernel $*
+}
+
 _check_if_dev_already_mounted()
 {
 	local dev=$1
