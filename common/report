@@ -53,6 +53,8 @@ __generate_report_vars() {
 
 	__generate_blockdev_report_vars "TEST_DEV"
 	__generate_blockdev_report_vars "SCRATCH_DEV"
+
+	test "$FSTYP" = "xfs" && __generate_xfs_report_vars
 }
 
 #
