@@ -151,8 +151,9 @@ __populate_fill_fs() {
 	echo "FILL FS"
 	echo "src_sz $SRC_SZ fs_sz $FS_SZ nr $NR"
 	seq 2 "${NR}" | while read nr; do
-		cp -pRdu "${dir}/test/1" "${dir}/test/${nr}"
+		cp -pRdu "${dir}/test/1" "${dir}/test/${nr}" &
 	done
+	wait
 }
 
 # For XFS, force on all the quota options if quota is enabled
