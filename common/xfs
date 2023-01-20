@@ -2008,3 +2008,20 @@ _xfs_statfs_field()
 {
 	$XFS_IO_PROG -c 'statfs' "$1" | grep -E "$2" | cut -d ' ' -f 3
 }
+
+# Return the maximum start offset that the FITRIM command will accept, in units
+# of 1024 byte blocks.
+_xfs_discard_max_offset_kb()
+{
+	local blksz=$(_xfs_statfs_field "$1" geom.bsize)
+	local dblocks=$(_xfs_statfs_field "$1" geom.datablocks)
+	local rtblocks=$(_xfs_statfs_field "$1" geom.rtblocks)
+
+	$FSTRIM_PROG -o $((dblocks * blksz)) -l $blksz -m $((blksz * 2)) "$1" >> /dev/null 2>&1
+	local res=$?
+	if [ "$res" -eq 0 ]; then
+		echo "$(( (dblocks + rtblocks) * blksz / 1024 ))"
+	else
+		echo "$((dblocks * blksz / 1024))"
+	fi
+}
