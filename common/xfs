@@ -2071,3 +2071,9 @@ _require_xfs_scratch_metadir()
 		_scratch_unmount
 	fi
 }
+
+# Extract a statfs attribute of the given mounted XFS filesystem.
+_xfs_statfs_field()
+{
+	$XFS_IO_PROG -c 'statfs' "$1" | grep -E "$2" | cut -d ' ' -f 3
+}
