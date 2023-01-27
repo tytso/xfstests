@@ -36,6 +36,16 @@ elif [ "$FSTYP" = "xfs" ] && echo "$MOUNT_OPTIONS" | grep -q quota ; then
 	# Mounting with quota on XFS requires a writable fs, which means
 	# we expect to fail the ro blockdev test with with EPERM.
 	features="xfsquota"
+
+	if _xfs_has_feature $SCRATCH_DEV parent && \
+	   ! _xfs_has_feature $SCRATCH_DEV realtime; then
+		# If we have quotas and parent pointers enabled, the primary
+		# superblock will be written out with the quota flags set when
+		# the logged xattrs log_incompat feature is set.  Hence the
+		# norecovery mount won't fail due to quota rejecting the
+		# mismatch between the mount qflags and the ondisk ones.
+		features="xfsquotaparent"
+	fi
 fi
 _link_out_file "$features"
 

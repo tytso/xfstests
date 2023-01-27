@@ -1,0 +1,23 @@
+QA output created by 050
+setting device read-only
+mounting read-only block device:
+mount: SCRATCH_MNT: permission denied
+unmounting read-only filesystem
+umount: SCRATCH_DEV: not mounted
+setting device read-write
+mounting read-write block device:
+touch files
+going down:
+unmounting shutdown filesystem:
+setting device read-only
+mounting filesystem that needs recovery on a read-only device:
+mount: device write-protected, mounting read-only
+mount: cannot mount device read-only
+unmounting read-only filesystem
+umount: SCRATCH_DEV: not mounted
+mounting filesystem with -o norecovery on a read-only device:
+mount: device write-protected, mounting read-only
+unmounting read-only filesystem
+setting device read-write
+mounting filesystem that needs recovery with -o ro:
+*** done
