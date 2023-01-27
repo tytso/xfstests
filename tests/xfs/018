@@ -100,7 +100,12 @@ attr32l="X$attr32k"
 attr64k="$attr32k$attr32k"
 
 echo "*** mkfs"
-_scratch_mkfs >/dev/null
+
+# Parent pointers change the xattr formats sufficiently to break this test.
+# Disable parent pointers if mkfs supports it.
+mkfs_args=()
+$MKFS_XFS_PROG 2>&1 | grep -q parent=0 && mkfs_args+=(-n parent=0)
+_scratch_mkfs "${mkfs_args[@]}" >/dev/null
 
 blk_sz=$(_scratch_xfs_get_sb_field blocksize)
 err_inj_attr_sz=$(( blk_sz / 3 - 50 ))
