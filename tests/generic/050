@@ -33,9 +33,25 @@ features=""
 if ! _has_metadata_journaling $SCRATCH_DEV >/dev/null; then
 	features="nojournal"
 elif [ "$FSTYP" = "xfs" ] && echo "$MOUNT_OPTIONS" | grep -q quota ; then
-	# Mounting with quota on XFS requires a writable fs, which means
-	# we expect to fail the ro blockdev test with with EPERM.
+	# *Trying* to mount with quota on XFS requires a writable fs, which
+	# means we expect to fail the ro blockdev test with with EPERM.  It
+	# doesn't matter if xfs_mount would ultimately decide that quota is not
+	# supported.
 	features="xfsquota"
+
+	if _xfs_has_feature $SCRATCH_DEV parent && \
+	   ! _xfs_has_feature $SCRATCH_DEV realtime; then
+		# If we have quotas and parent pointers enabled, the primary
+		# superblock will be written out with the quota flags set when
+		# the logged xattrs log_incompat feature is set.  Hence the
+		# ro-norecovery mount won't fail with EPERM because the ondisk
+		# super's qflags actually match the mount qflags.
+		#
+		# Quota is not supported with realtime; in that case, the
+		# ondisk super's qflags will be zero and hence not match the
+		# mount qflags.  Select 'xfsquota' in that case.
+		features="xfsquotaparent"
+	fi
 fi
 _link_out_file "$features"
 
