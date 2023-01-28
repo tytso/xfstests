@@ -57,6 +57,13 @@ export SOAK_PROC=3             # -p option to fsstress
 export SOAK_STRESS=10000       # -n option to fsstress
 export SOAK_PASSES=-1          # count of repetitions of fsstress (while soaking)
 export EMAIL=root@localhost    # where auto-qa will send its status messages
+
+# For certain tests that run in tight loops, setting this variable allows the
+# test runner to specify exactly how long the test should continue looping.
+# This is independent of TIME_FACTOR.  Floating point numbers are allowed, and
+# the unit suffixes m(inutes), h(ours), d(ays), and w(eeks) are supported.
+export SOAK_DURATION=${SOAK_DURATION:=}
+
 export HOST_OPTIONS=${HOST_OPTIONS:=local.config}
 export CHECK_OPTIONS=${CHECK_OPTIONS:="-g auto"}
 export BENCH_PASSES=${BENCH_PASSES:=5}
