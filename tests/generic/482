@@ -62,8 +62,13 @@ nr_cpus=$("$here/src/feature" -o)
 if [ $nr_cpus -gt 8 ]; then
 	nr_cpus=8
 fi
+
 fsstress_args=$(_scale_fsstress_args -w -d $SCRATCH_MNT -n 512 -p $nr_cpus \
 		$FSSTRESS_AVOID)
+
+# XXX dm-logwrites pins kernel memory for every write!
+# test -n "$SOAK_DURATION" && fsstress_args="$fsstress_args --duration=$SOAK_DURATION"
+
 devsize=$((1024*1024*200 / 512))	# 200m phys/virt size
 csize=$((1024*64 / 512))		# 64k cluster size
 lowspace=$((1024*1024 / 512))		# 1m low space threshold
