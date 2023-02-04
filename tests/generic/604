@@ -27,7 +27,7 @@ done
 # For overlayfs, avoid unmouting the base fs after _scratch_mount
 # tries to mount the base fs
 $UMOUNT_PROG $SCRATCH_MNT &
-_scratch_mount
+$UDEV_SETTLE_PROG >/dev/null 2>&1 ; _scratch_mount
 wait
 
 echo "Silence is golden"
