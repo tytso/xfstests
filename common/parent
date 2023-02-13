@@ -155,6 +155,14 @@ _verify_parent()
 			"but should be $cino"
 	fi
 
+	# Make sure path printing works by checking that the paths returned
+	# all point to the same inode.
+	local tgt="$SCRATCH_MNT/$child_path"
+	$XFS_IO_PROG -x -c 'parent -p' "$tgt" | while read pptr_path; do
+		test "$tgt" -ef "$pptr_path" || \
+			echo "$tgt parent pointer $pptr_path should be the same file"
+	done
+
 	echo "*** Verified parent pointer:"\
 			"name:$PPNAME, namelen:$PPNAME_LEN"
 	echo "*** Parent pointer OK for child $child_path"
