@@ -105,21 +105,21 @@ _verify_parent()
 
 	# Verify parent exists
 	if [ ! -d $SCRATCH_MNT/$parent_path ]; then
-		_fail "$SCRATCH_MNT/$parent_path not found"
+		echo "$SCRATCH_MNT/$parent_path not found"
 	else
 		echo "*** $parent_path OK"
 	fi
 
 	# Verify child exists
 	if [ ! -f $SCRATCH_MNT/$child_path ]; then
-		_fail "$SCRATCH_MNT/$child_path not found"
+		echo "$SCRATCH_MNT/$child_path not found"
 	else
 		echo "*** $child_path OK"
 	fi
 
 	# Verify the parent pointer name exists as a child of the parent
 	if [ ! -f $SCRATCH_MNT/$parent_ppath ]; then
-		_fail "$SCRATCH_MNT/$parent_ppath not found"
+		echo "$SCRATCH_MNT/$parent_ppath not found"
 	else
 		echo "*** $parent_ppath OK"
 	fi
@@ -132,7 +132,7 @@ _verify_parent()
 	parents=($($XFS_IO_PROG -x -c \
 	 "parent -f -i $pino -n $parent_pointer_name" $SCRATCH_MNT/$child_path))
 	if [[ $? != 0 ]]; then
-		 _fail "No parent pointers found for $child_path"
+		 echo "No parent pointers found for $child_path"
 	fi
 
 	# Parse parent pointer output.
@@ -141,7 +141,7 @@ _verify_parent()
 
 	# If we didnt find one, bail out
 	if [ $? -ne 0 ]; then
-		_fail "No parent pointer record found for $parent_path"\
+		echo "No parent pointer record found for $parent_path"\
 			"in $child_path"
 	fi
 
@@ -150,7 +150,7 @@ _verify_parent()
 	pppino="$(stat -c '%i' $SCRATCH_MNT/$parent_ppath)"
 	if [ $cino -ne $pppino ]
 	then
-		_fail "Bad parent pointer name value for $child_path."\
+		echo "Bad parent pointer name value for $child_path."\
 			"$SCRATCH_MNT/$parent_ppath belongs to inode $PPPINO,"\
 			"but should be $cino"
 	fi
@@ -174,7 +174,7 @@ _verify_no_parent()
 
 	# Verify child exists
 	if [ ! -f $SCRATCH_MNT/$child_path ]; then
-		_fail "$SCRATCH_MNT/$child_path not found"
+		echo "$SCRATCH_MNT/$child_path not found"
 	else
 		echo "*** $child_path OK"
 	fi
@@ -195,7 +195,7 @@ _verify_no_parent()
 		return 0
 	fi
 
-	_fail "Parent pointer entry found where none should:"\
+	echo "Parent pointer entry found where none should:"\
 			"inode:$PPINO, gen:$PPGEN,"
 			"name:$PPNAME, namelen:$PPNAME_LEN"
 }
