@@ -173,12 +173,14 @@ if rt_configured; then
 	check_repair_upgrade finobt && FEATURES+=("finobt")
 	check_repair_upgrade inobtcount && FEATURES+=("inobtcount")
 	check_repair_upgrade bigtime && FEATURES+=("bigtime")
+	check_repair_upgrade metadir && FEATURES+=("metadir")
 else
 	check_repair_upgrade finobt && FEATURES+=("finobt")
 	check_repair_upgrade rmapbt && FEATURES+=("rmapbt")
 	check_repair_upgrade reflink && FEATURES+=("reflink")
 	check_repair_upgrade inobtcount && FEATURES+=("inobtcount")
 	check_repair_upgrade bigtime && FEATURES+=("bigtime")
+	check_repair_upgrade metadir && FEATURES+=("metadir")
 fi
 
 test "${#FEATURES[@]}" -eq 0 && \
