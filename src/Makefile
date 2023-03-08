@@ -93,6 +93,10 @@ ifeq ($(HAVE_SEEK_DATA), yes)
  endif
 endif
 
+ifeq ($(HAVE_XFS_IOC_EXCHANGE_RANGE),yes)
+LCFLAGS += -DHAVE_XFS_IOC_EXCHANGE_RANGE
+endif
+
 CFILES = $(TARGETS:=.c)
 LDIRT = $(TARGETS) fssum
 
