@@ -171,11 +171,7 @@
 #include <sys/mman.h>
 #endif
 
-#ifdef HAVE_FIEXCHANGE
-# include <linux/fiexchange.h>
-#else
-# include "fiexchange.h"
-#endif
+#include "fiexchange.h"
 
 static inline unsigned long long
 rounddown_64(unsigned long long x, unsigned int y)
