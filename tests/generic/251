@@ -84,6 +84,7 @@ fstrim_loop()
 			wait $fpid
 		fi
 		while [ $start -lt $fsize ] ; do
+			echo $FSTRIM_PROG -m ${minlen}k -o ${start}k -l ${step}k $SCRATCH_MNT >> $seqres.full
 			$FSTRIM_PROG -m ${minlen}k -o ${start}k -l ${step}k $SCRATCH_MNT &
 			fpid=$!
 			wait $fpid
