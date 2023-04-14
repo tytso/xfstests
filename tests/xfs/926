@@ -1,0 +1,177 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (c) 2023 Oracle.  All Rights Reserved.
+#
+# FS QA Test 926
+#
+# Functional testing for COWing around realtime extents.
+#
+. ./common/preamble
+_begin_fstest auto clone realtime rw
+
+_cleanup()
+{
+	cd /
+	rm -r -f $tmp.* $testdir
+}
+
+. ./common/reflink
+
+# real QA test starts here
+
+# Modify as appropriate.
+_supported_fs generic
+_require_test
+_require_test_reflink
+_require_cp_reflink
+
+alloc_unit=$(_get_file_block_size $TEST_DIR)
+blksz=$(_get_block_size $TEST_DIR)
+
+testdir="$TEST_DIR/test-$seq"
+mkdir "$testdir"
+
+filesize="$(( (alloc_unit * 5 / 2) + 512))"
+origfile="$testdir/a"
+testfile0="$testdir/a0"
+testfile1="$testdir/a1"
+testfile2="$testdir/a2"
+testfile3="$testdir/a3"
+testfile4="$testdir/a4"
+testfile5="$testdir/a5"
+testfile6="$testdir/a6"
+testfile7="$testdir/a7"
+testfile8="$testdir/a8"
+testfile9="$testdir/a9"
+testfileA="$testdir/aA"
+testfileB="$testdir/aB"
+
+goldfile0="$testdir/g0"
+goldfile1="$testdir/g1"
+goldfile2="$testdir/g2"
+goldfile3="$testdir/g3"
+goldfile4="$testdir/g4"
+goldfile5="$testdir/g5"
+
+orig_cmd="pwrite -S 0x58 -b 1m 0 $filesize"
+$XFS_IO_PROG -f -c "$orig_cmd" -c fsync "$origfile" >> $seqres.full
+
+_cp_reflink "$origfile" "$testfile0"
+_cp_reflink "$origfile" "$testfile1"
+_cp_reflink "$origfile" "$testfile2"
+_cp_reflink "$origfile" "$testfile3"
+_cp_reflink "$origfile" "$testfile4"
+_cp_reflink "$origfile" "$testfile5"
+_cp_reflink "$origfile" "$testfile6"
+_cp_reflink "$origfile" "$testfile7"
+_cp_reflink "$origfile" "$testfile8"
+_cp_reflink "$origfile" "$testfile9"
+_cp_reflink "$origfile" "$testfileA"
+_cp_reflink "$origfile" "$testfileB"
+
+# First we try a partial ovewrite below EOF
+cmd="pwrite -S 0x59 -b 1m -W 512 512"
+_kernlog "********** buffered write below eof goldfile0"
+$XFS_IO_PROG -c "$cmd" "$testfile0" >> $seqres.full
+_kernlog "********** direct write below eof goldfile0"
+$XFS_IO_PROG -d -c "$cmd" "$testfile1" >> $seqres.full
+_kernlog "********** goldfile0"
+$XFS_IO_PROG -f -c "$orig_cmd" -c "$cmd" -c fsync "$goldfile0" >> $seqres.full
+
+# Next we try an appending write at EOF
+_kernlog "********** appending buffered write goldfile1"
+cmd="pwrite -S 0x5a -b 1m -W $filesize 512"
+$XFS_IO_PROG -c "$cmd" "$testfile2" >> $seqres.full
+_kernlog "********** appending direct write goldfile1"
+$XFS_IO_PROG -d -c "$cmd" "$testfile3" >> $seqres.full
+_kernlog "********** goldfile1"
+$XFS_IO_PROG -f -c "$orig_cmd" -c "$cmd" -c fsync "$goldfile1" >> $seqres.full
+
+# Third we try a pure overwrite of the second block
+_kernlog "********** buffered overwrite second block goldfile2"
+cmd="pwrite -S 0x5b -b 1m -W $alloc_unit $alloc_unit"
+$XFS_IO_PROG -c "$cmd" "$testfile4" >> $seqres.full
+_kernlog "********** direct overwrite second block goldfile2"
+$XFS_IO_PROG -d -c "$cmd" "$testfile5" >> $seqres.full
+_kernlog "********** goldfile2"
+$XFS_IO_PROG -f -c "$orig_cmd" -c "$cmd" -c fsync "$goldfile2" >> $seqres.full
+
+# Fourth we try a small write well beyond EOF
+_kernlog "********** buffered write beyond eof block goldfile3"
+cmd="pwrite -S 0x5c -b 1m -W $(( (filesize * 2) + 512)) 512"
+$XFS_IO_PROG -c "$cmd" "$testfile6" >> $seqres.full
+_kernlog "********** direct write beyond eof block goldfile3"
+$XFS_IO_PROG -d -c "$cmd" "$testfile7" >> $seqres.full
+_kernlog "********** goldfile3"
+$XFS_IO_PROG -f -c "$orig_cmd"  -c "$cmd" -c fsync "$goldfile3" >> $seqres.full
+
+# Fifth we try a large write well beyond EOF
+_kernlog "********** buffered write beyond eof block goldfile4"
+cmd="pwrite -S 0x5d -b 1m -W $(( ((filesize * 2) + 512) & ~(alloc_unit - 1) )) $alloc_unit"
+$XFS_IO_PROG -c "$cmd" "$testfile8" >> $seqres.full
+_kernlog "********** direct write beyond eof block goldfile4"
+$XFS_IO_PROG -d -c "$cmd" "$testfile9" >> $seqres.full
+_kernlog "********** goldfile3"
+$XFS_IO_PROG -f -c "$orig_cmd" -c "$cmd" -c fsync "$goldfile4" >> $seqres.full
+
+# Sixth we try a pure overwrite of the second fsblock
+_kernlog "********** buffered overwrite second fsblock goldfile5"
+cmd="pwrite -S 0x5b -b 1m -W $blksz $alloc_unit"
+$XFS_IO_PROG -c "$cmd" "$testfileA" >> $seqres.full
+_kernlog "********** direct overwrite second fsblock goldfile5"
+$XFS_IO_PROG -d -c "$cmd" "$testfileB" >> $seqres.full
+_kernlog "********** goldfile5"
+$XFS_IO_PROG -f -c "$orig_cmd" -c "$cmd" -c fsync "$goldfile5" >> $seqres.full
+
+_kernlog "********** done"
+
+corruption_noted=
+
+note_corruption() {
+	local fname="$1"
+
+	echo "$fname is bad"
+
+	if [ -z "$corruption_noted" ]; then
+		corruption_noted=1
+		echo "origfile" >> $seqres.full
+		od -tx1 -Ad -c "$origfile" >> $seqres.full
+	fi
+
+	echo "$fname" >> $seqres.full
+	od -tx1 -Ad -c "$testfile1" >> $seqres.full
+}
+
+echo "before remount" >> $seqres.full
+cmp -s "$goldfile0" "$testfile0" || note_corruption "$testfile0"
+cmp -s "$goldfile0" "$testfile1" || note_corruption "$testfile1"
+cmp -s "$goldfile1" "$testfile2" || note_corruption "$testfile2"
+cmp -s "$goldfile1" "$testfile3" || note_corruption "$testfile3"
+cmp -s "$goldfile2" "$testfile4" || note_corruption "$testfile4"
+cmp -s "$goldfile2" "$testfile5" || note_corruption "$testfile5"
+cmp -s "$goldfile3" "$testfile6" || note_corruption "$testfile6"
+cmp -s "$goldfile3" "$testfile7" || note_corruption "$testfile7"
+cmp -s "$goldfile4" "$testfile8" || note_corruption "$testfile8"
+cmp -s "$goldfile4" "$testfile9" || note_corruption "$testfile9"
+cmp -s "$goldfile5" "$testfileA" || note_corruption "$testfileA"
+cmp -s "$goldfile5" "$testfileB" || note_corruption "$testfileB"
+
+_test_cycle_mount
+
+echo "after remount" >> $seqres.full
+cmp -s "$goldfile0" "$testfile0" || note_corruption "$testfile0"
+cmp -s "$goldfile0" "$testfile1" || note_corruption "$testfile1"
+cmp -s "$goldfile1" "$testfile2" || note_corruption "$testfile2"
+cmp -s "$goldfile1" "$testfile3" || note_corruption "$testfile3"
+cmp -s "$goldfile2" "$testfile4" || note_corruption "$testfile4"
+cmp -s "$goldfile2" "$testfile5" || note_corruption "$testfile5"
+cmp -s "$goldfile3" "$testfile6" || note_corruption "$testfile6"
+cmp -s "$goldfile3" "$testfile7" || note_corruption "$testfile7"
+cmp -s "$goldfile4" "$testfile8" || note_corruption "$testfile8"
+cmp -s "$goldfile4" "$testfile9" || note_corruption "$testfile9"
+cmp -s "$goldfile5" "$testfileA" || note_corruption "$testfileA"
+cmp -s "$goldfile5" "$testfileB" || note_corruption "$testfileB"
+
+echo Silence is golden
+status=0
+exit
