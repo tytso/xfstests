@@ -1,0 +1,120 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (c) 2023 Oracle.  All Rights Reserved.
+#
+# FS QA Test 863
+#
+# Check that the online fsck systemd services find and check the test and
+# scratch filesystems, and that we can read the health reports after the fact.
+# IOWs, basic testing for the systemd background services.
+#
+. ./common/preamble
+_begin_fstest auto scrub
+
+_cleanup()
+{
+	cd /
+	if [ -n "$new_svcfile" ]; then
+		rm -f "$new_svcfile"
+		systemctl daemon-reload
+	fi
+	rm -r -f $tmp.*
+}
+
+# Import common functions.
+. ./common/filter
+. ./common/populate
+. ./common/fuzzy
+
+# real QA test starts here
+
+_supported_fs xfs
+_require_systemd_service xfs_scrub@.service
+_require_systemd_service xfs_scrub_all.service
+_require_scratch
+_require_scrub
+_require_xfs_io_command "scrub"
+_require_xfs_spaceman_command "health"
+_require_populate_commands
+
+_xfs_skip_online_rebuild
+_xfs_skip_offline_rebuild
+
+# Back when xfs_scrub was really experimental, the systemd service definitions
+# contained various bugs that resulted in weird problems such as logging
+# messages sometimes dropping slashes from paths, and the xfs_scrub@ service
+# being logged as completing long after the process actually stopped.  These
+# problems were all fixed by the time the --auto-media-scan-stamp option was
+# added to xfs_scrub_all, so turn off this test for such old codebases.
+scruball_exe="$(systemctl cat xfs_scrub_all | grep '^ExecStart=' | sed -e 's/ExecStart=//g' -e 's/ .*$//g')"
+grep -q -- '--auto-media-scan-stamp' "$scruball_exe" || \
+	_notrun "xfs_scrub service too old, skipping test"
+
+orig_svcfile="/lib/systemd/system/xfs_scrub_all.service"
+test -f "$orig_svcfile" || \
+	_notrun "cannot find xfs_scrub_all service file"
+
+new_svcdir="/run/systemd/system/"
+test -d "$new_svcdir" || \
+	_notrun "cannot find runtime systemd service dir"
+
+# We need to make some local mods to the xfs_scrub_all service definition
+# so we fork it and create a new service just for this test.
+new_scruball_svc="xfs_scrub_all_fstest.service"
+systemctl status "$new_scruball_svc" 2>&1 | grep -E -q '(could not be found|Loaded: not-found)' || \
+	_notrun "systemd service \"$new_scruball_svc\" found, will not mess with this"
+
+find_scrub_trace() {
+	local path="$1"
+
+	$XFS_SPACEMAN_PROG -c "health" "$path" | grep -q ": ok$" || \
+		echo "cannot find evidence that $path was scrubbed"
+}
+
+echo "Format and populate"
+_scratch_populate_cached nofill > $seqres.full 2>&1
+_scratch_mount
+
+echo "Scrub Test FS"
+test_path=$(systemd-escape --path "$TEST_DIR")
+systemctl start --wait xfs_scrub@$test_path
+find_scrub_trace "$TEST_DIR"
+
+echo "Scrub Scratch FS"
+scratch_path=$(systemd-escape --path "$SCRATCH_MNT")
+systemctl start --wait xfs_scrub@$scratch_path
+find_scrub_trace "$SCRATCH_MNT"
+
+# Remove the xfs_scrub_all media scan stamp directory (if specified) because we
+# want to leave the regular system's stamp file alone.
+mkdir -p $tmp/stamp
+
+new_svcfile="$new_svcdir/$new_scruball_svc"
+cp "$orig_svcfile" "$new_svcfile"
+
+execstart="$(grep '^ExecStart=' $new_svcfile | sed -e 's/--auto-media-scan-interval[[:space:]]*[0-9]*[a-z]*//g')"
+sed -e '/ExecStart=/d' -e '/BindPaths=/d' -i $new_svcfile
+cat >> "$new_svcfile" << ENDL
+[Service]
+$execstart
+ENDL
+systemctl daemon-reload
+
+# Emit the results of our editing to the full log.
+systemctl cat "$new_scruball_svc" >> $seqres.full
+
+# Cycle both mounts to clear all the incore CHECKED bits.
+_test_cycle_mount
+_scratch_cycle_mount
+
+echo "Scrub Everything"
+systemctl start --wait "$new_scruball_svc"
+
+sleep 2 # give systemd a chance to tear down the service container mount tree
+
+find_scrub_trace "$TEST_DIR"
+find_scrub_trace "$SCRATCH_MNT"
+
+# success, all done
+status=0
+exit

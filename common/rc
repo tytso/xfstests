@@ -5223,6 +5223,27 @@ _soak_loop_running() {
 	return 0
 }
 
+_require_program() {
+	local cmd="$1"
+	local tag="$2"
+
+	test -z "$tag" && tag="$(basename "$cmd")"
+	command -v "$1" &>/dev/null || _notrun "$tag required"
+}
+
+_require_systemd_service() {
+	_require_program systemctl systemd
+
+	systemctl cat "$1" >/dev/null || \
+		_notrun "systemd service \"$1\" not found"
+}
+
+_require_systemd_running() {
+	_require_systemd_service "$1"
+	test "$(systemctl is-active "$1")" = "active" || \
+		_notrun "systemd service \"$1\" not running"
+}
+
 init_rc
 
 ################################################################################
