@@ -40,7 +40,8 @@ elif [ "$FSTYP" = "xfs" ] && echo "$MOUNT_OPTIONS" | grep -q quota ; then
 	features="xfsquota"
 
 	if _xfs_has_feature $SCRATCH_DEV parent && \
-	   ! _xfs_has_feature $SCRATCH_DEV realtime; then
+	   ! _xfs_has_feature $SCRATCH_DEV realtime && \
+	   ! _xfs_has_feature $SCRATCH_DEV metadir; then
 		# If we have quotas and parent pointers enabled, the primary
 		# superblock will be written out with the quota flags set when
 		# the logged xattrs log_incompat feature is set.  Hence the
@@ -50,6 +51,10 @@ elif [ "$FSTYP" = "xfs" ] && echo "$MOUNT_OPTIONS" | grep -q quota ; then
 		# Quota is not supported with realtime; in that case, the
 		# ondisk super's qflags will be zero and hence not match the
 		# mount qflags.  Select 'xfsquota' in that case.
+		#
+		# If metadata directory trees are enabled, the superblock will
+		# be written with the mount qflags as part of creating the
+		# dquot files.  Select 'xfsquota' in that case.
 		features="xfsquotaparent"
 	fi
 fi
