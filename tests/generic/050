@@ -28,6 +28,18 @@ _require_scratch_shutdown
 _require_local_device $SCRATCH_DEV
 _require_norecovery
 
+xfs_has_rtquota() {
+	local ret=1
+
+	_xfs_has_feature $SCRATCH_DEV realtime || return 1
+
+	_scratch_mount
+	$XFS_QUOTA_PROG -x -c 'state' $SCRATCH_MNT | grep -q 'quota state' && \
+		ret=0
+	_scratch_unmount
+	return $ret
+}
+
 # Select appropriate output file
 features=""
 if ! _has_metadata_journaling $SCRATCH_DEV >/dev/null; then
@@ -40,7 +52,7 @@ elif [ "$FSTYP" = "xfs" ] && echo "$MOUNT_OPTIONS" | grep -q quota ; then
 	features="xfsquota"
 
 	if _xfs_has_feature $SCRATCH_DEV parent && \
-	   ! _xfs_has_feature $SCRATCH_DEV realtime && \
+	   ( ! _xfs_has_feature $SCRATCH_DEV realtime || xfs_has_rtquota ) && \
 	   ! _xfs_has_feature $SCRATCH_DEV metadir; then
 		# If we have quotas and parent pointers enabled, the primary
 		# superblock will be written out with the quota flags set when
@@ -51,6 +63,10 @@ elif [ "$FSTYP" = "xfs" ] && echo "$MOUNT_OPTIONS" | grep -q quota ; then
 		# Quota is not supported with realtime; in that case, the
 		# ondisk super's qflags will be zero and hence not match the
 		# mount qflags.  Select 'xfsquota' in that case.
+		#
+		# On kernels with metadata directories, realtime quota is
+		# supported, so the superblock will be written out when the
+		# quota files are added to the directory trees.
 		#
 		# If metadata directory trees are enabled, the superblock will
 		# be written with the mount qflags as part of creating the
