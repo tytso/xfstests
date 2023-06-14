@@ -2202,3 +2202,15 @@ _scratch_find_rt_metadir_entry() {
 
 	return 1
 }
+
+_xfs_supports_rtquota() {
+	test "$FSTYP" = "xfs" || return 1
+
+	local xqmfile="/proc/fs/xfs/xqm"
+
+	test -e "$xqmfile" || modprobe xfs
+	test -e "$xqmfile" || return 1
+
+	local rtquota="$(cat "$xqmfile" | awk '{print $5}')"
+	test "$rtquota" = "1"
+}
