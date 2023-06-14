@@ -245,7 +245,7 @@ _populate_xfs_qmount_option()
 	if [ ! -f /proc/fs/xfs/xqmstat ]; then
 		# No quota support
 		return
-	elif [ "${USE_EXTERNAL}" = "yes" ] && [ ! -z "${SCRATCH_RTDEV}" ]; then
+	elif [ "${USE_EXTERNAL}" = "yes" ] && [ ! -z "${SCRATCH_RTDEV}" ] && ! _xfs_supports_rtquota; then
 		# Quotas not supported on rt filesystems
 		return
 	elif [ -z "${XFS_QUOTA_PROG}" ]; then
