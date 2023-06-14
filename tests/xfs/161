@@ -38,6 +38,8 @@ _qmount_option "usrquota"
 _scratch_xfs_db -c 'version' -c 'sb 0' -c 'p' >> $seqres.full
 _scratch_mount >> $seqres.full
 
+_xfs_force_bdev data $SCRATCH_MNT
+
 # Force the block counters for uid 1 and 2 above zero
 _pwrite_byte 0x61 0 64k $SCRATCH_MNT/a >> $seqres.full
 _pwrite_byte 0x61 0 64k $SCRATCH_MNT/b >> $seqres.full
