@@ -311,6 +311,15 @@ Running tests:
           The TEST and SCRATCH partitions should be pre-formatted
           with another base fs, where the overlay dirs will be created
 
+    - For infrequent filesystem developers who simply want to run a quick test
+      of the most commonly used filesystem functionality, use this command:
+
+          ./check -smoketest <other config options>
+
+      This configures fstests to run five tests to exercise the file I/O,
+      metadata, and crash recovery exercisers for four minutes apiece.  This
+      should complete in approximately 20 minutes.
+
 
     The check script tests the return value of each script, and
     compares the output against the expected output. If the output
