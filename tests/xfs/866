@@ -1,0 +1,126 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (c) 2023 Oracle.  All Rights Reserved.
+#
+# FS QA Test 866
+#
+# Functional testing for online repairs of directory loops.
+#
+. ./common/preamble
+_begin_fstest dangerous_online_repair
+
+# Override the default cleanup function.
+# _cleanup()
+# {
+# 	cd /
+# 	rm -r -f $tmp.*
+# }
+
+# Import common functions.
+. ./common/filter
+. ./common/inject
+. ./common/fuzzy
+. ./common/populate
+
+# real QA test starts here
+
+# Modify as appropriate.
+_supported_fs xfs
+_require_scratch
+_require_xfs_stress_online_repair
+
+echo "Part 1: disconnected directory loop" | tee -a $seqres.full
+# Create a directory loop of D1 -> D2 -> D3 -> D1, not accessible from root.
+# root, A, B, C, and D below refer to directory inodes; "A[D1]->B" means that
+# A has a dirent with name D1 that points to B.
+_scratch_mkfs >> $seqres.full
+
+# We begin by creating the following directory entries:
+# root[D1]->A
+# A[D2]->B
+# B[D3]->C
+# C[D1]->D
+_scratch_mount
+mkdir -p "$SCRATCH_MNT/D1/D2/D3/D1"
+
+# Next, we complete the loop by making C[D1]->A and root[D1]->D.  This gives us
+# root[D1]->D
+# A[D2]->B
+# B[D3]->C
+# C[D1]->A
+root_inum="$(stat -c '%i' "$SCRATCH_MNT/")"
+top_d1_inum="$(stat -c '%i' "$SCRATCH_MNT/D1")"
+d3_inum="$(stat -c '%i' "$SCRATCH_MNT/D1/D2/D3")"
+bot_d1_inum="$(stat -c '%i' "$SCRATCH_MNT/D1/D2/D3/D1")"
+_scratch_unmount
+
+# dfield: dirent field
+# pfield: pptr parent_ino field
+# gfield: pptr parent_gen field
+# ddfield: dotdot dirent field
+
+root_dfield=$(_scratch_xfs_db -c 'path /' -c print | grep 'inumber.i[0-9]' | cut -d '=' -f 1)
+top_d1_pfield=$(_scratch_xfs_db -c 'path /D1' -c print | grep 'parent_ino' | cut -d '=' -f 1)
+top_d1_gfield=$(_scratch_xfs_db -c 'path /D1' -c print | grep 'parent_gen' | cut -d '=' -f 1)
+top_d1_ddfield=$(_scratch_xfs_db -c 'path /D1' -c print | grep 'parent.i[0-9]' | cut -d '=' -f 1)
+d3_pfield=$(_scratch_xfs_db -c 'path /D1/D2/D3' -c print | grep 'inumber.i[0-9]' | cut -d '=' -f 1)
+bot_d1_pfield=$(_scratch_xfs_db -c 'path /D1/D2/D3/D1' -c print | grep 'parent_ino' | cut -d '=' -f 1)
+bot_d1_gfield=$(_scratch_xfs_db -c 'path /D1/D2/D3/D1' -c print | grep 'parent_gen' | cut -d '=' -f 1)
+bot_d1_ddfield=$(_scratch_xfs_db -c 'path /D1/D2/D3/D1' -c print | grep 'parent.i[0-9]' | cut -d '=' -f 1)
+
+d3_gen=$(_scratch_xfs_db -c "inode $d3_inum" -c "print core.gen" | awk '{print $3}')
+root_gen=$(_scratch_xfs_db -c "inode $root_inum" -c "print core.gen" | awk '{print $3}')
+
+echo "root_inum: $root_inum" >> $seqres.full
+echo "top_d1_inum: $top_d1_inum" >> $seqres.full
+echo "d3_inum: $d3_inum" >> $seqres.full
+echo "bot_d1_inum: $bot_d1_inum" >> $seqres.full
+
+echo "root_gen: $root_gen" >> $seqres.full
+echo "d3_gen: $d3_gen" >> $seqres.full
+
+echo "root_dfield: $root_dfield" >> $seqres.full
+echo "d3_pfield: $d3_pfield" >> $seqres.full
+
+echo "top_d1_pfield: $top_d1_pfield" >> $seqres.full
+echo "top_d1_gfield: $top_d1_gfield" >> $seqres.full
+
+echo "bot_d1_pfield: $bot_d1_pfield" >> $seqres.full
+echo "bot_d1_gfield: $bot_d1_gfield" >> $seqres.full
+
+corrupt_args=()
+
+# Make /D1/D2/D3/D1 point to /D1, and /D1/D2/D3/D1 a child of /.
+
+# /D1 parent pointer now points to /D1/D2/D3
+test -n "$top_d1_pfield" && \
+	corrupt_args+=(-c "inode $top_d1_inum" -c "write -d $top_d1_pfield $d3_inum" -c "write -d $top_d1_gfield $d3_gen")
+
+# /D1/D2/D3/D1 parent pointer now points to /
+test -n "$bot_d1_pfield" && \
+	corrupt_args+=(-c "inode $bot_d1_inum" -c "write -d $bot_d1_pfield $root_inum" -c "write -d $bot_d1_gfield $root_gen")
+
+# /D1 dotdot now points to /D1/D2/D3
+corrupt_args+=(-c "inode $top_d1_inum" -c "write -d $top_d1_ddfield $d3_inum")
+
+# /D1/D2/D3/D1 dotdot now points to /
+corrupt_args+=(-c "inode $bot_d1_inum" -c "write -d $bot_d1_ddfield $root_inum")
+
+# /D1/D2/D3/D1 dirent now points to /D1
+corrupt_args+=(-c "inode $d3_inum" -c "write -d $d3_pfield $top_d1_inum")
+
+# /D1 dirent points to /D1/D2/D3/D1
+corrupt_args+=(-c "inode $root_inum" -c "write -d $root_dfield $bot_d1_inum")
+
+_scratch_xfs_db -x "${corrupt_args[@]}" >> $seqres.full
+
+# Use online repair to fix filesystem
+_scratch_mount
+$XFS_IO_PROG -c "scrub dirloop $d3_inum $d3_gen" -c 'scrub nlinks' $SCRATCH_MNT
+# XXX currently broken $XFS_IO_PROG -x -c "repair dirloop $d3_inum $d3_gen" -c 'repair nlinks' $SCRATCH_MNT
+
+# XXX do we really need to run nlinks separately?
+
+# success, all done
+status=0
+exit
