@@ -23,6 +23,9 @@ _require_scratch_nocheck
 _require_scratch_xfs_crc
 
 _scratch_mkfs_xfs >>$seqres.full 2>&1
+_scratch_mount
+echo moo > $SCRATCH_MNT/testfile
+_scratch_unmount
 
 # set the highest bit of features_ro_compat, use it as an unknown
 # feature bit. If one day this bit become known feature, please
@@ -68,6 +71,7 @@ if [ $? -ne 0 ]; then
 	_fail "ro mount test failed"
 else
 	# no hang/panic is fine
+	cat $SCRATCH_MNT/testfile > /dev/null
 	$FSSTRESS_PROG -d $SCRATCH_MNT -p 4 -n 400 >>$seqres.full 2>&1
 fi
 
