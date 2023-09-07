@@ -1,0 +1,16 @@
+QA output created by 1874
+check /realtime dir
+Corruption detected during cross-referencing.
+check /realtime/bitmap pptr
+Corruption detected during cross-referencing.
+check /realtime/bitmap metapath
+check nlinks
+fix /realtime dir
+fix /realtime/bitmap pptr
+Corruption remains.
+Corruption still detected during cross-referencing.
+fix /realtime/bitmap metapath
+fix nlinks
+fix with xfs_scrub
+fix with xfs_repair
+done with test
