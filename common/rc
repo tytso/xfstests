@@ -1426,6 +1426,9 @@ _scratch_mkfs_blocksized()
 	if [ $blocksize -lt $(_get_page_size) ]; then
 		_exclude_scratch_mount_option dax
 	fi
+	if [ $blocksize -lt $(blockdev --getss $SCRATCH_DEV) ]; then
+		_require_scratch_support_blocksize "$blocksize"
+	fi
 
 	case $FSTYP in
 	btrfs)
@@ -4826,6 +4829,15 @@ _get_total_space()
 _get_device_size()
 {
 	echo $(($(blockdev --getsz $1) >> 1))
+}
+
+_require_scratch_support_blocksize()
+{
+	local blocksize=$1
+
+	if [ $blocksize -lt $(blockdev --getss $SCRATCH_DEV) ]; then
+		_notrun "$SCRATCH_DEV does not support a block size of $blocksize."
+	fi
 }
 
 # Make sure we actually have dmesg checking set up.
