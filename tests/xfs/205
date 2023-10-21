@@ -21,6 +21,7 @@ _require_scratch_nocheck
 unset SCRATCH_RTDEV
 
 fsblksz=1024
+_require_scratch_support_blocksize $fsblksz
 _scratch_mkfs_xfs -d size=$((32768*fsblksz)) -b size=$fsblksz >> $seqres.full 2>&1
 _scratch_mount
 
