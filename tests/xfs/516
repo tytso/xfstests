@@ -21,6 +21,7 @@ _cleanup()
 . ./common/fuzzy
 
 _require_scratch_nocheck
+_require_scratch_support_blocksize 1024
 
 # Assume that if we can run scrub on the test dev we can run it on the scratch
 # fs too.
