@@ -4637,9 +4637,15 @@ _require_userns()
 
 _create_loop_device()
 {
-	local file=$1 dev
-	dev=`losetup -f --show $file` || _fail "Cannot assign $file to a loop device"
+	local file=$1
+	local blocksize=$2
+	local dev
 
+	if [ -n "$blocksize" ]; then
+		blocksize="-b $blocksize"
+	fi
+
+	dev=`losetup -f $blocksize --show $file` || _fail "Cannot assign $file to a loop device"
 	# Try to enable asynchronous directio mode on the loopback device so
 	# that writeback started by a filesystem mounted on the loop device
 	# won't be throttled by buffered writes to the lower filesystem.  This
