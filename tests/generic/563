@@ -87,7 +87,7 @@ reset()
 
 # cgroup I/O accounting doesn't work on partitions. Use a loop device to rule
 # that out.
-LOOP_DEV=$(_create_loop_device $SCRATCH_DEV)
+LOOP_DEV=$(_create_loop_device $SCRATCH_DEV $(blockdev --getss $SCRATCH_DEV))
 smajor=$((0x`stat -L -c %t $LOOP_DEV`))
 sminor=$((0x`stat -L -c %T $LOOP_DEV`))
 
