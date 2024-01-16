@@ -23,6 +23,24 @@ _cleanup_verify_metadump()
 	rm -f "$XFS_METADUMP_FILE" "$XFS_METADUMP_IMG"*
 }
 
+# Can xfs_metadump snapshot the fs metadata to a v1 metadump file?
+_scratch_xfs_can_metadump_v1()
+{
+	# metadump v1 does not support log devices
+	[ "$USE_EXTERNAL" = yes ] && [ -n "$SCRATCH_LOGDEV" ] && return 1
+
+	# metadump v1 does not support realtime devices
+	[ "$USE_EXTERNAL" = yes ] && [ -n "$SCRATCH_RTDEV" ] && return 1
+
+	return 0
+}
+
+# Can xfs_metadump snapshot the fs metadata to a v2 metadump file?
+_scratch_xfs_can_metadump_v2()
+{
+	test "$MAX_XFS_METADUMP_VERSION" -ge 2
+}
+
 # Create a metadump in v1 format, restore it to fs image files, then mount the
 # images and fsck them.
 _verify_metadump_v1()
@@ -115,9 +133,6 @@ _verify_metadump_v2()
 # Verify both metadump formats if possible
 _verify_metadumps()
 {
-	_verify_metadump_v1 "$@"
-
-	if [[ $MAX_XFS_METADUMP_FORMAT == 2 ]]; then
-		_verify_metadump_v2 "$@"
-	fi
+	_scratch_xfs_can_metadump_v1 && _verify_metadump_v1 "$@"
+	_scratch_xfs_can_metadump_v2 && _verify_metadump_v2 "$@"
 }
