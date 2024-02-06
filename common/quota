@@ -107,6 +107,36 @@ _require_xfs_quota_acct_enabled()
 	_notrun "$qtype: accounting not enabled on $fsname filesystem."
 }
 
+# Decide if the mounted filesystem supports realtime quotas.
+_require_rtquota()
+{
+	local dev="$1"
+	test -z "$dev" && dev="$TEST_DEV"
+	local rtdev="$2"
+	test -z "$rtdev" && rtdev="$TEST_RTDEV"
+
+	test "$FSTYP" = "xfs" || \
+		_notrun "Realtime quota only supported on xfs"
+
+	[ -n "$XFS_QUOTA_PROG" ] || \
+		_notrun "xfs_quota user tool not installed"
+
+	$here/src/feature -q $dev || \
+		_notrun "Installed kernel does not support XFS quotas"
+
+	test -b "$rtdev" || \
+		_notrun "No realtime device supplied?"
+
+	test "$USE_EXTERNAL" = "yes" || \
+		_notrun "Realtime requires USE_EXTERNAL='yes'"
+
+	$here/src/feature -U $dev || \
+	$here/src/feature -G $dev || \
+	$here/src/feature -P $dev || \
+		_notrun "Mounted rt filesystem does not have quotas enabled"
+
+}
+
 #
 # checks that xfs_quota can operate on foreign (non-xfs) filesystems
 # Skips check on xfs filesystems, old xfs_quota is fine there.
