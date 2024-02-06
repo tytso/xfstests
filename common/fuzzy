@@ -998,13 +998,37 @@ __stress_scrub_fsx_loop() {
 	rm -f "$runningfile"
 }
 
+# Run fsstress with a timeout, and touch $tmp.killstress if dead
+__run_timed_fsstress() {
+	timeout -s TERM "$remount_period" $FSSTRESS_PROG $* >> $seqres.full
+	res=$?
+	echo "$mode fsstress $* exits with $res at $(date)" >> $seqres.full
+	if [ "$res" -ne 0 ] && [ "$res" -ne 124 ]; then
+		# Stop if fsstress returns error.  Mask off the magic code 124
+		# because that is how the timeout(1) program communicates that
+		# we ran out of time.
+		touch "$tmp.killstress"
+	fi
+}
+
+# Run fsstress and record outcome
+__run_fsstress() {
+	$FSSTRESS_PROG $* >> $seqres.full
+	echo "fsstress $* exits with $? at $(date)" >> $seqres.full
+}
+
 # Run fsstress while we're testing online fsck.
 __stress_scrub_fsstress_loop() {
 	local end="$1"
 	local runningfile="$2"
 	local remount_period="$3"
 	local stress_tgt="$4"
-	local focus=()
+	local focus=(-p 4 -n 2000000)
+	local scale_args=()
+	local has_rt
+
+	test $FSTYP = "xfs" && _xfs_has_feature "$SCRATCH_MNT" realtime && \
+		has_rt=1
 
 	case "$stress_tgt" in
 	"parent")
@@ -1096,28 +1120,35 @@ __stress_scrub_fsstress_loop() {
 
 	# As of March 2022, 2 million fsstress ops should be enough to keep
 	# any filesystem busy for a couple of hours.
-	local args=$(_scale_fsstress_args -p 4 -d $SCRATCH_MNT -n 2000000 "${focus[@]}" $FSSTRESS_AVOID)
-	echo "Running $FSSTRESS_PROG $args" >> $seqres.full
+	local args
+	if [ -n "$has_rt" ]; then
+		mkdir -p $SCRATCH_MNT/rt $SCRATCH_MNT/data
+		$XFS_IO_PROG -c 'chattr +rt' $SCRATCH_MNT/rt
+		$XFS_IO_PROG -c 'chattr -rt' $SCRATCH_MNT/data
+
+		rt_args=$(_scale_fsstress_args -d $SCRATCH_MNT/rt "${focus[@]}" $FSSTRESS_AVOID)
+		args=$(_scale_fsstress_args -d $SCRATCH_MNT/data "${focus[@]}" $FSSTRESS_AVOID)
+		echo "Running $FSSTRESS_PROG $args" >> $seqres.full
+		echo "Running $FSSTRESS_PROG $rt_args" >> $seqres.full
+	else
+		args=$(_scale_fsstress_args -d $SCRATCH_MNT "${focus[@]}" $FSSTRESS_AVOID)
+		echo "Running $FSSTRESS_PROG $args" >> $seqres.full
+	fi
 
 	if [ -n "$remount_period" ]; then
 		local mode="rw"
 		local rw_arg=""
+
+		rm -f "$tmp.killstress"
 		while __stress_scrub_running "$end" "$runningfile"; do
 			# Need to recheck running conditions if we cleared
 			# anything.
 			test "$mode" = "rw" && __stress_scrub_clean_scratch && continue
 
-			timeout -s TERM "$remount_period" $FSSTRESS_PROG \
-					$args $rw_arg >> $seqres.full
-			res=$?
-			echo "$mode fsstress exits with $res at $(date)" >> $seqres.full
-			if [ "$res" -ne 0 ] && [ "$res" -ne 124 ]; then
-				# Stop if fsstress returns error.  Mask off
-				# the magic code 124 because that is how the
-				# timeout(1) program communicates that we ran
-				# out of time.
-				break;
-			fi
+			__run_timed_fsstress $args $rw_arg &
+			test -n "$has_rt" && __run_timed_fsstress $rt_args $rw_arg &
+			wait
+			test -e "$tmp.killstress" && break
 			if [ "$mode" = "rw" ]; then
 				mode="ro"
 				rw_arg="-R"
@@ -1132,15 +1163,16 @@ __stress_scrub_fsstress_loop() {
 				sleep 0.2
 			done
 		done
-		rm -f "$runningfile"
+		rm -f "$runningfile" "$tmp.killstress"
 		return 0
 	fi
 
 	while __stress_scrub_running "$end" "$runningfile"; do
 		# Need to recheck running conditions if we cleared anything
 		__stress_scrub_clean_scratch && continue
-		$FSSTRESS_PROG $args >> $seqres.full
-		echo "fsstress exits with $? at $(date)" >> $seqres.full
+		__run_fsstress $args &
+		test -n "$has_rt" && __run_fsstress $rt_args &
+		wait
 	done
 	rm -f "$runningfile"
 }
