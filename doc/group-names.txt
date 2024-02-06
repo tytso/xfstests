@@ -58,6 +58,7 @@ fsck			general fsck tests
 fsmap			FS_IOC_GETFSMAP ioctl
 fsproperties		Filesystem properties
 fsr			XFS free space reorganizer
+fsrefcounts		FS_IOC_GETFSREFCOUNTS ioctl
 fuzzers			filesystem fuzz tests
 growfs			increasing the size of a filesystem
 hardlink		hardlinks
