@@ -2,4 +2,16 @@ QA output created by 498
 Format and populate
 Find single-leafn-format dir block
 Fuzz single-leafn-format dir block
+lhdr.info.hdr.forw = ones: offline scrub didn't fail.
+lhdr.info.hdr.forw = firstbit: offline scrub didn't fail.
+lhdr.info.hdr.forw = middlebit: offline scrub didn't fail.
+lhdr.info.hdr.forw = lastbit: offline scrub didn't fail.
+lhdr.info.hdr.forw = add: offline scrub didn't fail.
+lhdr.info.hdr.forw = sub: offline scrub didn't fail.
+lhdr.info.hdr.back = ones: offline scrub didn't fail.
+lhdr.info.hdr.back = firstbit: offline scrub didn't fail.
+lhdr.info.hdr.back = middlebit: offline scrub didn't fail.
+lhdr.info.hdr.back = lastbit: offline scrub didn't fail.
+lhdr.info.hdr.back = add: offline scrub didn't fail.
+lhdr.info.hdr.back = sub: offline scrub didn't fail.
 Done fuzzing single-leafn-format dir block
