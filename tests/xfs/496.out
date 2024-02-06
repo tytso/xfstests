@@ -2,4 +2,28 @@ QA output created by 496
 Format and populate
 Find single-leafn-format dir block
 Fuzz single-leafn-format dir block
+lhdr.info.hdr.forw = ones: offline scrub didn't fail.
+lhdr.info.hdr.forw = ones: online post-mod scrub failed (1).
+lhdr.info.hdr.forw = firstbit: offline scrub didn't fail.
+lhdr.info.hdr.forw = firstbit: online post-mod scrub failed (1).
+lhdr.info.hdr.forw = middlebit: offline scrub didn't fail.
+lhdr.info.hdr.forw = middlebit: online post-mod scrub failed (1).
+lhdr.info.hdr.forw = lastbit: offline scrub didn't fail.
+lhdr.info.hdr.forw = lastbit: online post-mod scrub failed (1).
+lhdr.info.hdr.forw = add: offline scrub didn't fail.
+lhdr.info.hdr.forw = add: online post-mod scrub failed (1).
+lhdr.info.hdr.forw = sub: offline scrub didn't fail.
+lhdr.info.hdr.forw = sub: online post-mod scrub failed (1).
+lhdr.info.hdr.back = ones: offline scrub didn't fail.
+lhdr.info.hdr.back = ones: online post-mod scrub failed (1).
+lhdr.info.hdr.back = firstbit: offline scrub didn't fail.
+lhdr.info.hdr.back = firstbit: online post-mod scrub failed (1).
+lhdr.info.hdr.back = middlebit: offline scrub didn't fail.
+lhdr.info.hdr.back = middlebit: online post-mod scrub failed (1).
+lhdr.info.hdr.back = lastbit: offline scrub didn't fail.
+lhdr.info.hdr.back = lastbit: online post-mod scrub failed (1).
+lhdr.info.hdr.back = add: offline scrub didn't fail.
+lhdr.info.hdr.back = add: online post-mod scrub failed (1).
+lhdr.info.hdr.back = sub: offline scrub didn't fail.
+lhdr.info.hdr.back = sub: online post-mod scrub failed (1).
 Done fuzzing single-leafn-format dir block
