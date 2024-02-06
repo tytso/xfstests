@@ -99,7 +99,7 @@ mv $testdir2/file* $subvol2/
 echo "Verify the file contents:"
 _checksum_files
 
-$UMOUNT_PROG $cross_mount_test_dir
+_umount $cross_mount_test_dir
 
 # success, all done
 status=0

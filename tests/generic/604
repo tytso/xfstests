@@ -26,6 +26,8 @@ done
 # mount the base fs.  Delay the mount attempt by a small amount in the hope
 # that the mount() call will try to lock s_umount /after/ umount has already
 # taken it.
+# This is the /one/ place in fstests where we need to call the umount binary
+# directly.
 $UMOUNT_PROG $SCRATCH_MNT &
 sleep 0.01s ; _scratch_mount
 wait

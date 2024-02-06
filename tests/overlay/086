@@ -38,21 +38,21 @@ _mount -t overlay none $SCRATCH_MNT \
 	2>> $seqres.full && \
 	echo "ERROR: invalid combination of lowerdir and lowerdir+ mount options"
 
-$UMOUNT_PROG $SCRATCH_MNT 2>/dev/null
+_umount $SCRATCH_MNT 2>/dev/null
 
 _mount -t overlay none $SCRATCH_MNT \
 	-o"lowerdir=$lowerdir,datadir+=$lowerdir_colons" \
 	-o redirect_dir=follow,metacopy=on 2>> $seqres.full && \
 	echo "ERROR: invalid combination of lowerdir and datadir+ mount options"
 
-$UMOUNT_PROG $SCRATCH_MNT 2>/dev/null
+_umount $SCRATCH_MNT 2>/dev/null
 
 _mount -t overlay none $SCRATCH_MNT \
 	-o"datadir+=$lowerdir,lowerdir+=$lowerdir_colons" \
 	-o redirect_dir=follow,metacopy=on 2>> $seqres.full && \
 	echo "ERROR: invalid order of lowerdir+ and datadir+ mount options"
 
-$UMOUNT_PROG $SCRATCH_MNT 2>/dev/null
+_umount $SCRATCH_MNT 2>/dev/null
 
 # mount is expected to fail with escaped colons.
 _mount -t overlay none $SCRATCH_MNT \
@@ -60,7 +60,7 @@ _mount -t overlay none $SCRATCH_MNT \
 	2>> $seqres.full && \
 	echo "ERROR: incorrect parsing of escaped colons in lowerdir+ mount option"
 
-$UMOUNT_PROG $SCRATCH_MNT 2>/dev/null
+_umount $SCRATCH_MNT 2>/dev/null
 
 # mount is expected to succeed without escaped colons.
 _mount -t overlay ovl_esc_test $SCRATCH_MNT \

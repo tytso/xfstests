@@ -40,7 +40,7 @@ rm ${upperdir}/file
 mkdir ${SCRATCH_MNT}/file > /dev/null 2>&1
 
 # unmount overlayfs
-$UMOUNT_PROG $SCRATCH_MNT
+_umount $SCRATCH_MNT
 
 echo "Silence is golden"
 # success, all done

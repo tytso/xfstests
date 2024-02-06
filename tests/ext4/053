@@ -20,7 +20,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _cleanup()
 {
 	cd /
-	$UMOUNT_PROG $SCRATCH_MNT > /dev/null 2>&1
+	_umount $SCRATCH_MNT > /dev/null 2>&1
 	if [ -n "$LOOP_LOGDEV" ];then
 		_destroy_loop_device $LOOP_LOGDEV 2>/dev/null
 	fi
@@ -237,7 +237,7 @@ not_mnt() {
 	if simple_mount -o $1 $SCRATCH_DEV $SCRATCH_MNT; then
 		print_log "(mount unexpectedly succeeded)"
 		fail
-		$UMOUNT_PROG $SCRATCH_MNT
+		_umount $SCRATCH_MNT
 		return
 	fi
 	ok
@@ -248,7 +248,7 @@ not_mnt() {
 		return
 	fi
 	not_remount $1
-	$UMOUNT_PROG $SCRATCH_MNT
+	_umount $SCRATCH_MNT
 }
 
 mnt_only() {
@@ -270,7 +270,7 @@ mnt() {
 	fi
 
 	mnt_only $*
-	$UMOUNT_PROG $SCRATCH_MNT 2> /dev/null
+	_umount $SCRATCH_MNT 2> /dev/null
 
 	[ "$t2fs" -eq 0 ] && return
 
@@ -289,7 +289,7 @@ mnt() {
 				    -e 's/data=writeback/journal_data_writeback/')
 	$TUNE2FS_PROG -o $op_set $SCRATCH_DEV > /dev/null 2>&1
 	mnt_only "defaults" $check
-	$UMOUNT_PROG $SCRATCH_MNT 2> /dev/null
+	_umount $SCRATCH_MNT 2> /dev/null
 	if [ "$op_set" = ^* ]; then
 		op_set=${op_set#^}
 	else
@@ -309,12 +309,12 @@ remount() {
 	do_mnt remount,$2 $3
 	if [ $? -ne 0 ]; then
 		fail
-		$UMOUNT_PROG $SCRATCH_MNT 2> /dev/null
+		_umount $SCRATCH_MNT 2> /dev/null
 		return
 	else
 		ok
 	fi
-	$UMOUNT_PROG $SCRATCH_MNT 2> /dev/null
+	_umount $SCRATCH_MNT 2> /dev/null
 
 	# Now just specify mnt
 	print_log "mounting $fstype \"$1\" "
@@ -328,7 +328,7 @@ remount() {
 		ok
 	fi
 
-	$UMOUNT_PROG $SCRATCH_MNT 2> /dev/null
+	_umount $SCRATCH_MNT 2> /dev/null
 }
 
 # Test that the filesystem cannot be remounted with option(s) $1 (meaning that
@@ -364,7 +364,7 @@ mnt_then_not_remount() {
 		return
 	fi
 	not_remount $2
-	$UMOUNT_PROG $SCRATCH_MNT
+	_umount $SCRATCH_MNT
 }
 
 
@@ -400,8 +400,8 @@ LOGDEV_DEVNUM=`echo "${majmin%:*}*2^8 + ${majmin#*:}" | bc`
 fstype=
 for fstype in ext2 ext3 ext4; do
 
-	$UMOUNT_PROG $SCRATCH_MNT 2> /dev/null
-	$UMOUNT_PROG $SCRATCH_DEV 2> /dev/null
+	_umount $SCRATCH_MNT 2> /dev/null
+	_umount $SCRATCH_DEV 2> /dev/null
 
 	do_mkfs $SCRATCH_DEV ${SIZE}k
 
@@ -418,7 +418,7 @@ for fstype in ext2 ext3 ext4; do
 		continue
 	fi
 
-	$UMOUNT_PROG $SCRATCH_MNT 2> /dev/null
+	_umount $SCRATCH_MNT 2> /dev/null
 
 	not_mnt failme
 	mnt
@@ -552,7 +552,7 @@ for fstype in ext2 ext3 ext4; do
 	# dax mount options
 	simple_mount -o dax=always $SCRATCH_DEV $SCRATCH_MNT > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
-		$UMOUNT_PROG $SCRATCH_MNT 2> /dev/null
+		_umount $SCRATCH_MNT 2> /dev/null
 		mnt dax
 		mnt dax=always
 		mnt dax=never
@@ -633,7 +633,7 @@ for fstype in ext2 ext3 ext4; do
 	not_remount jqfmt=vfsv1
 	not_remount noquota
 	mnt_only remount,usrquota,grpquota ^usrquota,^grpquota
-	$UMOUNT_PROG $SCRATCH_MNT > /dev/null 2>&1
+	_umount $SCRATCH_MNT > /dev/null 2>&1
 
 	# test clearing/changing quota when enabled
 	do_mkfs -E quotatype=^prjquota $SCRATCH_DEV ${SIZE}k
@@ -654,7 +654,7 @@ for fstype in ext2 ext3 ext4; do
 	mnt_only remount,usrquota,grpquota usrquota,grpquota
 	quotaoff -f $SCRATCH_MNT >> $seqres.full 2>&1
 	mnt_only remount,noquota ^usrquota,^grpquota,quota
-	$UMOUNT_PROG $SCRATCH_MNT > /dev/null 2>&1
+	_umount $SCRATCH_MNT > /dev/null 2>&1
 
 	# Quota feature
 	echo "== Testing quota feature " >> $seqres.full
@@ -696,7 +696,7 @@ for fstype in ext2 ext3 ext4; do
 
 done #for fstype in ext2 ext3 ext4; do
 
-$UMOUNT_PROG $SCRATCH_MNT > /dev/null 2>&1
+_umount $SCRATCH_MNT > /dev/null 2>&1
 echo "$ERR errors encountered" >> $seqres.full
 
 status=$ERR

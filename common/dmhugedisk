@@ -39,7 +39,7 @@ _dmhugedisk_init()
 
 _dmhugedisk_cleanup()
 {
-	$UMOUNT_PROG $SCRATCH_MNT > /dev/null 2>&1
+	_umount $SCRATCH_MNT > /dev/null 2>&1
 	_dmsetup_remove huge-test
 	_dmsetup_remove huge-test-zero
 }

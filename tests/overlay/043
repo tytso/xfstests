@@ -126,7 +126,7 @@ echo 3 > /proc/sys/vm/drop_caches
 check_inode_numbers $testdir $tmp.after_copyup $tmp.after_move
 
 # Verify that the inode numbers survive a mount cycle
-$UMOUNT_PROG $SCRATCH_MNT
+_umount $SCRATCH_MNT
 _overlay_scratch_mount_dirs $lowerdir $upperdir $workdir -o redirect_dir=on,xino=on
 
 # Compare inode numbers before/after mount cycle

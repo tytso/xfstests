@@ -35,7 +35,7 @@ mount --bind "$SCRATCH_MNT/testvol/testdir" "$SCRATCH_MNT/testvol/mnt"
 $BTRFS_UTIL_PROG subvolume delete "$SCRATCH_MNT/testvol" >>$seqres.full 2>&1
 
 # Unmount the bind mount, which should still be alive.
-$UMOUNT_PROG "$SCRATCH_MNT/testvol/mnt"
+_umount "$SCRATCH_MNT/testvol/mnt"
 
 echo "Silence is golden"
 status=0

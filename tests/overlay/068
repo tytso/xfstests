@@ -28,7 +28,7 @@ _cleanup()
 	cd /
 	rm -f $tmp.*
 	# Unmount the nested overlay mount
-	$UMOUNT_PROG $mnt2 2>/dev/null
+	_umount $mnt2 2>/dev/null
 }
 
 # Import common functions.
@@ -100,7 +100,7 @@ mount_dirs()
 unmount_dirs()
 {
 	# unmount & check nested overlay
-	$UMOUNT_PROG $mnt2
+	_umount $mnt2
 	_overlay_check_dirs $SCRATCH_MNT $upper2 $work2 \
 		-o "index=on,nfs_export=on,redirect_dir=on"
 

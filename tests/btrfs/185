@@ -15,7 +15,7 @@ mnt=$TEST_DIR/$seq.mnt
 # Override the default cleanup function.
 _cleanup()
 {
-	$UMOUNT_PROG $mnt > /dev/null 2>&1
+	_umount $mnt > /dev/null 2>&1
 	rm -rf $mnt > /dev/null 2>&1
 	cd /
 	rm -f $tmp.*
@@ -62,7 +62,7 @@ $BTRFS_UTIL_PROG device scan $device_1 >> $seqres.full 2>&1
 	_fail "if it fails here, then it means subvolume mount at boot may fail "\
 	      "in some configs."
 
-$UMOUNT_PROG $mnt > /dev/null 2>&1
+_umount $mnt > /dev/null 2>&1
 _scratch_dev_pool_put
 
 # success, all done

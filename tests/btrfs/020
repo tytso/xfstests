@@ -17,7 +17,7 @@ _cleanup()
 {
 	cd /
 	rm -f $tmp.*
-	$UMOUNT_PROG $loop_mnt
+	_umount $loop_mnt
 	_destroy_loop_device $loop_dev1
 	losetup -d $loop_dev2 >/dev/null 2>&1
 	_destroy_loop_device $loop_dev3

@@ -264,7 +264,7 @@ mount_overlay()
 
 umount_overlay()
 {
-	$UMOUNT_PROG $SCRATCH_MNT
+	_umount $SCRATCH_MNT
 }
 
 

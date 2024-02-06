@@ -29,7 +29,7 @@ _cleanup()
 	cd /
 	rm -f $tmp.*
 	# Unmount the nested overlay mount
-	$UMOUNT_PROG $mnt2 2>/dev/null
+	_umount $mnt2 2>/dev/null
 	[ -z "$loopdev" ] || _destroy_loop_device $loopdev
 }
 
@@ -103,12 +103,12 @@ mount_dirs()
 unmount_dirs()
 {
 	# unmount & check nested overlay
-	$UMOUNT_PROG $mnt2
+	_umount $mnt2
 	_overlay_check_dirs $SCRATCH_MNT $upper2 $work2 \
 		-o "redirect_dir=on,index=on,xino=on"
 
 	# unmount & check underlying overlay
-	$UMOUNT_PROG $SCRATCH_MNT
+	_umount $SCRATCH_MNT
 	_overlay_check_dirs $lower $upper $work \
 		-o "index=on,nfs_export=on"
 }

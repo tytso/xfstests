@@ -30,7 +30,7 @@ _cleanup()
 {
 	cd /
 	rm -f $tmp.*
-	$UMOUNT_PROG $mnt2 2>/dev/null
+	_umount $mnt2 2>/dev/null
 }
 
 # Import common functions.
@@ -63,7 +63,7 @@ mkdir -p $lowerdir/lower $upperdir $workdir
 echo Conflicting upperdir/lowerdir
 _overlay_scratch_mount_dirs $upperdir $upperdir $workdir \
 	2>&1 | _filter_error_mount
-$UMOUNT_PROG $SCRATCH_MNT 2>/dev/null
+_umount $SCRATCH_MNT 2>/dev/null
 
 # Use new upper/work dirs for each test to avoid ESTALE errors
 # on mismatch lowerdir/upperdir (see test overlay/037)
@@ -75,7 +75,7 @@ mkdir $upperdir $workdir
 echo Conflicting workdir/lowerdir
 _overlay_scratch_mount_dirs $workdir $upperdir $workdir \
 	-oindex=off 2>&1 | _filter_error_mount
-$UMOUNT_PROG $SCRATCH_MNT 2>/dev/null
+_umount $SCRATCH_MNT 2>/dev/null
 
 rm -rf $upperdir $workdir
 mkdir -p $upperdir/lower $workdir
@@ -85,7 +85,7 @@ mkdir -p $upperdir/lower $workdir
 echo Overlapping upperdir/lowerdir
 _overlay_scratch_mount_dirs $upperdir/lower $upperdir $workdir \
 	2>&1 | _filter_error_mount
-$UMOUNT_PROG $SCRATCH_MNT 2>/dev/null
+_umount $SCRATCH_MNT 2>/dev/null
 
 rm -rf $upperdir $workdir
 mkdir $upperdir $workdir
@@ -94,7 +94,7 @@ mkdir $upperdir $workdir
 echo Conflicting lower layers
 _overlay_scratch_mount_dirs $lowerdir:$lowerdir $upperdir $workdir \
 	2>&1 | _filter_error_mount
-$UMOUNT_PROG $SCRATCH_MNT 2>/dev/null
+_umount $SCRATCH_MNT 2>/dev/null
 
 rm -rf $upperdir $workdir
 mkdir $upperdir $workdir
@@ -103,7 +103,7 @@ mkdir $upperdir $workdir
 echo Overlapping lower layers below
 _overlay_scratch_mount_dirs $lowerdir:$lowerdir/lower $upperdir $workdir \
 	2>&1 | _filter_error_mount
-$UMOUNT_PROG $SCRATCH_MNT 2>/dev/null
+_umount $SCRATCH_MNT 2>/dev/null
 
 rm -rf $upperdir $workdir
 mkdir $upperdir $workdir
@@ -112,7 +112,7 @@ mkdir $upperdir $workdir
 echo Overlapping lower layers above
 _overlay_scratch_mount_dirs $lowerdir/lower:$lowerdir $upperdir $workdir \
 	2>&1 | _filter_error_mount
-$UMOUNT_PROG $SCRATCH_MNT 2>/dev/null
+_umount $SCRATCH_MNT 2>/dev/null
 
 rm -rf $upperdir $workdir
 mkdir -p $upperdir/upper $workdir $mnt2
@@ -129,14 +129,14 @@ mkdir -p $upperdir2 $workdir2 $mnt2
 echo "Overlapping with upperdir of another instance (index=on)"
 _overlay_scratch_mount_dirs $upperdir/upper $upperdir2 $workdir2 \
 	-oindex=on 2>&1 | _filter_busy_mount
-$UMOUNT_PROG $SCRATCH_MNT 2>/dev/null
+_umount $SCRATCH_MNT 2>/dev/null
 
 rm -rf $upperdir2 $workdir2
 mkdir -p $upperdir2 $workdir2
 
 echo "Overlapping with upperdir of another instance (index=off)"
 _overlay_scratch_mount_dirs $upperdir/upper $upperdir2 $workdir2 \
-	-oindex=off && $UMOUNT_PROG $SCRATCH_MNT
+	-oindex=off && _umount $SCRATCH_MNT
 
 rm -rf $upperdir2 $workdir2
 mkdir -p $upperdir2 $workdir2
@@ -146,14 +146,14 @@ mkdir -p $upperdir2 $workdir2
 echo "Overlapping with workdir of another instance (index=on)"
 _overlay_scratch_mount_dirs $workdir/work $upperdir2 $workdir2 \
 	-oindex=on 2>&1 | _filter_busy_mount
-$UMOUNT_PROG $SCRATCH_MNT 2>/dev/null
+_umount $SCRATCH_MNT 2>/dev/null
 
 rm -rf $upperdir2 $workdir2
 mkdir -p $upperdir2 $workdir2
 
 echo "Overlapping with workdir of another instance (index=off)"
 _overlay_scratch_mount_dirs $workdir/work $upperdir2 $workdir2 \
-	-oindex=off && $UMOUNT_PROG $SCRATCH_MNT
+	-oindex=off && _umount $SCRATCH_MNT
 
 # Move upper layer root into lower layer after mount
 echo Overlapping upperdir/lowerdir after mount

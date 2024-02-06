@@ -48,7 +48,7 @@ _scratch_mount
 # modify lower origin file.
 $CHATTR_PROG +i $SCRATCH_MNT/foo > /dev/null 2>&1
 
-$UMOUNT_PROG $SCRATCH_MNT
+_umount $SCRATCH_MNT
 
 # touching origin file in lower, should succeed
 touch $lowerdir/foo

@@ -47,7 +47,7 @@ _scratch_mount
 # on kernel v5.10..v5.10.14.  Anything but hang is considered a test success.
 $CHATTR_PROG +i $SCRATCH_MNT/foo > /dev/null 2>&1
 
-$UMOUNT_PROG $SCRATCH_MNT
+_umount $SCRATCH_MNT
 
 # success, all done
 echo "Silence is golden"

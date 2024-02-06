@@ -60,7 +60,7 @@ ext4_online_resize()
 	fi
 	cat $tmp.resize2fs >> $seqres.full
 	echo "+++ umount fs" | tee -a $seqres.full
-	$UMOUNT_PROG ${IMG_MNT}
+	_umount ${IMG_MNT}
 
 	echo "+++ check fs" | tee -a $seqres.full
 	_check_generic_filesystem $LOOP_DEVICE >> $seqres.full 2>&1 || \
@@ -74,7 +74,7 @@ _cleanup()
 	cd /
 	[ -n "$LOOP_DEVICE" ] && _destroy_loop_device $LOOP_DEVICE > /dev/null 2>&1
 	rm -f $tmp.*
-	$UMOUNT_PROG ${IMG_MNT} > /dev/null 2>&1
+	_umount ${IMG_MNT} > /dev/null 2>&1
 	rm -f ${IMG_FILE} > /dev/null 2>&1
 }
 

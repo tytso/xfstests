@@ -75,14 +75,14 @@ $XFS_IO_PROG -f -c "o" ${SCRATCH_MNT}/test_file \
 	>>$seqres.full 2>&1
 
 # unmount overlayfs
-$UMOUNT_PROG $SCRATCH_MNT
+_umount $SCRATCH_MNT
 
 # check overlayfs
 _overlay_check_scratch_dirs $lowerd $upperd $workd
 
 # unmount undelying xfs, this tiggers panic if memleak happens
-$UMOUNT_PROG ${OVL_BASE_SCRATCH_MNT}/uppermnt
-$UMOUNT_PROG ${OVL_BASE_SCRATCH_MNT}/lowermnt
+_umount ${OVL_BASE_SCRATCH_MNT}/uppermnt
+_umount ${OVL_BASE_SCRATCH_MNT}/lowermnt
 
 # success, all done
 echo "Silence is golden"

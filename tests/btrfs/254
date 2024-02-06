@@ -96,7 +96,7 @@ test_add_device()
 	$BTRFS_UTIL_PROG filesystem show -m $SCRATCH_MNT | \
 					_filter_btrfs_filesystem_show
 
-	$UMOUNT_PROG $seq_mnt
+	_umount $seq_mnt
 	_scratch_unmount
 	cleanup_dmdev
 }

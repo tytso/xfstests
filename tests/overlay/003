@@ -56,7 +56,7 @@ rm -rf ${SCRATCH_MNT}/*
 ls ${SCRATCH_MNT}/
 
 # unmount overlayfs but not base fs
-$UMOUNT_PROG $SCRATCH_MNT
+_umount $SCRATCH_MNT
 
 echo "Silence is golden"
 # success, all done
