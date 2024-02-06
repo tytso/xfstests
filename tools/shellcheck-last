@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# minimal checking of shell scripts changed in the current commit
+
+test -n "$SKIP_SHELLCHECK" && exit 0
+
+nr_cpus=$(getconf _NPROCESSORS_ONLN)
+
+git diff --name-only HEAD^..HEAD | while read fname; do
+	grep -w -q '#!.*bash' "$fname" && echo "$fname"
+done | xargs -r -n 1 -P "$nr_cpus" shellcheck -x -S error

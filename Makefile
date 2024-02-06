@@ -44,12 +44,17 @@ TOOL_SUBDIRS = ltp src m4 common
 
 SUBDIRS = $(LIB_SUBDIRS) $(TOOL_SUBDIRS) $(TESTS_DIR)
 
-default: include/builddefs
+default: include/builddefs shellcheck
 ifeq ($(HAVE_BUILDDEFS), no)
 	$(Q)$(MAKE) $(MAKEOPTS) $@
 else
 	$(Q)$(MAKE) $(MAKEOPTS) $(SUBDIRS)
 endif
+
+.PHONY: shellcheck
+
+shellcheck:
+	./tools/shellcheck-last
 
 # tool/lib dependencies
 $(TOOL_SUBDIRS): $(LIB_SUBDIRS)
