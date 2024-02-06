@@ -721,6 +721,13 @@ _scratch_xfs_fuzz_metadata() {
 	repair="$2"
 	shift; shift
 
+	local error_level_knob="/proc/sys/fs/xfs/error_level"
+	local old_err=
+	if [ -w "${error_level_knob}" ]; then
+		old_err="$(cat "${error_level_knob}")"
+		echo 0 > "${error_level_knob}"
+	fi
+
 	fields="$(_scratch_xfs_list_metadata_fields "${filter}" "$@")"
 	verbs="$(_scratch_xfs_list_fuzz_verbs "$@")"
 	echo "Fields we propose to fuzz with the \"${repair}\" repair strategy: $@"
@@ -750,6 +757,8 @@ _scratch_xfs_fuzz_metadata() {
 			done
 		done
 	done
+
+	test -w "${error_level_knob}" && echo "${old_err}" > "${error_level_knob}"
 }
 
 # Functions to race fsstress, fs freeze, and xfs metadata scrubbing against
