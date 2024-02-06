@@ -2,4 +2,39 @@ QA output created by 376
 Format and populate
 Find extents-format file inode
 Fuzz inode
+core.mode = middlebit: offline scrub didn't fail.
+core.mode = lastbit: offline scrub didn't fail.
+core.mode = add: offline scrub didn't fail.
+core.size = zeroes: offline scrub didn't fail.
+core.size = middlebit: offline scrub didn't fail.
+core.size = lastbit: offline scrub didn't fail.
+core.size = add: offline scrub didn't fail.
+core.size = sub: offline scrub didn't fail.
+v3.change_count = zeroes: offline scrub didn't fail.
+v3.change_count = ones: offline scrub didn't fail.
+v3.change_count = firstbit: offline scrub didn't fail.
+v3.change_count = middlebit: offline scrub didn't fail.
+v3.change_count = lastbit: offline scrub didn't fail.
+v3.change_count = add: offline scrub didn't fail.
+v3.change_count = sub: offline scrub didn't fail.
+v3.flags2 = lastbit: offline scrub didn't fail.
+v3.flags2 = add: online post-mod scrub failed (1).
+v3.reflink = ones: offline scrub didn't fail.
+v3.reflink = firstbit: offline scrub didn't fail.
+v3.reflink = middlebit: offline scrub didn't fail.
+v3.reflink = lastbit: offline scrub didn't fail.
+v3.reflink = add: offline scrub didn't fail.
+v3.reflink = sub: offline scrub didn't fail.
+v3.verity = ones: offline scrub didn't fail.
+v3.verity = ones: online post-mod scrub failed (1).
+v3.verity = firstbit: offline scrub didn't fail.
+v3.verity = firstbit: online post-mod scrub failed (1).
+v3.verity = middlebit: offline scrub didn't fail.
+v3.verity = middlebit: online post-mod scrub failed (1).
+v3.verity = lastbit: offline scrub didn't fail.
+v3.verity = lastbit: online post-mod scrub failed (1).
+v3.verity = add: offline scrub didn't fail.
+v3.verity = add: online post-mod scrub failed (1).
+v3.verity = sub: offline scrub didn't fail.
+v3.verity = sub: online post-mod scrub failed (1).
 Done fuzzing inode
