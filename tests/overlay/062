@@ -60,7 +60,7 @@ lowertestdir=$lower2/testdir
 create_test_files $lowertestdir
 
 # bind mount to pin lower test dir dentry to dcache
-$MOUNT_PROG --bind $lowertestdir $lowertestdir
+_mount --bind $lowertestdir $lowertestdir
 
 # For non-upper overlay mount, nfs_export requires disabling redirect_dir.
 _overlay_scratch_mount_opts \

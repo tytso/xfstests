@@ -69,7 +69,7 @@ for ((i=0; i<100; i++)); do
 done &
 pid=$!
 for ((i=0; i<100; i++)); do
-	$MOUNT_PROG $lvdev $SCRATCH_MNT >/dev/null 2>&1
+	_mount $lvdev $SCRATCH_MNT >/dev/null 2>&1
 	$UMOUNT_PROG $lvdev >/dev/null 2>&1
 done &
 pid="$pid $!"

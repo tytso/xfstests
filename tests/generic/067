@@ -34,7 +34,7 @@ mount_nonexistent_mnt()
 {
 	echo "# mount to nonexistent mount point" >>$seqres.full
 	rm -rf $TEST_DIR/nosuchdir
-	$MOUNT_PROG $SCRATCH_DEV $TEST_DIR/nosuchdir >>$seqres.full 2>&1
+	_mount $SCRATCH_DEV $TEST_DIR/nosuchdir >>$seqres.full 2>&1
 }
 
 # fs driver should be able to handle mounting a free loop device gracefully
@@ -43,7 +43,7 @@ mount_free_loopdev()
 {
 	echo "# mount a free loop device" >>$seqres.full
 	loopdev=`losetup -f`
-	$MOUNT_PROG -t $FSTYP $loopdev $SCRATCH_MNT >>$seqres.full 2>&1
+	_mount -t $FSTYP $loopdev $SCRATCH_MNT >>$seqres.full 2>&1
 }
 
 # mount with wrong fs type specified.
@@ -55,7 +55,7 @@ mount_wrong_fstype()
 		fs=xfs
 	fi
 	echo "# mount with wrong fs type" >>$seqres.full
-	$MOUNT_PROG -t $fs $SCRATCH_DEV $SCRATCH_MNT >>$seqres.full 2>&1
+	_mount -t $fs $SCRATCH_DEV $SCRATCH_MNT >>$seqres.full 2>&1
 }
 
 # umount a symlink to device, which is not mounted.
