@@ -2,4 +2,16 @@ QA output created by 394
 Format and populate
 Find node-format dir block
 Fuzz node-format dir block
+nhdr.info.hdr.back = ones: offline scrub didn't fail.
+nhdr.info.hdr.back = ones: online post-mod scrub failed (1).
+nhdr.info.hdr.back = firstbit: offline scrub didn't fail.
+nhdr.info.hdr.back = firstbit: online post-mod scrub failed (1).
+nhdr.info.hdr.back = middlebit: offline scrub didn't fail.
+nhdr.info.hdr.back = middlebit: online post-mod scrub failed (1).
+nhdr.info.hdr.back = lastbit: offline scrub didn't fail.
+nhdr.info.hdr.back = lastbit: online post-mod scrub failed (1).
+nhdr.info.hdr.back = add: offline scrub didn't fail.
+nhdr.info.hdr.back = add: online post-mod scrub failed (1).
+nhdr.info.hdr.back = sub: offline scrub didn't fail.
+nhdr.info.hdr.back = sub: online post-mod scrub failed (1).
 Done fuzzing node-format dir block

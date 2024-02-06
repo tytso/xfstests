@@ -1,4 +1,17 @@
 QA output created by 356
 Format and populate
 Fuzz AGI
+newino = zeroes: offline scrub didn't fail.
+newino = ones: offline scrub didn't fail.
+newino = firstbit: offline scrub didn't fail.
+newino = middlebit: offline scrub didn't fail.
+newino = lastbit: offline scrub didn't fail.
+newino = add: offline scrub didn't fail.
+newino = sub: offline scrub didn't fail.
+dirino = zeroes: offline scrub didn't fail.
+dirino = firstbit: offline scrub didn't fail.
+dirino = middlebit: offline scrub didn't fail.
+dirino = lastbit: offline scrub didn't fail.
+dirino = add: offline scrub didn't fail.
+dirino = sub: offline scrub didn't fail.
 Done fuzzing AGI
