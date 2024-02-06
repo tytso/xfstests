@@ -15,7 +15,7 @@ _cleanup()
 {
 	cd /
 	# Unmount nested mounts if things fail
-	$UMOUNT_PROG $OVL_BASE_SCRATCH_MNT/nested  2>/dev/null
+	_umount $OVL_BASE_SCRATCH_MNT/nested  2>/dev/null
 	rm -rf $tmp
 }
 
@@ -44,7 +44,7 @@ nesteddir=$OVL_BASE_SCRATCH_MNT/nested
 
 umount_overlay()
 {
-	$UMOUNT_PROG $SCRATCH_MNT
+	_umount $SCRATCH_MNT
 }
 
 test_escape()
@@ -88,12 +88,12 @@ test_escape()
 	echo "nested xattr mount with trusted.overlay"
 	_overlay_mount_dirs $SCRATCH_MNT/layer2:$SCRATCH_MNT/layer1 - - overlayfs $nesteddir
 	stat $nesteddir/dir/file  2>&1 | _filter_scratch
-	$UMOUNT_PROG $nesteddir
+	_umount $nesteddir
 
 	echo "nested xattr mount with user.overlay"
 	_overlay_mount_dirs $SCRATCH_MNT/layer2:$SCRATCH_MNT/layer1 - - -o userxattr overlayfs $nesteddir
 	stat $nesteddir/dir/file  2>&1 | _filter_scratch
-	$UMOUNT_PROG $nesteddir
+	_umount $nesteddir
 
 	# Also ensure propagate the escaped xattr when we copy-up layer2/dir
 	echo "copy-up of escaped xattrs"
@@ -164,7 +164,7 @@ test_escaped_xwhiteout()
 
 	do_test_xwhiteout $prefix $nesteddir
 
-	$UMOUNT_PROG $nesteddir
+	_umount $nesteddir
 }
 
 test_escaped_xwhiteout trusted

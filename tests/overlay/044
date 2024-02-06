@@ -99,7 +99,7 @@ cat $FILES
 check_ino_nlink $SCRATCH_MNT $tmp.before $tmp.after_one
 
 # Verify that the hardlinks survive a mount cycle
-$UMOUNT_PROG $SCRATCH_MNT
+_umount $SCRATCH_MNT
 _overlay_check_scratch_dirs $lowerdir $upperdir $workdir -o index=on,xino=on
 _overlay_scratch_mount_dirs $lowerdir $upperdir $workdir -o index=on,xino=on
 

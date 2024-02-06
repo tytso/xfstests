@@ -52,7 +52,7 @@ _mount -t overlay | grep ovl_esc_test  | tee -a $seqres.full | grep -v spaces &&
 
 # Re-create the upper/work dirs to mount them with a different lower
 # This is required in case index feature is enabled
-$UMOUNT_PROG $SCRATCH_MNT
+_umount $SCRATCH_MNT
 rm -rf "$upperdir" "$workdir"
 mkdir -p "$upperdir" "$workdir"
 

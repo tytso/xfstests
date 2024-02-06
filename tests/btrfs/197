@@ -15,7 +15,7 @@ _begin_fstest auto quick volume
 # Override the default cleanup function.
 _cleanup()
 {
-	$UMOUNT_PROG $TEST_DIR/$seq.mnt >/dev/null 2>&1
+	_umount $TEST_DIR/$seq.mnt >/dev/null 2>&1
 	rm -rf $TEST_DIR/$seq.mnt
 	cd /
 	rm -f $tmp.*
@@ -67,7 +67,7 @@ workout()
 	grep -q "${SCRATCH_DEV_NAME[1]}" $tmp.output && _fail "found stale device"
 
 	$BTRFS_UTIL_PROG device remove "${SCRATCH_DEV_NAME[1]}" "$TEST_DIR/$seq.mnt"
-	$UMOUNT_PROG $TEST_DIR/$seq.mnt
+	_umount $TEST_DIR/$seq.mnt
 	_scratch_unmount
 	_spare_dev_put
 	_scratch_dev_pool_put

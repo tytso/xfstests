@@ -16,7 +16,7 @@ _cleanup()
 {
 	cd /
 	rm -f $tmp.*
-	$UMOUNT_PROG $LOOP_MNT 2>/dev/null
+	_umount $LOOP_MNT 2>/dev/null
 	[ -n "$LOOP_DEV" ] && _destroy_loop_device $LOOP_DEV 2>/dev/null
 	# try to keep the image file if test fails
 	[ $status -eq 0 ] && rm -f $LOOP_IMG
@@ -81,7 +81,7 @@ _grow_loop()
 	$XFS_GROWFS_PROG $LOOP_MNT 2>&1 |  _filter_growfs 2>&1
 
 	echo "*** unmount"
-	$UMOUNT_PROG -d $LOOP_MNT && LOOP_DEV=
+	_umount -d $LOOP_MNT && LOOP_DEV=
 
 	# Large grows takes forever to check..
 	if [ "$check" -gt "0" ]

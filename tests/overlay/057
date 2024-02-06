@@ -48,7 +48,7 @@ _overlay_scratch_mount_dirs $lowerdir $lowerdir2 $workdir2 -o redirect_dir=on
 # Create opaque parent with absolute redirect child in middle layer
 mkdir $SCRATCH_MNT/pure
 mv $SCRATCH_MNT/origin $SCRATCH_MNT/pure/redirect
-$UMOUNT_PROG $SCRATCH_MNT
+_umount $SCRATCH_MNT
 _overlay_scratch_mount_dirs $lowerdir2:$lowerdir $upperdir $workdir -o redirect_dir=on
 mv $SCRATCH_MNT/pure/redirect $SCRATCH_MNT/redirect
 # List content of renamed merge dir before mount cycle
@@ -56,7 +56,7 @@ ls $SCRATCH_MNT/redirect/
 
 # Verify that redirects are followed by listing content of renamed merge dir
 # after mount cycle
-$UMOUNT_PROG $SCRATCH_MNT
+_umount $SCRATCH_MNT
 _overlay_scratch_mount_dirs $lowerdir2:$lowerdir $upperdir $workdir -o redirect_dir=on
 ls $SCRATCH_MNT/redirect/
 

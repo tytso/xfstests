@@ -87,7 +87,7 @@ mount_dirs()
 # Unmount the overlay without unmounting base fs
 unmount_dirs()
 {
-	$UMOUNT_PROG $SCRATCH_MNT
+	_umount $SCRATCH_MNT
 }
 
 # Check encode/decode/read file handles of dir with non-indexed ancestor

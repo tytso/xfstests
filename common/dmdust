@@ -22,7 +22,7 @@ _mount_dust()
 
 _unmount_dust()
 {
-	$UMOUNT_PROG $SCRATCH_MNT
+	_umount $SCRATCH_MNT
 }
 
 _cleanup_dust()
@@ -30,6 +30,6 @@ _cleanup_dust()
 	# If dmsetup load fails then we need to make sure to do resume here
 	# otherwise the umount will hang
 	$DMSETUP_PROG resume dust-test > /dev/null 2>&1
-	$UMOUNT_PROG $SCRATCH_MNT > /dev/null 2>&1
+	_umount $SCRATCH_MNT > /dev/null 2>&1
 	_dmsetup_remove dust-test
 }

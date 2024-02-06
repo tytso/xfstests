@@ -61,7 +61,7 @@ do_check()
 
 	echo "Test chattr +$1 $2" >> $seqres.full
 
-	$UMOUNT_PROG $SCRATCH_MNT
+	_umount $SCRATCH_MNT
 
 	# Add attribute to lower file
 	$CHATTR_PROG +$attr $lowertestfile

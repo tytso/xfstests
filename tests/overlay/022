@@ -17,7 +17,7 @@ _begin_fstest auto quick mount nested
 _cleanup()
 {
 	cd /
-	$UMOUNT_PROG $tmp/mnt > /dev/null 2>&1
+	_umount $tmp/mnt > /dev/null 2>&1
 	rm -rf $tmp
 	rm -f $tmp.*
 }

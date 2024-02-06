@@ -209,6 +209,11 @@ _mount()
 	return $ret
 }
 
+_umount()
+{
+	$UMOUNT_PROG $*
+}
+
 # Call _mount to do mount operation but also save mountpoint to
 # MOUNTED_POINT_STACK. Note that the mount point must be the last parameter
 _get_mount()
@@ -242,7 +247,7 @@ _put_mount()
 	local last_mnt=`echo $MOUNTED_POINT_STACK | awk '{print $1}'`
 
 	if [ -n "$last_mnt" ]; then
-		$UMOUNT_PROG $last_mnt
+		_umount $last_mnt
 	fi
 	MOUNTED_POINT_STACK=`echo $MOUNTED_POINT_STACK | cut -d\  -f2-`
 }
@@ -251,7 +256,7 @@ _put_mount()
 _clear_mount_stack()
 {
 	if [ -n "$MOUNTED_POINT_STACK" ]; then
-		$UMOUNT_PROG $MOUNTED_POINT_STACK
+		_umount $MOUNTED_POINT_STACK
 	fi
 	MOUNTED_POINT_STACK=""
 }
@@ -396,17 +401,17 @@ _scratch_unmount()
 		_overlay_scratch_unmount
 		;;
 	btrfs)
-		$UMOUNT_PROG $SCRATCH_MNT
+		_umount $SCRATCH_MNT
 		;;
 	*)
-		$UMOUNT_PROG $SCRATCH_DEV
+		_umount $SCRATCH_DEV
 		;;
 	esac
 }
 
 _scratch_umount_idmapped()
 {
-	$UMOUNT_PROG $SCRATCH_MNT
+	_umount $SCRATCH_MNT
 }
 
 _scratch_remount()
@@ -430,7 +435,7 @@ _scratch_cycle_mount()
         ;;
     overlay)
         if [ "$OVL_BASE_FSTYP" = tmpfs ]; then
-            $UMOUNT_PROG $SCRATCH_MNT
+            _umount $SCRATCH_MNT
             unmounted=true
         fi
         ;;
@@ -478,9 +483,9 @@ _move_mount()
 
 	# Replace $mnt with $tmp. Use a temporary bind-mount because
 	# mount --move will fail with certain mount propagation layouts.
-	$UMOUNT_PROG $mnt || _fail "Failed to unmount $mnt"
+	_umount $mnt || _fail "Failed to unmount $mnt"
 	_mount --bind $tmp $mnt || _fail "Failed to bind-mount $tmp to $mnt"
-	$UMOUNT_PROG $tmp || _fail "Failed to unmount $tmp"
+	_umount $tmp || _fail "Failed to unmount $tmp"
 	rmdir $tmp
 }
 
@@ -546,7 +551,7 @@ _test_unmount()
 	if [ "$FSTYP" == "overlay" ]; then
 		_overlay_test_unmount
 	else
-		$UMOUNT_PROG $TEST_DEV
+		_umount $TEST_DEV
 	fi
 }
 
@@ -560,7 +565,7 @@ _test_cycle_mount()
         ;;
     overlay)
         if [ "$OVL_BASE_FSTYP" = tmpfs ]; then
-            $UMOUNT_PROG $TEST_DIR
+            _umount $TEST_DIR
             unmounted=true
         fi
         ;;
@@ -1344,7 +1349,7 @@ _repair_scratch_fs()
 		# Fall through to repair base fs
 		dev=$OVL_BASE_SCRATCH_DEV
 		fstyp=$OVL_BASE_FSTYP
-		$UMOUNT_PROG $OVL_BASE_SCRATCH_MNT
+		_umount $OVL_BASE_SCRATCH_MNT
 	fi
 	# Let's hope fsck -y suffices...
 	fsck -t $fstyp -y $dev 2>&1
@@ -2158,7 +2163,7 @@ _require_logdev()
         _notrun "This test requires USE_EXTERNAL to be enabled"
 
     # ensure its not mounted
-    $UMOUNT_PROG $SCRATCH_LOGDEV 2>/dev/null
+    _umount $SCRATCH_LOGDEV 2>/dev/null
 }
 
 # This test requires that an external log device is not in use
@@ -3250,7 +3255,7 @@ _umount_or_remount_ro()
     local mountpoint=`_is_dev_mounted $device`
 
     if [ $USE_REMOUNT -eq 0 ]; then
-        $UMOUNT_PROG $device
+        _umount $device
     else
         _remount $device ro
     fi
@@ -3767,7 +3772,7 @@ _require_scratch_dev_pool()
 			_notrun "$i is part of TEST_DEV, this test requires unique disks"
 		fi
 		if _mount | grep -q $i; then
-			if ! $UMOUNT_PROG $i; then
+			if ! _umount $i; then
 		            echo "failed to unmount $i - aborting"
 		            exit 1
 		        fi

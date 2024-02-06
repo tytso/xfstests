@@ -21,8 +21,8 @@ _cleanup()
 	rm -f $tmp.*
 
 	# The variables are set before the test case can fail.
-	$UMOUNT_PROG ${loop_mnt1} &> /dev/null
-	$UMOUNT_PROG ${loop_mnt2} &> /dev/null
+	_umount ${loop_mnt1} &> /dev/null
+	_umount ${loop_mnt2} &> /dev/null
 	rm -rf $loop_mnt1
 	rm -rf $loop_mnt2
 
@@ -66,7 +66,7 @@ loop_dev2=`_create_loop_device $fs_img2`
 # Normal single device case, should pass just fine
 _mount $loop_dev1 $loop_mnt1 > /dev/null  2>&1 || \
 	_fail "Couldn't do initial mount"
-$UMOUNT_PROG $loop_mnt1
+_umount $loop_mnt1
 
 _btrfs_forget_or_module_reload
 
@@ -75,15 +75,15 @@ _btrfs_forget_or_module_reload
 # measure.
 _mount $loop_dev1 $loop_mnt1 > /dev/null 2>&1 || \
 	_fail "Failed to mount the second time"
-$UMOUNT_PROG $loop_mnt1
+_umount $loop_mnt1
 
 _mount $loop_dev2 $loop_mnt2 > /dev/null 2>&1 || \
 	_fail "We couldn't mount the old generation"
-$UMOUNT_PROG $loop_mnt2
+_umount $loop_mnt2
 
 _mount $loop_dev1 $loop_mnt1 > /dev/null 2>&1 || \
 	_fail "Failed to mount the second time"
-$UMOUNT_PROG $loop_mnt1
+_umount $loop_mnt1
 
 # Now try mount them at the same time, if kernel does not support
 # temp-fsid feature then mount will fail.

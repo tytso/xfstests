@@ -34,8 +34,8 @@ _cleanup()
 	cd /
 	rm -f $tmp.*
 	# unmount the two extra mounts in case they did not fail
-	$UMOUNT_PROG $SCRATCH_MNT 2>/dev/null
-	$UMOUNT_PROG $SCRATCH_MNT 2>/dev/null
+	_umount $SCRATCH_MNT 2>/dev/null
+	_umount $SCRATCH_MNT 2>/dev/null
 }
 
 # Import common functions.
@@ -66,13 +66,13 @@ _overlay_mount_dirs $lowerdir $upperdir $workdir \
 # with index=off - expect success
 _overlay_mount_dirs $lowerdir $upperdir $workdir2 \
 		    overlay0 $SCRATCH_MNT -oindex=off && \
-		    $UMOUNT_PROG $SCRATCH_MNT
+		    _umount $SCRATCH_MNT
 
 # Try to mount another overlay with the same workdir
 # with index=off - expect success
 _overlay_mount_dirs $lowerdir2 $upperdir2 $workdir \
 		    overlay1 $SCRATCH_MNT -oindex=off && \
-		    $UMOUNT_PROG $SCRATCH_MNT
+		    _umount $SCRATCH_MNT
 
 # Try to mount another overlay with the same upperdir
 # with index=on - expect EBUSY

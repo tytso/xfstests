@@ -70,7 +70,7 @@ stat $testfile >>$seqres.full
 diff -q $realfile $testfile >>$seqres.full &&
 	echo "diff with middle layer file doesn't know right from wrong! (cold cache)"
 
-$UMOUNT_PROG $SCRATCH_MNT
+_umount $SCRATCH_MNT
 # check overlayfs
 _overlay_check_scratch_dirs $middle:$lower $upper $work -o xino=off
 

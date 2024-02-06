@@ -142,7 +142,7 @@ subdir_d=$($here/src/t_dir_type $pure_lower_dir $pure_lower_subdir_st_ino)
 [[ $subdir_d == "subdir d" ]] || \
 	echo "Merged dir: Invalid d_ino reported for subdir"
 
-$UMOUNT_PROG $SCRATCH_MNT
+_umount $SCRATCH_MNT
 
 # check overlayfs
 _overlay_check_scratch_dirs $lowerdir $upperdir $workdir -o xino=on

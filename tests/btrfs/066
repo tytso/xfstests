@@ -81,7 +81,7 @@ run_test()
 	fi
 
 	# in case the subvolume is still mounted
-	$UMOUNT_PROG $subvol_mnt >/dev/null 2>&1
+	_umount $subvol_mnt >/dev/null 2>&1
 	_scratch_unmount
 	# we called _require_scratch_nocheck instead of _require_scratch
 	# do check after test for each profile config

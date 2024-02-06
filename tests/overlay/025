@@ -19,8 +19,8 @@ _begin_fstest auto quick attr
 _cleanup()
 {
 	cd /
-	$UMOUNT_PROG $tmpfsdir/mnt
-	$UMOUNT_PROG $tmpfsdir
+	_umount $tmpfsdir/mnt
+	_umount $tmpfsdir
 	rm -rf $tmpfsdir
 	rm -f $tmp.*
 }

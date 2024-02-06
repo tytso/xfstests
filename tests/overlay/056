@@ -73,7 +73,7 @@ mkdir $lowerdir/testdir2/subdir
 _overlay_scratch_mount_dirs $lowerdir $upperdir $workdir
 touch $SCRATCH_MNT/testdir1/foo
 touch $SCRATCH_MNT/testdir2/subdir
-$UMOUNT_PROG $SCRATCH_MNT
+_umount $SCRATCH_MNT
 remove_impure $upperdir/testdir1
 remove_impure $upperdir/testdir2
 

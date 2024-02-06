@@ -37,7 +37,7 @@ _cleanup()
 	# Cleanup overlay scratch mount that is holding base test mount
 	# to prevent _check_test_fs and _test_umount from failing before
 	# _check_scratch_fs _scratch_umount
-	$UMOUNT_PROG $SCRATCH_MNT 2>/dev/null
+	_umount $SCRATCH_MNT 2>/dev/null
 }
 
 # Import common functions.
@@ -109,7 +109,7 @@ mount_dirs()
 # underlying dirs
 unmount_dirs()
 {
-	$UMOUNT_PROG $SCRATCH_MNT
+	_umount $SCRATCH_MNT
 
 	_overlay_check_scratch_dirs $middle:$lower $upper $work \
 				-o "index=on,nfs_export=on,redirect_dir=on"

@@ -76,7 +76,7 @@ mount_dirs()
 # Unmount the overlay without unmounting base fs
 unmount_dirs()
 {
-	$UMOUNT_PROG $SCRATCH_MNT
+	_umount $SCRATCH_MNT
 }
 
 # Check non-stale file handles of lower/upper files and verify
