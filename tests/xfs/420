@@ -67,6 +67,9 @@ exercise_lseek() {
 }
 
 blksz=65536
+# Golden output encodes SEEK_HOLE/DATA output, which depends on COW only
+# happening on $blksz granularity
+_require_congruent_file_oplen $SCRATCH_MNT $blksz
 nr=8
 filesize=$((blksz * nr))
 
