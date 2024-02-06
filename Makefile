@@ -73,7 +73,7 @@ configure: configure.ac
 	autoconf
 
 include/builddefs include/config.h: configure
-	./configure \
+	echo ./configure \
                 --libexecdir=/usr/lib \
                 --exec_prefix=/var/lib
 
