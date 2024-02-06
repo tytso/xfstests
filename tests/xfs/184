@@ -38,6 +38,7 @@ nr=128
 filesize=$((blksz * nr))
 bufnr=16
 bufsize=$((blksz * bufnr))
+_require_scratch_cowextsize_useful $bufsize
 
 _require_fs_space $SCRATCH_MNT $((filesize / 1024 * 3 * 5 / 4))
 real_blksz=$(_get_block_size $testdir)
