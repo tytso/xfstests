@@ -54,7 +54,7 @@ for x in `seq 2 64`; do
 done
 inode="$(stat -c '%i' "${TESTFILE}.1")"
 agcount="$(_xfs_mount_agcount $SCRATCH_MNT)"
-umount "${SCRATCH_MNT}"
+_umount "${SCRATCH_MNT}"
 
 echo "+ check fs"
 _scratch_xfs_repair -n >> $seqres.full 2>&1 || _fail "xfs_repair should not fail"
@@ -82,7 +82,7 @@ for x in `seq 1 64`; do
 	test $? -ne 0 && broken=1
 done
 echo "broken: ${broken}"
-umount "${SCRATCH_MNT}"
+_umount "${SCRATCH_MNT}"
 
 echo "+ check fs (2)"
 _scratch_xfs_repair -n >> $seqres.full 2>&1 || _fail "xfs_repair should not fail"

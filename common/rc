@@ -1317,7 +1317,7 @@ _repair_scratch_fs()
 			_scratch_xfs_repair -L 2>&1
 			echo "log zap returns $?"
 		else
-			umount "$SCRATCH_MNT"
+			_umount "$SCRATCH_MNT"
 		fi
 		_scratch_xfs_repair "$@" 2>&1
 		res=$?
@@ -1382,7 +1382,7 @@ _repair_test_fs()
 				_test_xfs_repair -L >>$tmp.repair 2>&1
 				echo "log zap returns $?" >> $tmp.repair
 			else
-				umount "$TEST_DEV"
+				_umount "$TEST_DEV"
 			fi
 			_test_xfs_repair "$@" >>$tmp.repair 2>&1
 			res=$?

@@ -18,7 +18,7 @@ _begin_fstest growfs auto quick
 # Override the default cleanup function.
 _cleanup()
 {
-    umount $tmpdir
+    _umount $tmpdir
     rmdir $tmpdir
     rm -f $tmp
     rm -f $tmpfile

@@ -514,7 +514,7 @@ _require_xfs_has_feature()
 
 	_xfs_has_feature "$1" "$2" && return 0
 
-	test "$umount" = "-u" && umount "$fs" &>/dev/null
+	test "$umount" = "-u" && _umount "$fs" &>/dev/null
 
 	test -n "$message" && _notrun "$message"
 

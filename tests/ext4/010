@@ -46,7 +46,7 @@ echo "+ make some files"
 for i in `seq 1 $((nr_groups * 8))`; do
 	mkdir -p "${SCRATCH_MNT}/d_${i}"
 done
-umount "${SCRATCH_MNT}"
+_umount "${SCRATCH_MNT}"
 
 echo "+ check fs"
 e2fsck -fn "${SCRATCH_DEV}" >> $seqres.full 2>&1 || _fail "fsck should not fail"
@@ -61,7 +61,7 @@ _scratch_mount
 
 echo "+ modify files"
 touch "${SCRATCH_MNT}/file0" > /dev/null 2>&1 && _fail "touch should fail"
-umount "${SCRATCH_MNT}"
+_umount "${SCRATCH_MNT}"
 
 echo "+ repair fs"
 e2fsck -fy "${SCRATCH_DEV}" >> $seqres.full 2>&1
@@ -71,7 +71,7 @@ _scratch_mount
 
 echo "+ modify files (2)"
 touch "${SCRATCH_MNT}/file1"
-umount "${SCRATCH_MNT}"
+_umount "${SCRATCH_MNT}"
 
 echo "+ check fs (2)"
 e2fsck -fn "${SCRATCH_DEV}" >> $seqres.full 2>&1 || _fail "fsck should not fail"

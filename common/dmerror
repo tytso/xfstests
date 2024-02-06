@@ -97,7 +97,7 @@ _dmerror_mount()
 
 _dmerror_unmount()
 {
-	umount $SCRATCH_MNT
+	_umount $SCRATCH_MNT
 }
 
 _dmerror_cleanup()

@@ -536,7 +536,7 @@ _scratch_xfs_populate() {
 	__populate_fragment_file "${SCRATCH_MNT}/REFCOUNTBT"
 	__populate_fragment_file "${SCRATCH_MNT}/RTREFCOUNTBT"
 
-	umount "${SCRATCH_MNT}"
+	_umount "${SCRATCH_MNT}"
 }
 
 # Populate an ext4 on the scratch device with (we hope) all known
@@ -638,7 +638,7 @@ _scratch_ext4_populate() {
 	# Make sure we get all the fragmentation we asked for
 	__populate_fragment_file "${SCRATCH_MNT}/S_IFREG.FMT_ETREE"
 
-	umount "${SCRATCH_MNT}"
+	_umount "${SCRATCH_MNT}"
 }
 
 # Find the inode number of a file
@@ -827,7 +827,7 @@ _scratch_xfs_populate_check() {
 	dblksz="$(_xfs_get_dir_blocksize "$SCRATCH_MNT")"
 	leaf_lblk="$((32 * 1073741824 / blksz))"
 	node_lblk="$((64 * 1073741824 / blksz))"
-	umount "${SCRATCH_MNT}"
+	_umount "${SCRATCH_MNT}"
 
 	__populate_check_xfs_dformat "${extents_file}" "extents"
 	__populate_check_xfs_dformat "${btree_file}" "btree"
@@ -944,7 +944,7 @@ _scratch_ext4_populate_check() {
 	extents_slink="$(__populate_find_inode "${SCRATCH_MNT}/S_IFLNK.FMT_EXTENTS")"
 	local_attr="$(__populate_find_inode "${SCRATCH_MNT}/ATTR.FMT_LOCAL")"
 	block_attr="$(__populate_find_inode "${SCRATCH_MNT}/ATTR.FMT_BLOCK")"
-	umount "${SCRATCH_MNT}"
+	_umount "${SCRATCH_MNT}"
 
 	__populate_check_ext4_dformat "${extents_file}" "extents"
 	__populate_check_ext4_dformat "${etree_file}" "etree"

@@ -50,7 +50,7 @@ done
 for x in `seq 2 64`; do
 	echo moo >> "${TESTFILE}.${x}"
 done
-umount "${SCRATCH_MNT}"
+_umount "${SCRATCH_MNT}"
 
 echo "+ check fs"
 e2fsck -fn "${SCRATCH_DEV}" >> $seqres.full 2>&1 || _fail "fsck should not fail"
@@ -70,7 +70,7 @@ e2fsck -fy "${SCRATCH_DEV}" >> $seqres.full 2>&1
 echo "+ mount image (2)"
 _scratch_mount
 
-umount "${SCRATCH_MNT}"
+_umount "${SCRATCH_MNT}"
 
 echo "+ check fs (2)"
 e2fsck -fn "${SCRATCH_DEV}" >> $seqres.full 2>&1 || _fail "fsck should not fail"

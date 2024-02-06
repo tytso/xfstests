@@ -21,9 +21,9 @@ _cleanup()
 {
 	cd /
 	_scratch_unmount 2>/dev/null
-	umount $imgs.loop 2>/dev/null
+	_umount $imgs.loop 2>/dev/null
 	[ -d $imgs.loop ] && rmdir $imgs.loop
-	umount $imgs.source_dir 2>/dev/null
+	_umount $imgs.source_dir 2>/dev/null
 	[ -d $imgs.source_dir ] && rm -rf $imgs.source_dir
 	rm -f $imgs.* $tmp.* /var/tmp/xfs_copy.log.*
 }
@@ -98,8 +98,8 @@ _verify_copy()
 	diff -u $tmp.geometry1 $tmp.geometry2
 
 	echo unmounting and removing new image
-	umount $source_dir
-	umount $target_dir > /dev/null 2>&1
+	_umount $source_dir
+	_umount $target_dir > /dev/null 2>&1
 	rm -f $target
 }
 

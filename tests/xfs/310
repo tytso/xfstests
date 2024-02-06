@@ -13,7 +13,7 @@ _begin_fstest auto clone rmap prealloc
 _cleanup()
 {
 	cd /
-	umount $SCRATCH_MNT > /dev/null 2>&1
+	_umount $SCRATCH_MNT > /dev/null 2>&1
 	_dmhugedisk_cleanup
 	rm -rf $tmp.*
 }
@@ -53,7 +53,7 @@ $XFS_IO_PROG -f -c "falloc 0 $((nr_blks * blksz))" $testdir/file1 >> $seqres.ful
 echo "Check extent count"
 xfs_bmap -l -p -v $testdir/file1 | grep '^[[:space:]]*2:' -q && xfs_bmap -l -p -v $testdir/file1
 inum=$(stat -c '%i' $testdir/file1)
-umount $SCRATCH_MNT
+_umount $SCRATCH_MNT
 
 echo "Check bmap count"
 nr_bmaps=$(xfs_db -c "inode $inum" -c "bmap" $DMHUGEDISK_DEV | grep 'data offset' | wc -l)

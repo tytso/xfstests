@@ -56,7 +56,7 @@ done
 inode="$(stat -c '%i' "${TESTFILE}.1")"
 agcount="$(_xfs_mount_agcount $SCRATCH_MNT)"
 test "${agcount}" -gt 1 || _notrun "Single-AG XFS not supported"
-umount "${SCRATCH_MNT}"
+_umount "${SCRATCH_MNT}"
 
 echo "+ check fs"
 _scratch_xfs_repair -n >> $seqres.full 2>&1 || _fail "xfs_repair should not fail"
@@ -73,7 +73,7 @@ if _try_scratch_mount >> $seqres.full 2>&1; then
 	for x in `seq 1 64`; do
 		$XFS_IO_PROG -f -c "pwrite -S 0x62 0 ${blksz}" "${TESTFILE}.${x}" >> $seqres.full
 	done
-	umount "${SCRATCH_MNT}"
+	_umount "${SCRATCH_MNT}"
 fi
 
 echo "+ repair fs"
@@ -97,7 +97,7 @@ echo "+ modify files (2)"
 for x in `seq 1 64`; do
 	$XFS_IO_PROG -f -c "pwrite -S 0x62 ${blksz} ${blksz}" "${TESTFILE}.${x}" >> $seqres.full
 done
-umount "${SCRATCH_MNT}"
+_umount "${SCRATCH_MNT}"
 
 echo "+ repair fs"
 _repair_scratch_fs >> $seqres.full 2>&1
@@ -114,7 +114,7 @@ for x in `seq 1 64`; do
 	test -s "${TESTFILE}.${x}" || broken=1
 done
 echo "broken: ${broken}"
-umount "${SCRATCH_MNT}"
+_umount "${SCRATCH_MNT}"
 
 echo "+ check fs (2)"
 _scratch_xfs_repair -n >> $seqres.full 2>&1 || _fail "xfs_repair should not fail"

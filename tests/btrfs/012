@@ -60,7 +60,7 @@ mount -o loop $SCRATCH_MNT/ext2_saved/image $SCRATCH_MNT/mnt || \
 	_fail "could not loop mount saved ext4 image"
 # Ignore the symlinks which may be broken/nonexistent
 diff --no-dereference -r $SOURCE_DIR $SCRATCH_MNT/mnt/$BASENAME/ 2>&1
-umount $SCRATCH_MNT/mnt
+_umount $SCRATCH_MNT/mnt
 
 # Now put some fresh data on the btrfs fs
 mkdir -p $SCRATCH_MNT/new 
