@@ -665,6 +665,7 @@ _stash_test_status() {
 		bad+=("$test_seq")
 		;;
 	list|notrun)
+		test -n "$seqres" && rm -f "$seqres.time_stats"*
 		notrun+=("$test_seq")
 		;;
 	pass|expunge)
@@ -1043,6 +1044,13 @@ function run_section()
 			modprobe fs-$FSTYP
 		fi
 
+		# Prevent large $seqres.time_stats files from eating all our space
+		if [ -f $seqres.time_stats ] && [ -n "$ZSTD_PROG" ]; then
+			if [ $(stat -c '%s' $seqres.time_stats) -gt 524288 ]; then
+				(_adjust_oom_score 250; $ZSTD_PROG -19 --rm --force --quiet $seqres.time_stats)
+			fi
+		fi
+
 		# Scan for memory leaks after every test so that associating
 		# a leak to a particular test will be as accurate as possible.
 		_check_kmemleak || tc_status="fail"
@@ -1123,8 +1131,8 @@ function run_section()
 	interrupt=true
 	echo
 
-	_test_unmount 2> /dev/null
-	_scratch_unmount 2> /dev/null
+	SKIP_TIMESTATS=1 _test_unmount 2> /dev/null
+	SKIP_TIMESTATS=1 _scratch_unmount 2> /dev/null
 }
 
 for ((iters = 0; iters < $iterations; iters++)) do
