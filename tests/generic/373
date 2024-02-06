@@ -42,7 +42,7 @@ blksz=65536
 sz=$((blksz * blocks))
 
 echo "Mount otherdir"
-$MOUNT_PROG --bind $SCRATCH_MNT $otherdir
+_mount --bind $SCRATCH_MNT $otherdir
 
 echo "Create file"
 _pwrite_byte 0x61 0 $sz $testdir/file >> $seqres.full

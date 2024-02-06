@@ -40,14 +40,14 @@ mkdir -p "$lowerdir_spaces" "$lowerdir_colons" "$lowerdir_commas"
 
 # _overlay_mount_* helpers do not handle special chars well, so execute mount directly.
 # if escaped colons are not parsed correctly, mount will fail.
-$MOUNT_PROG -t overlay ovl_esc_test $SCRATCH_MNT \
+_mount -t overlay ovl_esc_test $SCRATCH_MNT \
 	-o"upperdir=$upperdir,workdir=$workdir" \
 	-o"lowerdir=$lowerdir_colons_esc:$lowerdir_spaces" \
 	2>&1 | tee -a $seqres.full
 
 # if spaces are not escaped when showing mount options,
 # mount command will not show the word 'spaces' after the spaces
-$MOUNT_PROG -t overlay | grep ovl_esc_test  | tee -a $seqres.full | grep -v spaces && \
+_mount -t overlay | grep ovl_esc_test  | tee -a $seqres.full | grep -v spaces && \
 	echo "ERROR: escaped spaces truncated from lowerdir mount option"
 
 # Re-create the upper/work dirs to mount them with a different lower
@@ -65,7 +65,7 @@ mkdir -p "$upperdir" "$workdir"
 # and this test will fail, but the failure would indicate a libmount issue, not
 # a kernel issue.  Therefore, force libmount to use mount(2) syscall, so we only
 # test the kernel fix.
-LIBMOUNT_FORCE_MOUNT2=always $MOUNT_PROG -t overlay $OVL_BASE_SCRATCH_DEV $SCRATCH_MNT \
+LIBMOUNT_FORCE_MOUNT2=always _mount -t overlay $OVL_BASE_SCRATCH_DEV $SCRATCH_MNT \
 	-o"upperdir=$upperdir,workdir=$workdir,lowerdir=$lowerdir_commas_esc" 2>> $seqres.full || \
 	echo "ERROR: incorrect parsing of escaped comma in lowerdir mount option"
 

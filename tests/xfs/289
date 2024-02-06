@@ -56,7 +56,7 @@ echo "=== xfs_growfs - plain file - should be rejected ==="
 $XFS_GROWFS_PROG $tmpfile 2>&1 | _filter_test_dir
 
 echo "=== mount ==="
-$MOUNT_PROG -o loop $tmpfile $tmpdir || _fail "!!! failed to loopback mount"
+_mount -o loop $tmpfile $tmpdir || _fail "!!! failed to loopback mount"
 
 echo "=== xfs_growfs - mounted - check absolute path ==="
 $XFS_GROWFS_PROG -D 8192 $tmpdir | _filter_test_dir > /dev/null
@@ -79,7 +79,7 @@ $XFS_GROWFS_PROG -D 28672 tmpsymlink.$$ > /dev/null
 
 echo "=== xfs_growfs - bind mount ==="
 mkdir $tmpbind
-$MOUNT_PROG -o bind $tmpdir $tmpbind
+_mount -o bind $tmpdir $tmpbind
 $XFS_GROWFS_PROG -D 32768 $tmpbind | _filter_test_dir > /dev/null
 
 echo "=== xfs_growfs - bind mount - relative path ==="

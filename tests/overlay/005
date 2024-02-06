@@ -50,8 +50,8 @@ $MKFS_XFS_PROG -f -n ftype=1 $upper_loop_dev >>$seqres.full 2>&1
 # mount underlying xfs
 mkdir -p ${OVL_BASE_SCRATCH_MNT}/lowermnt
 mkdir -p ${OVL_BASE_SCRATCH_MNT}/uppermnt
-$MOUNT_PROG $fs_loop_dev ${OVL_BASE_SCRATCH_MNT}/lowermnt
-$MOUNT_PROG $upper_loop_dev ${OVL_BASE_SCRATCH_MNT}/uppermnt
+_mount $fs_loop_dev ${OVL_BASE_SCRATCH_MNT}/lowermnt
+_mount $upper_loop_dev ${OVL_BASE_SCRATCH_MNT}/uppermnt
 
 # prepare dirs
 mkdir -p ${OVL_BASE_SCRATCH_MNT}/lowermnt/lower
