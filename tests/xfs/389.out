@@ -2,4 +2,8 @@ QA output created by 389
 Format and populate
 Find data-format dir block
 Fuzz data-format dir block
+du[2].name = lastbit: online re-scrub failed (5).
+du[2].name = lastbit: offline re-scrub failed (1).
+du[2].name = lastbit: online post-mod scrub failed (1).
+du[2].name = lastbit: offline post-mod scrub failed (1).
 Done fuzzing data-format dir block

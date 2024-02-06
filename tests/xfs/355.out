@@ -1,6 +1,53 @@
 QA output created by 355
 Format and populate
 Fuzz AGFL
+bno[0] = zeroes: online scrub didn't fail.
+bno[0] = add: online scrub didn't fail.
+bno[1] = zeroes: online scrub didn't fail.
+bno[1] = ones: online scrub didn't fail.
+bno[1] = middlebit: online scrub didn't fail.
+bno[1] = lastbit: online scrub didn't fail.
+bno[1] = add: online scrub didn't fail.
+bno[2] = zeroes: online scrub didn't fail.
+bno[2] = ones: online scrub didn't fail.
+bno[2] = middlebit: online scrub didn't fail.
+bno[2] = lastbit: online scrub didn't fail.
+bno[2] = add: online scrub didn't fail.
+bno[3] = zeroes: online scrub didn't fail.
+bno[3] = ones: online scrub didn't fail.
+bno[3] = middlebit: online scrub didn't fail.
+bno[3] = lastbit: online scrub didn't fail.
+bno[3] = add: online scrub didn't fail.
+bno[4] = zeroes: online scrub didn't fail.
+bno[4] = ones: online scrub didn't fail.
+bno[4] = middlebit: online scrub didn't fail.
+bno[4] = lastbit: online scrub didn't fail.
+bno[4] = add: online scrub didn't fail.
+bno[5] = zeroes: online scrub didn't fail.
+bno[5] = ones: online scrub didn't fail.
+bno[5] = middlebit: online scrub didn't fail.
+bno[5] = lastbit: online scrub didn't fail.
+bno[5] = add: online scrub didn't fail.
+bno[6] = zeroes: online scrub didn't fail.
+bno[6] = ones: online scrub didn't fail.
+bno[6] = middlebit: online scrub didn't fail.
+bno[6] = lastbit: online scrub didn't fail.
+bno[6] = add: online scrub didn't fail.
+bno[7] = zeroes: online scrub didn't fail.
+bno[7] = ones: online scrub didn't fail.
+bno[7] = middlebit: online scrub didn't fail.
+bno[7] = lastbit: online scrub didn't fail.
+bno[7] = add: online scrub didn't fail.
+bno[8] = zeroes: online scrub didn't fail.
+bno[8] = ones: online scrub didn't fail.
+bno[8] = middlebit: online scrub didn't fail.
+bno[8] = lastbit: online scrub didn't fail.
+bno[8] = add: online scrub didn't fail.
+bno[9] = zeroes: online scrub didn't fail.
+bno[9] = ones: online scrub didn't fail.
+bno[9] = middlebit: online scrub didn't fail.
+bno[9] = lastbit: online scrub didn't fail.
+bno[9] = add: online scrub didn't fail.
 Done fuzzing AGFL
 Fuzz AGFL flfirst
 Done fuzzing AGFL flfirst
