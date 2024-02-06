@@ -74,7 +74,7 @@ cp --reflink=always $orig_file $copy_file >> $seqres.full 2>&1 || echo "cp refli
 md5sum $orig_file | _filter_testdir_and_scratch
 md5sum $copy_file | _filter_testdir_and_scratch
 
-$UMOUNT_PROG $reflink_test_dir
+_umount $reflink_test_dir
 
 # success, all done
 status=0

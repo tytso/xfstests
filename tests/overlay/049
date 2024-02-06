@@ -32,7 +32,7 @@ create_redirect()
 	touch $SCRATCH_MNT/origin/file
 	mv $SCRATCH_MNT/origin $SCRATCH_MNT/$redirect
 
-	$UMOUNT_PROG $SCRATCH_MNT
+	_umount $SCRATCH_MNT
 }
 
 # Import common functions.

@@ -65,7 +65,7 @@ mv $SCRATCH_MNT/f100 $SCRATCH_MNT/former/
 
 # Remove the lower directory and mount overlay again to create
 # a "former merge dir"
-$UMOUNT_PROG $SCRATCH_MNT
+_umount $SCRATCH_MNT
 rm -rf $lowerdir/former
 _scratch_mount
 

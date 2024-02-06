@@ -18,7 +18,7 @@ _cleanup()
 {
 	cd /
 	rm -f $tmp.*
-	$UMOUNT_PROG $lowertestdir
+	_umount $lowertestdir
 }
 
 # Import common functions.

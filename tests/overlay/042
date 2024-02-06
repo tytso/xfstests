@@ -45,7 +45,7 @@ _scratch_mount -o index=off
 # Copy up lower and create upper hardlink with no index
 ln $SCRATCH_MNT/0 $SCRATCH_MNT/1
 
-$UMOUNT_PROG $SCRATCH_MNT
+_umount $SCRATCH_MNT
 
 # Add lower hardlinks while overlay is offline
 ln $lowerdir/0 $lowerdir/2

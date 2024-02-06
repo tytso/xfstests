@@ -18,7 +18,7 @@ _cleanup()
 	cd /
 	rm -r -f $tmp.*
 	if [ ! -z "$loop_mnt" ]; then
-		$UMOUNT_PROG $loop_mnt
+		_umount $loop_mnt
 		rm -rf $loop_mnt
 	fi
 	[ ! -z "$fs_img" ] && rm -rf $fs_img
@@ -63,7 +63,7 @@ then
     status=1
 fi
 
-$UMOUNT_PROG $loop_mnt || _fail "umount failed"
+_umount $loop_mnt || _fail "umount failed"
 loop_mnt=
 
 $E2FSCK_PROG -fn $fs_img >> $seqres.full 2>&1 || _fail "file system corrupted"

@@ -22,7 +22,7 @@ _begin_fstest auto quick nested
 _cleanup()
 {
 	cd /
-	$UMOUNT_PROG $tmp/mnt
+	_umount $tmp/mnt
 	rm -rf $tmp
 	rm -f $tmp.*
 }
@@ -56,7 +56,7 @@ _overlay_mount_dirs $SCRATCH_MNT/up $tmp/{upper,work} \
   overlay $tmp/mnt
 # accessing file in the second mount
 cat $tmp/mnt/foo
-$UMOUNT_PROG $tmp/mnt
+_umount $tmp/mnt
 
 # re-create upper/work to avoid ovl_verify_origin() mount failure
 # when index is enabled
@@ -66,7 +66,7 @@ mkdir -p $tmp/{upper,work}
 _overlay_mount_dirs $SCRATCH_MNT/low $tmp/{upper,work} \
   overlay $tmp/mnt
 cat $tmp/mnt/bar
-$UMOUNT_PROG $tmp/mnt
+_umount $tmp/mnt
 
 rm -rf $tmp/{upper,work}
 mkdir -p $tmp/{upper,work}

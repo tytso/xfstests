@@ -106,7 +106,7 @@ _dmerror_cleanup()
 	test -n "$NON_ERROR_RTDEV" && $DMSETUP_PROG resume error-rttest &>/dev/null
 	$DMSETUP_PROG resume error-test > /dev/null 2>&1
 
-	$UMOUNT_PROG $SCRATCH_MNT > /dev/null 2>&1
+	_umount $SCRATCH_MNT > /dev/null 2>&1
 
 	test -n "$NON_ERROR_LOGDEV" && _dmsetup_remove error-logtest
 	test -n "$NON_ERROR_RTDEV" && _dmsetup_remove error-rttest

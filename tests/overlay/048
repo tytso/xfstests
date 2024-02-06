@@ -32,7 +32,7 @@ report_nlink()
 		_ls_l $SCRATCH_MNT/$f | awk '{ print $2, $9 }' | _filter_scratch
 	done
 
-	$UMOUNT_PROG $SCRATCH_MNT
+	_umount $SCRATCH_MNT
 }
 
 # Create lower hardlinks
@@ -101,7 +101,7 @@ touch $SCRATCH_MNT/1
 touch $SCRATCH_MNT/2
 
 # Perform the rest of the changes offline
-$UMOUNT_PROG $SCRATCH_MNT
+_umount $SCRATCH_MNT
 
 test_hardlinks_offline
 

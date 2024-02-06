@@ -33,7 +33,7 @@ create_origin_ref()
 	_scratch_mount -o redirect_dir=on
 	mv $SCRATCH_MNT/origin $SCRATCH_MNT/$ref
 
-	$UMOUNT_PROG $SCRATCH_MNT
+	_umount $SCRATCH_MNT
 }
 
 # Import common functions.

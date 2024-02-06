@@ -23,7 +23,7 @@ _cleanup()
 {
 	cd /
 	rm -r -f $tmp.*
-	umount $dummymnt &>/dev/null
+	_umount $dummymnt &>/dev/null
 	rmdir $dummymnt &>/dev/null
 	rm -f $dummyfile
 }
@@ -46,7 +46,7 @@ testme() {
 	XFS_SCRUB_PHASE=7 $XFS_SCRUB_PROG -d -o autofsck $dummymnt 2>&1 | \
 		grep autofsck | _filter_test_dir | \
 		sed -e 's/\(directive.\).*$/\1/g'
-	umount $dummymnt
+	_umount $dummymnt
 }
 
 # We don't test the absence of an autofsck directive because xfs_scrub behaves

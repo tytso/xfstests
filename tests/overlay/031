@@ -28,7 +28,7 @@ create_whiteout()
 
 	rm -f $SCRATCH_MNT/testdir/$file
 
-	$UMOUNT_PROG $SCRATCH_MNT
+	_umount $SCRATCH_MNT
 }
 
 # Import common functions.
@@ -68,7 +68,7 @@ rm -rf $SCRATCH_MNT/testdir 2>&1 | _filter_scratch
 
 # umount overlay again, create a new file with the same name and
 # mount overlay again.
-$UMOUNT_PROG $SCRATCH_MNT
+_umount $SCRATCH_MNT
 touch $lowerdir1/testdir
 
 _overlay_scratch_mount_dirs $lowerdir1 $upperdir $workdir
@@ -77,7 +77,7 @@ _overlay_scratch_mount_dirs $lowerdir1 $upperdir $workdir
 # it will not clean up the dir and lead to residue.
 rm -rf $SCRATCH_MNT/testdir 2>&1 | _filter_scratch
 
-$UMOUNT_PROG $SCRATCH_MNT
+_umount $SCRATCH_MNT
 
 # let lower dir have invalid whiteouts, repeat ls and rmdir test again.
 rm -rf $lowerdir1/testdir
@@ -92,7 +92,7 @@ _overlay_scratch_mount_dirs "$lowerdir1:$lowerdir2" $upperdir $workdir
 ls $SCRATCH_MNT/testdir
 rm -rf $SCRATCH_MNT/testdir 2>&1 | _filter_scratch
 
-$UMOUNT_PROG $SCRATCH_MNT
+_umount $SCRATCH_MNT
 
 # let lower dir and upper dir both have invalid whiteouts, repeat ls and rmdir again.
 rm -rf $lowerdir1/testdir

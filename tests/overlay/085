@@ -157,7 +157,7 @@ mount_ro_overlay()
 
 umount_overlay()
 {
-	$UMOUNT_PROG $SCRATCH_MNT
+	_umount $SCRATCH_MNT
 }
 
 test_no_access()
