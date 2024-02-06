@@ -50,7 +50,6 @@ offsetof(xfs_sb_t, sb_rgblklog) = 204
 offsetof(xfs_sb_t, sb_rgcount) = 272
 offsetof(xfs_sb_t, sb_rgextents) = 276
 offsetof(xfs_sb_t, sb_rootino) = 56
-offsetof(xfs_sb_t, sb_rrmapino) = 264
 offsetof(xfs_sb_t, sb_rsumino) = 72
 offsetof(xfs_sb_t, sb_sectlog) = 121
 offsetof(xfs_sb_t, sb_sectsize) = 102
