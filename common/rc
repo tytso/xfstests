@@ -3472,6 +3472,8 @@ _get_os_name()
 
 _link_out_file_named()
 {
+	test -n "$seqfull" || _fail "need to set seqfull"
+
 	local features=$2
 	local suffix=$(FEATURES="$features" perl -e '
 		my %feathash;
@@ -3506,6 +3508,8 @@ _link_out_file_named()
 _link_out_file()
 {
 	local features
+
+	test -n "$seqfull" || _fail "need to set seqfull"
 
 	if [ $# -eq 0 ]; then
 		features="$(_get_os_name),$FSTYP"
