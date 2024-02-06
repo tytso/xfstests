@@ -3,6 +3,15 @@ Format and populate
 Fuzz block map for BLOCK
 Done fuzzing dir map BLOCK
 Fuzz block map for LEAF
+u3.bmx[1].startblock = lastbit: online repair failed (1).
+u3.bmx[1].startblock = lastbit: online re-scrub failed (5).
+u3.bmx[1].startblock = lastbit: offline re-scrub failed (1).
+u3.bmx[1].startblock = lastbit: online post-mod scrub failed (1).
+u3.bmx[1].startblock = lastbit: offline post-mod scrub failed (1).
+u3.bmx[3].startblock = add: online repair failed (4).
+u3.bmx[3].startblock = add: online re-scrub failed (4).
+u3.bmx[3].startblock = add: offline re-scrub failed (1).
+u3.bmx[3].startblock = add: pre-mod mount failed (32).
 Done fuzzing dir map LEAF
 Fuzz block map for LEAFN
 Done fuzzing dir map LEAFN
