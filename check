@@ -1050,6 +1050,13 @@ function run_section()
 		$timestamp && _timestamp
 		stop=`_wallclock`
 
+		# Prevent large $seqres.full files from eating all our space
+		if [ -f $seqres.full ] && [ -n "$ZSTD_PROG" ]; then
+			if [ $(stat -c '%s' $seqres.full) -gt 524288 ]; then
+				(_adjust_oom_score 250; $ZSTD_PROG -19 --rm --force --quiet $seqres.full)
+			fi
+		fi
+
 		if [ ! -f $seq.out ]; then
 			_dump_err "no qualified output"
 			tc_status="fail"
