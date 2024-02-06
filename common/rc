@@ -211,6 +211,15 @@ _mount()
 
 _umount()
 {
+	case "$FSTYP" in
+	"xfs")
+		# Capture timing statistics at unmount, except for the initial
+		# pre-testing fs check.
+		test "$seqres" != "check" && \
+			_xfs_capture_timestats "$seqres.time_stats" "$@"
+		;;
+	esac
+
 	$UMOUNT_PROG $*
 }
 

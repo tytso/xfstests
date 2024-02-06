@@ -2199,3 +2199,26 @@ _scratch_find_rt_metadir_entry() {
 
 	return 1
 }
+
+_xfs_capture_timestats()
+{
+	local output="$1"
+	shift
+	local files
+	local i
+
+	test -n "$SKIP_TIMESTATS" && return
+	test -z "$PYTHON3_PROG" && return
+
+	# If we don't have timestats dirs or debugfs, don't bother trying to
+	# collect timestats information
+	for i in /sys/kernel/debug/xfs/*/time_stats; do
+		test -e "$i" || return
+	done
+
+	echo "timestats $* at $(date)" >> "$output"
+	find -P /sys/kernel/debug/xfs/ \
+		-path '*time_stats*json' -type f -print0 -o \
+		-path '*scrub/stats' -type f -print0 | \
+	xargs -0 $PYTHON3_PROG $here/src/sysfs-dump.py -n "${files[@]}" >> "$output" 2>/dev/null
+}
