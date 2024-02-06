@@ -28,7 +28,7 @@ _scratch_mkfs > /dev/null 2>&1
 _scratch_mount
 
 blocksize=$(_get_file_block_size $SCRATCH_MNT)
-
+_require_congruent_file_oplen $SCRATCH_MNT $blocksize
 file1="$SCRATCH_MNT/file1"
 file2="$SCRATCH_MNT/file2"
 extmap1="$SCRATCH_MNT/extmap1"

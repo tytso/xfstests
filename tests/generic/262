@@ -28,6 +28,7 @@ testdir=$SCRATCH_MNT/test-$seq
 mkdir $testdir
 
 blksz=65536
+_require_congruent_file_oplen $SCRATCH_MNT $blksz
 nr=4
 filesize=$((blksz * nr))
 
