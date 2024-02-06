@@ -1,4 +1,35 @@
 QA output created by 1551
 Format and populate
 Fuzz metadir subdir
+core.rtinherit = ones: offline scrub didn't fail.
+core.rtinherit = firstbit: offline scrub didn't fail.
+core.rtinherit = middlebit: offline scrub didn't fail.
+core.rtinherit = lastbit: offline scrub didn't fail.
+core.rtinherit = add: offline scrub didn't fail.
+core.rtinherit = sub: offline scrub didn't fail.
+core.projinherit = ones: offline scrub didn't fail.
+core.projinherit = firstbit: offline scrub didn't fail.
+core.projinherit = middlebit: offline scrub didn't fail.
+core.projinherit = lastbit: offline scrub didn't fail.
+core.projinherit = add: offline scrub didn't fail.
+core.projinherit = sub: offline scrub didn't fail.
+v3.change_count = zeroes: offline scrub didn't fail.
+v3.change_count = ones: offline scrub didn't fail.
+v3.change_count = firstbit: offline scrub didn't fail.
+v3.change_count = middlebit: offline scrub didn't fail.
+v3.change_count = lastbit: offline scrub didn't fail.
+v3.change_count = add: offline scrub didn't fail.
+v3.change_count = sub: offline scrub didn't fail.
+v3.nrext64 = zeroes: offline scrub didn't fail.
+v3.nrext64 = firstbit: offline scrub didn't fail.
+v3.nrext64 = middlebit: offline scrub didn't fail.
+v3.nrext64 = lastbit: offline scrub didn't fail.
+v3.nrext64 = add: offline scrub didn't fail.
+v3.nrext64 = sub: offline scrub didn't fail.
+u3.sfdir3.list[0].inumber.i4 = lastbit: offline repair failed (1).
+u3.sfdir3.list[0].inumber.i4 = lastbit: offline re-scrub failed (1).
+u3.sfdir3.list[0].inumber.i4 = lastbit: pre-mod mount failed (32).
+u3.sfdir3.list[1].offset = middlebit: offline scrub didn't fail.
+u3.sfdir3.list[1].offset = lastbit: offline scrub didn't fail.
+u3.sfdir3.list[1].offset = add: offline scrub didn't fail.
 Done fuzzing metadir subdir
