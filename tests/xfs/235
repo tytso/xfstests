@@ -31,7 +31,7 @@ _pwrite_byte 0x62 0 $((blksz * 64)) ${SCRATCH_MNT}/file0 >> $seqres.full
 _pwrite_byte 0x61 0 $((blksz * 64)) ${SCRATCH_MNT}/file1 >> $seqres.full
 cp -p ${SCRATCH_MNT}/file0 ${SCRATCH_MNT}/file2
 cp -p ${SCRATCH_MNT}/file1 ${SCRATCH_MNT}/file3
-umount ${SCRATCH_MNT}
+_umount ${SCRATCH_MNT}
 
 echo "+ check fs"
 _scratch_xfs_repair -n >> $seqres.full 2>&1 || \
@@ -49,7 +49,7 @@ if _try_scratch_mount >> $seqres.full 2>&1; then
 
 	$XFS_IO_PROG -f -c "pwrite -S 0x63 0 $((blksz * 64))" -c "fsync" ${SCRATCH_MNT}/file4 >> $seqres.full 2>&1
 	test -s ${SCRATCH_MNT}/file4 && _fail "should not be able to copy with busted rmap btree"
-	umount ${SCRATCH_MNT}
+	_umount ${SCRATCH_MNT}
 fi
 
 echo "+ repair fs"
@@ -66,7 +66,7 @@ $CHATTR_PROG -R -f -i ${SCRATCH_MNT}/
 echo "+ copy more (2)"
 cp -p ${SCRATCH_MNT}/file1 ${SCRATCH_MNT}/file5 || \
 	_fail "modified rmap tree"
-umount ${SCRATCH_MNT}
+_umount ${SCRATCH_MNT}
 
 echo "+ check fs (2)"
 _scratch_xfs_repair -n >> $seqres.full 2>&1 || \

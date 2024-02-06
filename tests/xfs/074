@@ -59,7 +59,7 @@ $XFS_IO_PROG -ft \
 	-c "falloc 0 $(($BLOCK_SIZE * 2097152))" \
 	$LOOP_MNT/foo >> $seqres.full
 
-umount $LOOP_MNT
+_umount $LOOP_MNT
 _check_xfs_filesystem $LOOP_DEV none none
 
 _mkfs_dev -f $LOOP_DEV
@@ -72,7 +72,7 @@ $XFS_IO_PROG -ft \
 	-c "falloc 1023m 2g" \
 	$LOOP_MNT/foo >> $seqres.full
 
-umount $LOOP_MNT
+_umount $LOOP_MNT
 _check_xfs_filesystem $LOOP_DEV none none
 
 # success, all done

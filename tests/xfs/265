@@ -16,7 +16,7 @@ _begin_fstest auto clone
 _cleanup()
 {
     cd /
-    umount $SCRATCH_MNT > /dev/null 2>&1
+    _umount $SCRATCH_MNT > /dev/null 2>&1
     rm -rf $tmp.*
 }
 
@@ -51,7 +51,7 @@ for i in 1 2 x; do
 		truncate -s $((blksz * (nr_blks - nr))) $testdir/file1.$nr >> $seqres.full
 	done
 
-	umount $SCRATCH_MNT
+	_umount $SCRATCH_MNT
 	_check_scratch_fs
 	_scratch_mount
 
@@ -60,7 +60,7 @@ for i in 1 2 x; do
 	echo "$i: Delete both files"
 	rm -rf $testdir
 	mkdir -p $testdir
-	umount $SCRATCH_MNT
+	_umount $SCRATCH_MNT
 	_check_scratch_fs
 	_scratch_mount
 done

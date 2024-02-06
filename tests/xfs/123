@@ -44,7 +44,7 @@ str="$(perl -e "print './' x $reps;")x"
 (cd $SCRATCH_MNT; ln -s "${str}" "long_symlink")
 cat "${SCRATCH_MNT}/long_symlink"
 inode="$(stat -c '%i' "${SCRATCH_MNT}/long_symlink")"
-umount "${SCRATCH_MNT}"
+_umount "${SCRATCH_MNT}"
 
 echo "+ check fs"
 _scratch_xfs_repair -n >> $seqres.full 2>&1 || _fail "xfs_repair should not fail"
@@ -55,7 +55,7 @@ _scratch_xfs_db -x -c "inode ${inode}" -c "dblock 0" -c "stack" -c "blocktrash -
 echo "+ mount image"
 if _try_scratch_mount >> $seqres.full 2>&1; then
 	cat "${SCRATCH_MNT}/long_symlink" 2>/dev/null && _fail "symlink should be broken"
-	umount "${SCRATCH_MNT}"
+	_umount "${SCRATCH_MNT}"
 fi
 
 echo "+ repair fs"
@@ -64,7 +64,7 @@ _repair_scratch_fs >> $seqres.full 2>&1
 echo "+ mount image (2)"
 _scratch_mount
 cat "${SCRATCH_MNT}/long_symlink" 2>/dev/null && _fail "symlink should be broken"
-umount "${SCRATCH_MNT}"
+_umount "${SCRATCH_MNT}"
 
 echo "+ check fs (2)"
 _scratch_xfs_repair -n >> $seqres.full 2>&1 || _fail "xfs_repair should not fail"

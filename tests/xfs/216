@@ -52,7 +52,7 @@ _do_mkfs()
 			-d name=$LOOP_DEV,size=${i}g $loop_mkfs_opts |grep log
 		mount -o loop -t xfs $LOOP_DEV $LOOP_MNT
 		echo "test write" > $LOOP_MNT/test
-		umount $LOOP_MNT > /dev/null 2>&1
+		_umount $LOOP_MNT > /dev/null 2>&1
 	done
 }
 # make large holey file

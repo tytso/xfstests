@@ -78,7 +78,7 @@ $CHATTR_PROG -R -f -i "${SCRATCH_MNT}/"
 echo "+ reflink more (2)"
 _cp_reflink "${SCRATCH_MNT}/file1" "${SCRATCH_MNT}/file5" || \
 	_fail "modified refcount tree"
-umount "${SCRATCH_MNT}"
+_umount "${SCRATCH_MNT}"
 
 echo "+ check fs (2)"
 _scratch_xfs_repair -n >> "$seqres.full" 2>&1 || \

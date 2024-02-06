@@ -65,7 +65,7 @@ mount -o loop $SCRATCH_MNT/ext2_saved/image $SCRATCH_MNT/mnt || \
 
 echo "Checking saved ext2 image against the original one:"
 $FSSUM_PROG -r $tmp.original $SCRATCH_MNT/mnt/$BASENAME
-umount $SCRATCH_MNT/mnt
+_umount $SCRATCH_MNT/mnt
 
 echo "Generating new data on the converted btrfs" >> $seqres.full
 mkdir -p $SCRATCH_MNT/new 
