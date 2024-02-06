@@ -57,7 +57,7 @@ scratch_repair() {
 			_scratch_xfs_repair -L >> "${FSCK_LOG}" 2>&1
 			echo "+++ returns $?" >> "${FSCK_LOG}"
 		else
-			umount "${SCRATCH_MNT}" >> "${FSCK_LOG}" 2>&1
+			_umount "${SCRATCH_MNT}" >> "${FSCK_LOG}" 2>&1
 		fi
 	elif [ "${fsck_pass}" -eq "${FSCK_PASSES}" ]; then
 		echo "++ fsck did not fix in ${FSCK_PASSES} passes." >> "${FSCK_LOG}"
@@ -109,7 +109,7 @@ echo "+++ modify scratch" >> $seqres.full
 _scratch_fuzz_modify >> $seqres.full 2>&1
 
 echo "++ umount" >> $seqres.full
-umount "${SCRATCH_MNT}"
+_umount "${SCRATCH_MNT}"
 
 # repair in a loop...
 for p in $(seq 1 "${FSCK_PASSES}"); do
@@ -134,7 +134,7 @@ echo "+++ modify scratch" >> $ROUND2_LOG
 _scratch_fuzz_modify >> $ROUND2_LOG 2>&1
 
 echo "++ umount" >> $ROUND2_LOG
-umount "${SCRATCH_MNT}" >> $ROUND2_LOG 2>&1
+_umount "${SCRATCH_MNT}" >> $ROUND2_LOG 2>&1
 
 cat "$ROUND2_LOG" >> $seqres.full
 

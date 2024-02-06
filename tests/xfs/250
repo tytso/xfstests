@@ -13,7 +13,7 @@ _begin_fstest auto quick rw prealloc metadata
 _cleanup()
 {
 	cd /
-	umount $LOOP_MNT 2>/dev/null
+	_umount $LOOP_MNT 2>/dev/null
 	rm -f $LOOP_DEV
 	rmdir $LOOP_MNT
 }
@@ -60,7 +60,7 @@ _test_loop()
 	$XFS_IO_PROG -f -c "resvsp 0 $fsize" $LOOP_MNT/foo | _filter_io
 
 	echo "*** unmount loop filesystem"
-	umount $LOOP_MNT > /dev/null 2>&1
+	_umount $LOOP_MNT > /dev/null 2>&1
 
 	echo "*** check loop filesystem"
 	 _check_xfs_filesystem $LOOP_DEV none none

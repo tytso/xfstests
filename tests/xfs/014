@@ -22,7 +22,7 @@ _begin_fstest auto enospc quick quota prealloc
 _cleanup()
 {
 	cd /
-	umount $LOOP_MNT 2>/dev/null
+	_umount $LOOP_MNT 2>/dev/null
 	_scratch_unmount 2>/dev/null
 	rm -f $tmp.*
 }
@@ -174,7 +174,7 @@ mount -t xfs -o loop,uquota,gquota $LOOP_FILE $LOOP_MNT || \
 _test_enospc $LOOP_MNT
 _test_edquot $LOOP_MNT
 
-umount $LOOP_MNT
+_umount $LOOP_MNT
 
 echo $orig_sp_time > /proc/sys/fs/xfs/speculative_prealloc_lifetime
 

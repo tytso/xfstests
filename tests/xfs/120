@@ -45,7 +45,7 @@ for i in $(seq 1 2 ${nr}); do
 	$XFS_IO_PROG -f -c "fpunch $((i * blksz)) ${blksz}" "${SCRATCH_MNT}/bigfile" >> $seqres.full
 done
 inode="$(stat -c '%i' "${SCRATCH_MNT}/bigfile")"
-umount "${SCRATCH_MNT}"
+_umount "${SCRATCH_MNT}"
 
 echo "+ check fs"
 _scratch_xfs_repair -n >> $seqres.full 2>&1 || _fail "xfs_repair should not fail"
@@ -60,7 +60,7 @@ if _try_scratch_mount >> $seqres.full 2>&1; then
 	$XFS_IO_PROG -f -c "pwrite -S 0x62 ${blksz} ${blksz}" -c 'fsync' "${SCRATCH_MNT}/bigfile" >> $seqres.full 2> /dev/null
 	after="$(stat -c '%b' "${SCRATCH_MNT}/bigfile")"
 	test "${before}" -eq "${after}" || _fail "pwrite should fail on corrupt bmbt"
-	umount "${SCRATCH_MNT}"
+	_umount "${SCRATCH_MNT}"
 fi
 
 echo "+ repair fs"
@@ -78,7 +78,7 @@ before="$(stat -c '%b' "${SCRATCH_MNT}/bigfile")"
 $XFS_IO_PROG -f -c "pwrite -S 0x62 ${blksz} ${blksz}" -c 'fsync' "${SCRATCH_MNT}/bigfile" >> $seqres.full 2> /dev/null
 after="$(stat -c '%b' "${SCRATCH_MNT}/bigfile")"
 test "${before}" -ne "${after}" || _fail "pwrite failed after fixing corrupt bmbt"
-umount "${SCRATCH_MNT}"
+_umount "${SCRATCH_MNT}"
 
 echo "+ check fs (2)"
 _scratch_xfs_repair -n >> $seqres.full 2>&1 || _fail "xfs_repair should not fail"

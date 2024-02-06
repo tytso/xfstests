@@ -43,7 +43,7 @@ echo "file contents: moo" > "${SCRATCH_MNT}/x"
 str="$(perl -e "print './' x $(( (blksz / 2) - 16));")x"
 (cd $SCRATCH_MNT; ln -s "${str}" "long_symlink")
 cat "${SCRATCH_MNT}/long_symlink"
-umount "${SCRATCH_MNT}"
+_umount "${SCRATCH_MNT}"
 
 echo "+ check fs"
 e2fsck -fn "${SCRATCH_DEV}" >> $seqres.full 2>&1 || _fail "fsck should not fail"
@@ -54,7 +54,7 @@ debugfs -w -R 'zap -f /long_symlink -p 0x62 0' "${SCRATCH_DEV}" 2> /dev/null
 echo "+ mount image"
 _scratch_mount 2> /dev/null
 cat "${SCRATCH_MNT}/long_symlink" 2>/dev/null && _fail "symlink should be broken"
-umount "${SCRATCH_MNT}"
+_umount "${SCRATCH_MNT}"
 
 echo "+ repair fs"
 e2fsck -fy "${SCRATCH_DEV}" >> $seqres.full 2>&1
@@ -62,7 +62,7 @@ e2fsck -fy "${SCRATCH_DEV}" >> $seqres.full 2>&1
 echo "+ mount image (2)"
 _scratch_mount
 cat "${SCRATCH_MNT}/long_symlink" 2>/dev/null && _fail "symlink should be broken"
-umount "${SCRATCH_MNT}"
+_umount "${SCRATCH_MNT}"
 
 echo "+ check fs (2)"
 e2fsck -fn "${SCRATCH_DEV}" >> $seqres.full 2>&1 || _fail "fsck should not fail"

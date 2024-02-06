@@ -92,7 +92,7 @@ _require_xfs_quota_acct_enabled()
 	if [ -z "$umount" ] && [ "$dev" = "$SCRATCH_DEV" ]; then
 		umount="-u"
 	fi
-	test "$umount" = "-u" && umount "$dev" &>/dev/null
+	test "$umount" = "-u" && _umount "$dev" &>/dev/null
 
 	case "$dev" in
 	"$TEST_DEV")	fsname="test";;

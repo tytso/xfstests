@@ -65,7 +65,7 @@ for ((i = 0; i < 64; i++)); do
 done
 echo "First victim inode is: " >> $seqres.full
 stat -c '%i' "$fname" >> $seqres.full
-umount "${SCRATCH_MNT}"
+_umount "${SCRATCH_MNT}"
 
 echo "+ check fs"
 _scratch_xfs_repair -n >> $seqres.full 2>&1 || _fail "xfs_repair should not fail"
@@ -85,7 +85,7 @@ if _try_scratch_mount >> $seqres.full 2>&1; then
 		touch "$fname" &>> $seqres.full
 		test $? -eq 0 && broken=0
 	done
-	umount "${SCRATCH_MNT}"
+	_umount "${SCRATCH_MNT}"
 fi
 echo "broken: ${broken}"
 
@@ -110,7 +110,7 @@ for x in `seq 1 64`; do
 	echo "${x}: broken=${broken}" >> $seqres.full
 done
 echo "broken: ${broken}"
-umount "${SCRATCH_MNT}"
+_umount "${SCRATCH_MNT}"
 
 echo "+ check fs (2)"
 _scratch_xfs_repair -n >> $seqres.full 2>&1 || _fail "xfs_repair should not fail"

@@ -46,7 +46,7 @@ seq 0 "${nr}" | while read d; do
 	setfattr -n "user.x$(printf "%.08d" "$d")" -v "0000000000000000" "${SCRATCH_MNT}/attrfile"
 done
 inode="$(stat -c '%i' "${SCRATCH_MNT}/attrfile")"
-umount "${SCRATCH_MNT}"
+_umount "${SCRATCH_MNT}"
 
 echo "+ check fs"
 _scratch_xfs_repair -n >> $seqres.full 2>&1 || _fail "xfs_repair should not fail"
@@ -64,7 +64,7 @@ echo "+ mount image && modify xattr"
 if _try_scratch_mount >> $seqres.full 2>&1; then
 
 	setfattr -x "user.x00000000" "${SCRATCH_MNT}/attrfile" 2> /dev/null && _fail "modified corrupt xattr"
-	umount "${SCRATCH_MNT}"
+	_umount "${SCRATCH_MNT}"
 fi
 
 echo "+ repair fs"
@@ -80,7 +80,7 @@ $CHATTR_PROG -R -f -i "${SCRATCH_MNT}/"
 echo "+ modify xattr (2)"
 getfattr "${SCRATCH_MNT}/attrfile" -n "user.x00000000" > /dev/null 2>&1 && (setfattr -x "user.x00000000" "${SCRATCH_MNT}/attrfile" || _fail "remove corrupt xattr")
 setfattr -n "user.x00000000" -v 'x0x0x0x0' "${SCRATCH_MNT}/attrfile" || _fail "add corrupt xattr"
-umount "${SCRATCH_MNT}"
+_umount "${SCRATCH_MNT}"
 
 echo "+ check fs (2)"
 _scratch_xfs_repair -n >> $seqres.full 2>&1 || _fail "xfs_repair should not fail"

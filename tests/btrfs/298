@@ -31,11 +31,11 @@ $BTRFS_UTIL_PROG device scan --forget
 echo "#Scan seed device and check using mount" >> $seqres.full
 $BTRFS_UTIL_PROG device scan $SCRATCH_DEV >> $seqres.full
 _mount $SPARE_DEV $SCRATCH_MNT
-umount $SCRATCH_MNT
+_umount $SCRATCH_MNT
 
 echo "#check again, ensures seed device still in kernel" >> $seqres.full
 _mount $SPARE_DEV $SCRATCH_MNT
-umount $SCRATCH_MNT
+_umount $SCRATCH_MNT
 
 echo "#Now scan of non-seed device makes kernel forget" >> $seqres.full
 $BTRFS_TUNE_PROG -f -S 0 $SCRATCH_DEV >> $seqres.full 2>&1

@@ -66,7 +66,7 @@ md5sum $testdir/file1 | _filter_scratch
 md5sum $testdir/file2 | _filter_scratch
 
 echo "Check for damage"
-umount $SCRATCH_MNT
+_umount $SCRATCH_MNT
 _repair_scratch_fs >> $seqres.full
 
 # success, all done

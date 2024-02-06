@@ -134,7 +134,7 @@ do
 	_mount $snap_dev $SCRATCH_MNT || _fail "mount failed at entry $cur"
 	fsverity measure $SCRATCH_MNT/fsv >>$seqres.full 2>&1
 	measured=$?
-	umount $SCRATCH_MNT
+	_umount $SCRATCH_MNT
 	[ $state -eq 1 ] && [ $measured -eq 0 ] && state=2
 	[ $state -eq 2 ] && ([ $measured -eq 0 ] || _fail "verity done, but measurement failed at entry $cur")
 	post_mount=$(count_merkle_items $snap_dev)

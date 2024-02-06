@@ -14,7 +14,7 @@ _begin_fstest auto ioctl resize
 # Override the default cleanup function.
 _cleanup()
 {
-	umount $SCRATCH_MNT >/dev/null 2>&1
+	_umount $SCRATCH_MNT >/dev/null 2>&1
 	_dmhugedisk_cleanup
 	cd /
 	rm -f $tmp.*

@@ -15,7 +15,7 @@ _begin_fstest auto rmap punch
 _cleanup()
 {
     cd /
-    umount $SCRATCH_MNT > /dev/null 2>&1
+    _umount $SCRATCH_MNT > /dev/null 2>&1
     rm -rf $tmp.*
 }
 
@@ -44,7 +44,7 @@ for i in 1 2 x; do
 	seq 1 2 $((nr_blks - 1)) | while read nr; do
 		$XFS_IO_PROG -c "fpunch $((nr * blksz)) $blksz" $testdir/file2 >> $seqres.full
 	done
-	umount $SCRATCH_MNT
+	_umount $SCRATCH_MNT
 	_check_scratch_fs
 	_scratch_mount
 
@@ -52,7 +52,7 @@ for i in 1 2 x; do
 
 	echo "$i: Delete both files"
 	rm -rf $testdir/file1 $testdir/file2
-	umount $SCRATCH_MNT
+	_umount $SCRATCH_MNT
 	_check_scratch_fs
 	_scratch_mount
 done

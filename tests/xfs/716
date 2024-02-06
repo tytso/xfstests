@@ -49,7 +49,7 @@ ino=$(stat -c '%i' $file)
 
 # Figure out how many extents we need to have to create a data fork that's in
 # btree format.
-umount $SCRATCH_MNT
+_umount $SCRATCH_MNT
 di_forkoff=$(_scratch_xfs_db -c "inode $ino" -c "p core.forkoff" | \
 	awk '{print $3}')
 _scratch_xfs_db -c "inode $ino" -c "p" >> $seqres.full
@@ -61,7 +61,7 @@ $XFS_IO_PROG -c "falloc 0 $(( (min_ext_for_btree + 1) * 2 * blksz))" $file
 $here/src/punch-alternating $file
 
 # Make sure the data fork is in btree format.
-umount $SCRATCH_MNT
+_umount $SCRATCH_MNT
 _scratch_xfs_db -c "inode $ino" -c "p core.format" | grep -q "btree" || \
 	echo "data fork not in btree format?"
 echo "about to start test" >> $seqres.full

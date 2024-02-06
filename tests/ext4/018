@@ -40,7 +40,7 @@ blksz="$(stat -f -c '%s' "${SCRATCH_MNT}")"
 echo "+ make some files"
 $XFS_IO_PROG -f -c "pwrite -S 0x62 0 ${blksz}" "${SCRATCH_MNT}/attrfile" >> $seqres.full
 setfattr -n user.key -v "$(perl -e 'print "v" x 300;')" "${SCRATCH_MNT}/attrfile"
-umount "${SCRATCH_MNT}"
+_umount "${SCRATCH_MNT}"
 
 echo "+ check fs"
 e2fsck -fn "${SCRATCH_DEV}" >> $seqres.full 2>&1 || _fail "fsck should not fail"
@@ -54,7 +54,7 @@ _scratch_mount
 
 echo "+ modify attrs"
 setfattr -n user.newkey -v "$(perl -e 'print "v" x 300;')" "${SCRATCH_MNT}/attrfile" 2> /dev/null && _fail "xattr should be corrupt"
-umount "${SCRATCH_MNT}"
+_umount "${SCRATCH_MNT}"
 
 echo "+ repair fs"
 e2fsck -fy "${SCRATCH_DEV}" >> $seqres.full 2>&1
@@ -64,7 +64,7 @@ _scratch_mount
 
 echo "+ modify attrs (2)"
 setfattr -n user.newkey -v "$(perl -e 'print "v" x 300;')" "${SCRATCH_MNT}/attrfile" || _fail "xattr should not be corrupt"
-umount "${SCRATCH_MNT}"
+_umount "${SCRATCH_MNT}"
 
 echo "+ check fs (2)"
 e2fsck -fn "${SCRATCH_DEV}" >> $seqres.full 2>&1 || _fail "fsck should not fail"

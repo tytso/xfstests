@@ -15,7 +15,7 @@ _begin_fstest auto quick quota idmapped
 
 wipe_mounts()
 {
-	umount "${SCRATCH_MNT}/idmapped" >/dev/null 2>&1
+	_umount "${SCRATCH_MNT}/idmapped" >/dev/null 2>&1
 	_scratch_unmount >/dev/null 2>&1
 }
 
