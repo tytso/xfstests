@@ -36,6 +36,7 @@ echo "Format filesystem"
 _scratch_mkfs >/dev/null 2>&1
 _scratch_mount >> $seqres.full
 _require_congruent_file_oplen $SCRATCH_MNT $blksz
+_require_scratch_cowextsize_useful $sz
 
 $XFS_IO_PROG -c "cowextsize $sz" $SCRATCH_MNT
 
