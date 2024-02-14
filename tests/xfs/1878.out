@@ -1,0 +1,10 @@
+QA output created by 1878
+Format and mount
+pwrite: Input/output error
+pread: Input/output error
+pread: Input/output error
+fsync: Input/output error
+  "type":       "dioread",
+  "type":       "diowrite",
+  "type":       "readahead",
+  "type":       "writeback",
