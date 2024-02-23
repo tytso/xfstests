@@ -1,0 +1,12 @@
+QA output created by 1879
+Format and mount
+Runtime corruption detection
+  "domain":     "inode",
+  "structures":  ["directory"],
+  "type":       "sick",
+Scrub corruption detection
+  "domain":     "inode",
+  "structures":  ["directory"],
+  "structures":  ["parent"],
+  "type":       "corrupt",
+  "type":       "sick",
