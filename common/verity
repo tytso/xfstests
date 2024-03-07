@@ -43,7 +43,16 @@ _require_scratch_verity()
 
 	# The filesystem may be aware of fs-verity but have it disabled by
 	# CONFIG_FS_VERITY=n.  Detect support via sysfs.
-	if [ ! -e /sys/fs/$fstyp/features/verity ]; then
+	case $FSTYP in
+	xfs)
+		_scratch_unmount
+		_check_scratch_xfs_features VERITY &>>$seqres.full
+		_scratch_mount
+	;;
+	*)
+		test -e /sys/fs/$fstyp/features/verity
+	esac
+	if [ ! $? ]; then
 		_notrun "kernel $fstyp isn't configured with verity support"
 	fi
 
@@ -201,6 +210,9 @@ _scratch_mkfs_verity()
 	ext4|f2fs)
 		_scratch_mkfs -O verity
 		;;
+	xfs)
+		_scratch_mkfs -i verity
+		;;
 	btrfs)
 		_scratch_mkfs
 		;;
@@ -334,11 +346,18 @@ _fsv_scratch_corrupt_bytes()
 	local lstart lend pstart pend
 	local dd_cmds=()
 	local cmd
+	local device=$SCRATCH_DEV
 
 	sync	# Sync to avoid unwritten extents
 
 	cat > $tmp.bytes
 	local end=$(( offset + $(_get_filesize $tmp.bytes ) ))
+
+	# If this is an xfs realtime file, switch @device to the rt device
+	if [ $FSTYP = "xfs" ]; then
+		$XFS_IO_PROG -r -c 'stat -v' "$file" | grep -q -w realtime && \
+			device=$SCRATCH_RTDEV
+	fi
 
 	# For each extent that intersects the requested range in order, add a
 	# command that writes the next part of the data to that extent.
@@ -355,7 +374,7 @@ _fsv_scratch_corrupt_bytes()
 		elif (( offset < lend )); then
 			local len=$((lend - offset))
 			local seek=$((pstart + (offset - lstart)))
-			dd_cmds+=("head -c $len | dd of=$SCRATCH_DEV oflag=seek_bytes seek=$seek status=none")
+			dd_cmds+=("head -c $len | dd of=$device oflag=seek_bytes seek=$seek status=none")
 			(( offset += len ))
 		fi
 	done < <($XFS_IO_PROG -r -c "fiemap $offset $((end - offset))" "$file" \
@@ -406,6 +425,22 @@ _fsv_scratch_corrupt_merkle_tree()
 			       --value $ascii --offset $offset -b 1 $SCRATCH_DEV
 			(( offset += 1 ))
 		done
+		_scratch_mount
+		;;
+	xfs)
+		local ino=$(stat -c '%i' $file)
+		local attr_offset=$(( $offset % $FSV_BLOCK_SIZE ))
+		local attr_index=$(printf "%08d" $(( offset - attr_offset )))
+		_scratch_unmount
+		# Attribute name is 8 bytes long (byte position of Merkle tree block)
+		_scratch_xfs_db -x -c "inode $ino" \
+			-c "attr_modify -f -m 8 -o $attr_offset $attr_index \"BUG\"" \
+			-c "ablock 0" -c "print" \
+			>>$seqres.full
+		# In case bsize == 4096 and merkle block size == 1024, by
+		# modifying attribute with 'attr_modify we can corrupt quota
+		# account. Let's repair it
+		_scratch_xfs_repair >> $seqres.full 2>&1
 		_scratch_mount
 		;;
 	*)
