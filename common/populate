@@ -524,6 +524,30 @@ _scratch_xfs_populate() {
 		done
 	fi
 
+	# verity merkle trees
+	is_verity="$(_xfs_has_feature "$SCRATCH_MNT" verity -v)"
+	if [ $is_verity -gt 0 ]; then
+		echo "+ fsverity"
+
+		# Create a biggish file with all zeroes, because metadump
+		# won't preserve data blocks and we don't want the hashes to
+		# stop working for our sample fs.
+		for ((pos = 0, i = 88; pos < 23456789; pos += 234567, i++)); do
+			$XFS_IO_PROG -f -c "pwrite -S 0 $pos 234567" "$SCRATCH_MNT/verity"
+		done
+
+		fsverity enable "$SCRATCH_MNT/verity"
+
+		# Create a sparse file
+		$XFS_IO_PROG -f -c "pwrite -S 0 0 3" -c "pwrite -S 0 23456789 3" "$SCRATCH_MNT/sparse_verity"
+		fsverity enable "$SCRATCH_MNT/sparse_verity"
+
+		# Create a salted sparse file
+		$XFS_IO_PROG -f -c "pwrite -S 0 0 3" -c "pwrite -S 0 23456789 3" "$SCRATCH_MNT/salted_verity"
+		local salt="5846532066696e616c6c7920686173206461746120636865636b73756d732121"	# XFS finally has data checksums!!
+		fsverity enable --salt="$salt" "$SCRATCH_MNT/salted_verity"
+	fi
+
 	# Copy some real files (xfs tests, I guess...)
 	echo "+ real files"
 	test $fill -ne 0 && __populate_fill_fs "${SCRATCH_MNT}" 5
