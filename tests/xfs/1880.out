@@ -1,0 +1,37 @@
+QA output created by 1880
+Part 1: Delete the fsverity descriptor
+sha256:bab5cfebae30d53e4318629d4ba0b4760d6aae38e03ae235741ed69a31873f1f SCRATCH_MNT/a
+SCRATCH_MNT/a: Invalid argument
+xfs_ino corruption
+fsverity metadata missing
+Part 2: Run repair to clear XFS_DIFLAG2_VERITY
+Part 3: Corrupt the fsverity descriptor
+sha256:bab5cfebae30d53e4318629d4ba0b4760d6aae38e03ae235741ed69a31873f1f SCRATCH_MNT/a
+SCRATCH_MNT/a: Invalid argument
+xfs_ino corruption
+fsverity metadata missing
+Part 4: Run repair to clear XFS_DIFLAG2_VERITY
+Part 5: Corrupt the fsverity file data
+sha256:bab5cfebae30d53e4318629d4ba0b4760d6aae38e03ae235741ed69a31873f1f SCRATCH_MNT/a
+pread: Input/output error
+fsverity read error
+Part 6: Run repair which will not help
+fsverity read error
+pread: Input/output error
+fsverity read error
+Part 7: Corrupt a merkle tree block
+sha256:c56f1115966bafa6c9d32b4717f554b304161f33923c9292c7a92a27866a853c SCRATCH_MNT/a
+pread: Input/output error
+fsverity read error
+Part 8: Run repair which will not help
+fsverity read error
+pread: Input/output error
+fsverity read error
+Part 9: Corrupt the fsverity salt
+sha256:bab5cfebae30d53e4318629d4ba0b4760d6aae38e03ae235741ed69a31873f1f SCRATCH_MNT/a
+pread: Input/output error
+fsverity read error
+Part 10: Run repair which will not help
+fsverity read error
+pread: Input/output error
+fsverity read error
