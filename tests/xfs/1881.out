@@ -1,0 +1,28 @@
+QA output created by 1881
+Part 1: Delete the fsverity descriptor
+sha256:bab5cfebae30d53e4318629d4ba0b4760d6aae38e03ae235741ed69a31873f1f SCRATCH_MNT/a
+SCRATCH_MNT/a: Invalid argument
+Part 2: Disable fsverity, which won't work
+SCRATCH_MNT/a: Invalid argument
+SCRATCH_MNT/a: Invalid argument
+Part 3: Corrupt the fsverity descriptor
+sha256:bab5cfebae30d53e4318629d4ba0b4760d6aae38e03ae235741ed69a31873f1f SCRATCH_MNT/a
+SCRATCH_MNT/a: Invalid argument
+Part 4: Disable fsverity, which won't work
+SCRATCH_MNT/a: Invalid argument
+SCRATCH_MNT/a: Invalid argument
+Part 5: Corrupt the fsverity file data
+sha256:bab5cfebae30d53e4318629d4ba0b4760d6aae38e03ae235741ed69a31873f1f SCRATCH_MNT/a
+pread: Input/output error
+Part 6: Disable fsverity, which should work
+pread: Input/output error
+Part 7: Corrupt a merkle tree block
+sha256:c56f1115966bafa6c9d32b4717f554b304161f33923c9292c7a92a27866a853c SCRATCH_MNT/a
+pread: Input/output error
+Part 8: Disable fsverity, which should work
+pread: Input/output error
+Part 9: Corrupt the fsverity salt
+sha256:bab5cfebae30d53e4318629d4ba0b4760d6aae38e03ae235741ed69a31873f1f SCRATCH_MNT/a
+pread: Input/output error
+Part 10: Disable fsverity, which should work
+pread: Input/output error

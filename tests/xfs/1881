@@ -1,0 +1,113 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (c) 2024 Oracle.  All Rights Reserved.
+#
+# FS QA Test 1881
+#
+# Corrupt fsverity descriptor, merkle tree blocks, and file contents.  Ensure
+# that we can still disable fsverity, at least for the latter cases.
+#
+. ./common/preamble
+_begin_fstest auto quick verity
+
+_cleanup()
+{
+	cd /
+	_restore_fsverity_signatures
+	rm -f $tmp.*
+}
+
+. ./common/verity
+. ./common/filter
+. ./common/fuzzy
+
+_require_scratch_verity
+_disable_fsverity_signatures
+_require_fsverity_corruption
+_require_xfs_io_command noverity
+_require_scratch_nocheck	# corruption test
+
+_scratch_mkfs >> $seqres.full
+_scratch_mount
+
+_require_xfs_has_feature "$SCRATCH_MNT" verity
+VICTIM_FILE="$SCRATCH_MNT/a"
+
+# Check again to confirm that the caller's MKFS_OPTIONS result in a filesystem
+# that supports fsverity.
+_fsv_can_enable "$VICTIM_FILE" || _notrun "cannot enable fsverity"
+
+create_victim()
+{
+	local filesize="${1:-3}"
+
+	rm -f "$VICTIM_FILE"
+	perl -e "print 'moo' x $((filesize / 3))" > "$VICTIM_FILE"
+	fsverity enable --hash-alg=sha256 --block-size=1024 "$VICTIM_FILE"
+	fsverity measure "$VICTIM_FILE" | _filter_scratch
+}
+
+disable_verity() {
+	$XFS_IO_PROG -r -c 'noverity' "$VICTIM_FILE" 2>&1 | _filter_scratch
+}
+
+cat_victim() {
+	$XFS_IO_PROG -r -c 'pread -q 0 4096' "$VICTIM_FILE" 2>&1 | _filter_scratch
+}
+
+echo "Part 1: Delete the fsverity descriptor" | tee -a $seqres.full
+create_victim
+_scratch_unmount
+_scratch_xfs_db -x -c "path /a" -c "attr_remove -f vdesc" -c 'ablock 0' -c print >> $seqres.full
+_scratch_mount
+cat_victim
+
+echo "Part 2: Disable fsverity, which won't work" | tee -a $seqres.full
+disable_verity
+cat_victim
+
+echo "Part 3: Corrupt the fsverity descriptor" | tee -a $seqres.full
+create_victim
+_scratch_unmount
+_scratch_xfs_db -x -c "path /a" -c 'attr_modify -f "vdesc" -o 0 "BUGSAHOY"' -c 'ablock 0' -c print >> $seqres.full
+_scratch_mount
+cat_victim
+
+echo "Part 4: Disable fsverity, which won't work" | tee -a $seqres.full
+disable_verity
+cat_victim
+
+echo "Part 5: Corrupt the fsverity file data" | tee -a $seqres.full
+create_victim
+_scratch_unmount
+_scratch_xfs_db -x -c "path /a" -c 'dblock 0' -c 'blocktrash -3 -o 0 -x 24 -y 24 -z' -c print >> $seqres.full
+_scratch_mount
+cat_victim
+
+echo "Part 6: Disable fsverity, which should work" | tee -a $seqres.full
+disable_verity
+cat_victim
+
+echo "Part 7: Corrupt a merkle tree block" | tee -a $seqres.full
+create_victim 1234 # two merkle tree blocks
+_fsv_scratch_corrupt_merkle_tree "$VICTIM_FILE" 0
+cat_victim
+
+echo "Part 8: Disable fsverity, which should work" | tee -a $seqres.full
+disable_verity
+cat_victim
+
+echo "Part 9: Corrupt the fsverity salt" | tee -a $seqres.full
+create_victim
+_scratch_unmount
+_scratch_xfs_db -x -c "path /a" -c 'attr_modify -f "vdesc" -o 3 #08' -c 'attr_modify -f "vdesc" -o 80 "BUGSAHOY"' -c 'ablock 0' -c print >> $seqres.full
+_scratch_mount
+cat_victim
+
+echo "Part 10: Disable fsverity, which should work" | tee -a $seqres.full
+disable_verity
+cat_victim
+
+# success, all done
+status=0
+exit
