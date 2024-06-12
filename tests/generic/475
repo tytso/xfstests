@@ -43,6 +43,9 @@ _require_metadata_journaling $SCRATCH_DEV
 _dmerror_init
 _dmerror_mount
 
+# io_uring is buggy and causes "fsstress; umount" EBUSY test flakes
+FSSTRESS_AVOID="$FSSTRESS_AVOID -f uring_read=0 -f uring_write=0"
+
 while _soak_loop_running $((50 * TIME_FACTOR)); do
 	_run_fsstress_bg -d $SCRATCH_MNT -n 999999 -p $((LOAD_FACTOR * 4))
 
