@@ -13,6 +13,9 @@ _begin_fstest auto rw prealloc ioctl enospc stress
 . ./common/filter
 # Disable all sync operations to get higher load
 FSSTRESS_AVOID="$FSSTRESS_AVOID -ffsync=0 -fsync=0 -ffdatasync=0"
+# io_uring is buggy and causes "fsstress; umount" EBUSY test flakes
+FSSTRESS_AVOID="$FSSTRESS_AVOID -f uring_read=0 -f uring_write=0"
+
 _workout()
 {
 	echo ""
