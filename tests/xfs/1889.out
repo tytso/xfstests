@@ -1,0 +1,8 @@
+QA output created by 1889
+Info: TEST_DIR/1889.mount: Checking and repairing per autofsck directive.
+Info: TEST_DIR/1889.mount: Disabling scrub per autofsck directive.
+Info: TEST_DIR/1889.mount: Checking per autofsck directive.
+Info: TEST_DIR/1889.mount: Optimizing per autofsck directive.
+Info: TEST_DIR/1889.mount: Checking and repairing per autofsck directive.
+Info: TEST_DIR/1889.mount: Disabling scrub per autofsck directive.
+Info: TEST_DIR/1889.mount: Checking and repairing per autofsck directive.
