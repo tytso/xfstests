@@ -158,6 +158,19 @@ post_exercise()
 	return 0
 }
 
+qerase_mkfs_options() {
+	echo "$MKFS_OPTIONS" | sed \
+		-e 's/uquota//g' \
+		-e 's/gquota//g' \
+		-e 's/pquota//g' \
+		-e 's/uqnoenforce//g' \
+		-e 's/gqnoenforce//g' \
+		-e 's/pqnoenforce//g' \
+		-e 's/,,*/,/g'
+}
+
+MKFS_OPTIONS="$(qerase_mkfs_options)"
+
 # Create a list of fs features in the order that support for them was added
 # to the kernel driver.  For each feature upgrade test, we enable all the
 # features that came before it and none of the ones after, which means we're
