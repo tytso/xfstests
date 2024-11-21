@@ -94,7 +94,7 @@ start_test()
 
 	_scratch_mkfs >>$seqres.full 2>&1
 	_get_mount -t $FSTYP $SCRATCH_DEV $MNTHEAD
-	$MOUNT_PROG --make-"${type}" $MNTHEAD
+	_mount --make-"${type}" $MNTHEAD
 	mkdir $mpA $mpB $mpC
 }
 
@@ -118,14 +118,14 @@ run()
 	echo "make-$cmd a $orgs mount"
 	_get_mount -t $FSTYP $SCRATCH_DEV $mpA
 	mkdir -p $mpA/dir 2>/dev/null
-	$MOUNT_PROG --make-shared $mpA
+	_mount --make-shared $mpA
 
 	# prepare the original status on mpB
 	_get_mount --bind $mpA $mpB
 	# shared&slave status need to do make-slave then make-shared
 	# two operations.
 	for t in $orgs; do
-		$MOUNT_PROG --make-"$t" $mpB
+		_mount --make-"$t" $mpB
 	done
 
 	# "before" for prepare and check original status
@@ -146,7 +146,7 @@ run()
 			_put_mount # umount C
 		fi
 		if [ "$i" = "before" ];then
-			$MOUNT_PROG --make-"${cmd}" $mpB
+			_mount --make-"${cmd}" $mpB
 		fi
 	done
 

@@ -22,7 +22,7 @@ _init_delay()
 _mount_delay()
 {
 	_scratch_options mount
-	$MOUNT_PROG -t $FSTYP `_common_dev_mount_options` $SCRATCH_OPTIONS \
+	_mount -t $FSTYP `_common_dev_mount_options` $SCRATCH_OPTIONS \
 		$DELAY_DEV $SCRATCH_MNT
 }
 

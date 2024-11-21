@@ -139,7 +139,7 @@ _log_writes_mkfs()
 _log_writes_mount()
 {
 	_scratch_options mount
-	$MOUNT_PROG -t $FSTYP `_common_dev_mount_options $*` $SCRATCH_OPTIONS \
+	_mount -t $FSTYP `_common_dev_mount_options $*` $SCRATCH_OPTIONS \
 		$LOGWRITES_DMDEV $SCRATCH_MNT
 }
 

@@ -45,7 +45,7 @@ _scratch_unmount
 
 # Now we mount the subvol2, which makes subvol3 not accessible for this mount
 # point, but we should be able to delete it using it's subvolume id
-$MOUNT_PROG -o subvol=subvol2 $SCRATCH_DEV $SCRATCH_MNT
+_mount -o subvol=subvol2 $SCRATCH_DEV $SCRATCH_MNT
 _delete_and_list subvol3 "Last remaining subvolume:"
 _scratch_unmount
 

@@ -48,7 +48,7 @@ ext4_online_resize()
 		$seqres.full 2>&1 || _fail "mkfs failed"
 
 	echo "+++ mount image file" | tee -a $seqres.full
-	$MOUNT_PROG -t ${FSTYP} ${LOOP_DEVICE} ${IMG_MNT} > \
+	_mount -t ${FSTYP} ${LOOP_DEVICE} ${IMG_MNT} > \
 		/dev/null 2>&1 || _fail "mount failed"
 
 	echo "+++ resize fs to $final_size" | tee -a $seqres.full

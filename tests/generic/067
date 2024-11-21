@@ -34,7 +34,7 @@ mount_nonexistent_mnt()
 {
 	echo "# mount to nonexistent mount point" >>$seqres.full
 	rm -rf $TEST_DIR/nosuchdir
-	$MOUNT_PROG $SCRATCH_DEV $TEST_DIR/nosuchdir >>$seqres.full 2>&1
+	_mount $SCRATCH_DEV $TEST_DIR/nosuchdir >>$seqres.full 2>&1
 }
 
 # fs driver should be able to handle mounting a free loop device gracefully xfs
@@ -60,7 +60,7 @@ mount_wrong_fstype()
 		fs=xfs
 	fi
 	echo "# mount with wrong fs type" >>$seqres.full
-	$MOUNT_PROG -t $fs $SCRATCH_DEV $SCRATCH_MNT >>$seqres.full 2>&1
+	_mount -t $fs $SCRATCH_DEV $SCRATCH_MNT >>$seqres.full 2>&1
 }
 
 # umount a symlink to device, which is not mounted.
