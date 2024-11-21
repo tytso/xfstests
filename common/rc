@@ -2971,8 +2971,8 @@ _require_xfs_io_command()
 		echo $testio | grep -q "Operation not supported" && \
 			_notrun "O_TMPFILE is not supported"
 		;;
-	"fsmap")
-		testio=`$XFS_IO_PROG -f -c "fsmap" $testfile 2>&1`
+	"fsmap"|"fsrefcounts")
+		testio=`$XFS_IO_PROG -f -c "$command" $testfile 2>&1`
 		echo $testio | grep -q "Inappropriate ioctl" && \
 			_notrun "xfs_io $command support is missing"
 		;;
