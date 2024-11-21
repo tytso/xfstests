@@ -1,4 +1,19 @@
 QA output created by 409
 Format and populate
 Fuzz rtrmapbt keyptrs
+u3.rtrmapbt.level = ones: mount failed (32).
+u3.rtrmapbt.level = firstbit: mount failed (32).
+u3.rtrmapbt.level = middlebit: mount failed (32).
+u3.rtrmapbt.level = add: mount failed (32).
+u3.rtrmapbt.level = sub: mount failed (32).
+u3.rtrmapbt.numrecs = zeroes: online repair failed (1).
+u3.rtrmapbt.numrecs = zeroes: online re-scrub failed (5).
+u3.rtrmapbt.numrecs = zeroes: offline re-scrub failed (1).
+u3.rtrmapbt.numrecs = zeroes: online post-mod scrub failed (4).
+u3.rtrmapbt.numrecs = zeroes: offline post-mod scrub failed (1).
+u3.rtrmapbt.numrecs = ones: mount failed (32).
+u3.rtrmapbt.numrecs = firstbit: mount failed (32).
+u3.rtrmapbt.numrecs = middlebit: mount failed (32).
+u3.rtrmapbt.numrecs = add: mount failed (32).
+u3.rtrmapbt.numrecs = sub: mount failed (32).
 Done fuzzing rtrmapbt keyptrs
