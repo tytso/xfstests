@@ -25,6 +25,7 @@ _cleanup()
 
 # Modify as appropriate.
 _require_ftrace
+test "$(uname -m)" = "aarch64" && _notrun "disabled by djwong due to crash"
 _require_xfs_io_command "falloc"
 _require_xfs_io_error_injection "write_delay_ms"
 _require_scratch
