@@ -1,0 +1,80 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (c) 2024-2025 Oracle.  All Rights Reserved.
+#
+# FS QA Test No. 1878
+#
+# Attempt to read and write a file in buffered and directio mode with the
+# health monitoring program running.  Check that healthmon observes all four
+# types of IO errors.
+#
+. ./common/preamble
+_begin_fstest auto quick eio
+
+_cleanup()
+{
+	cd /
+	rm -rf $tmp.* $testdir
+	_dmerror_cleanup
+}
+
+. ./common/filter
+. ./common/dmerror
+
+_require_scratch_nocheck
+_require_xfs_io_command healthmon
+_require_dm_target error
+
+# Disable the scratch rt device to avoid test failures relating to the rt
+# bitmap consuming all the free space in our small data device.
+unset SCRATCH_RTDEV
+
+echo "Format and mount"
+_scratch_mkfs > $seqres.full 2>&1
+_dmerror_init no_log
+_dmerror_mount
+
+_require_fs_space $SCRATCH_MNT 65536
+
+# Create a file with written regions far enough apart that the pagecache can't
+# possibly be caching the regions with a single folio.
+testfile=$SCRATCH_MNT/fsync-err-test
+$XFS_IO_PROG -f \
+	-c 'pwrite -b 1m 0 1m' \
+	-c 'pwrite -b 1m 10g 1m' \
+	-c 'pwrite -b 1m 20g 1m' \
+	-c fsync $testfile >> $seqres.full
+
+# First we check if directio errors get reported
+$XFS_IO_PROG -c 'healthmon -c -v' $SCRATCH_MNT >> $tmp.healthmon &
+sleep 1	# wait for python program to start up
+_dmerror_load_error_table
+$XFS_IO_PROG -d -c 'pwrite -b 256k 12k 16k' $testfile >> $seqres.full
+$XFS_IO_PROG -d -c 'pread -b 256k 10g 16k' $testfile >> $seqres.full
+_dmerror_load_working_table
+
+_dmerror_unmount
+wait	# for healthmon to finish
+_dmerror_mount
+
+# Next we check if buffered io errors get reported.  We have to write something
+# before loading the error table to ensure the dquots get loaded.
+$XFS_IO_PROG -c 'pwrite -b 256k 20g 1k' -c fsync $testfile >> $seqres.full
+$XFS_IO_PROG -c 'healthmon -c -v' $SCRATCH_MNT >> $tmp.healthmon &
+sleep 1	# wait for python program to start up
+_dmerror_load_error_table
+$XFS_IO_PROG -c 'pread -b 256k 12k 16k' $testfile >> $seqres.full
+$XFS_IO_PROG -c 'pwrite -b 256k 20g 16k' -c fsync $testfile >> $seqres.full
+_dmerror_load_working_table
+
+_dmerror_unmount
+wait	# for healthmon to finish
+
+# Did we get errors?
+cat $tmp.healthmon >> $seqres.full
+grep -E '(diowrite|dioread|readahead|writeback)' $tmp.healthmon | sort | uniq
+
+_dmerror_cleanup
+
+status=0
+exit
