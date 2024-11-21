@@ -51,7 +51,12 @@ loopimg_bytes=$((scratch_freesp_bytes / 3))
 
 loopimg=$SCRATCH_MNT/testfs
 truncate -s $loopimg_bytes $loopimg
-_mkfs_dev $loopimg
+if [ "$FSTYP" = "xfs" ]; then
+	# XXX some weird cow bug on arm64??
+	_mkfs_dev -s size=$(blockdev --getpbsz $SCRATCH_DEV) $loopimg
+else
+	_mkfs_dev $loopimg
+fi
 
 loopmnt=$tmp.mount
 mkdir -p $loopmnt
