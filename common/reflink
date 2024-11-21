@@ -523,3 +523,30 @@ _sweave_reflink_rainbow_delalloc() {
 		_pwrite_byte 0x62 $((blksz * i)) $blksz $dfile.chk
 	done
 }
+
+# Require that the COW extent size hint can actually be used to combat
+# fragmentation on the scratch filesystem.  This is (so far) true for any
+# filesystem except for the ones where the realtime extent size is larger
+# than one fs block, for it is assumed that setting a rt extent size is the
+# preferred fragmentation avoidance strategy.
+_require_scratch_cowextsize_useful() {
+	local testfile=$SCRATCH_MNT/hascowextsize
+	local param="${1:-1m}"
+
+	rm -f $testfile
+	touch $testfile
+	local before="$($XFS_IO_PROG -c 'cowextsize' $testfile)"
+
+	$XFS_IO_PROG -c "cowextsize $param" $testfile
+	local after="$($XFS_IO_PROG -c 'cowextsize' $testfile)"
+	rm -f $testfile
+
+	test "$before" != "$after" || \
+		_notrun "setting cowextsize to $param had no effect"
+
+	local fileblocksize=$(_get_file_block_size $SCRATCH_MNT)
+	local fsblocksize=$(_get_block_size $SCRATCH_MNT)
+
+	test $fsblocksize -eq $fileblocksize || \
+		_notrun "XFS does not support cowextsize when rt extsize ($fileblocksize) > 1FSB ($fsblocksize)"
+}
