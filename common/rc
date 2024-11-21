@@ -295,9 +295,33 @@ _get_hugepagesize()
 	awk '/Hugepagesize/ {print $2 * 1024}' /proc/meminfo
 }
 
+# Does dmesg have a --since flag?
+_dmesg_detect_since()
+{
+	if [ -z "$DMESG_HAS_SINCE" ]; then
+		test "$DMESG_HAS_SINCE" = "yes"
+		return
+	elif dmesg --help | grep -q -- --since; then
+		DMESG_HAS_SINCE=yes
+	else
+		DMESG_HAS_SINCE=no
+	fi
+}
+
 _mount()
 {
-    $MOUNT_PROG $*
+	$MOUNT_PROG $*
+	ret=$?
+	if [ "$ret" -ne 0 ]; then
+		echo "\"$MOUNT_PROG $*\" failed at $(date)" >> "$seqres.mountfail?"
+		if _dmesg_detect_since; then
+			dmesg --since '30s ago' >> "$seqres.mountfail?"
+		else
+			dmesg | tail -n 100 >> "$seqres.mountfail?"
+		fi
+	fi
+
+	return $ret
 }
 
 # Call _mount to do mount operation but also save mountpoint to

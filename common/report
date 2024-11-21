@@ -199,6 +199,7 @@ _xunit_make_testcase_report()
 		local out_src="${SRC_DIR}/${test_name}.out"
 		local full_file="${REPORT_DIR}/${test_name}.full"
 		local dmesg_file="${REPORT_DIR}/${test_name}.dmesg"
+		local mountfail_file="${REPORT_DIR}/${test_name}.mountfail"
 		local outbad_file="${REPORT_DIR}/${test_name}.out.bad"
 		if [ -z "$_err_msg" ]; then
 			_err_msg="Test $test_name failed, reason unknown"
@@ -224,6 +225,13 @@ _xunit_make_testcase_report()
 			$diff "$out_src" "$outbad_file" | encode_cdata >>$report
 			printf ']]>\n'	>>$report
 			echo -e "\t\t</system-err>" >> $report
+		fi
+		if [ -z "$quiet" -a -f "$mountfail_file" ]; then
+			echo -e "\t\t<mount-failure>" >> $report
+			printf	'<![CDATA[\n' >>$report
+			cat "$mountfail_file" | tr -dc '[:print:][:space:]' | encode_cdata >>$report
+			printf ']]>\n'	>>$report
+			echo -e "\t\t</mount-failure>" >> $report
 		fi
 		;;
 	*)

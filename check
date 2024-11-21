@@ -613,7 +613,7 @@ _stash_fail_loop_files() {
 	local seq_prefix="${REPORT_DIR}/${1}"
 	local cp_suffix="$2"
 
-	for i in ".full" ".dmesg" ".out.bad" ".notrun" ".core" ".hints"; do
+	for i in ".full" ".dmesg" ".out.bad" ".notrun" ".core" ".hints" ".mountfail"; do
 		rm -f "${seq_prefix}${i}${cp_suffix}"
 		if [ -f "${seq_prefix}${i}" ]; then
 			cp "${seq_prefix}${i}" "${seq_prefix}${i}${cp_suffix}"
@@ -1016,6 +1016,7 @@ function run_section()
 				      echo -n "	$seqnum -- "
 			cat $seqres.notrun
 			tc_status="notrun"
+			rm -f "$seqres.mountfail?"
 			_stash_test_status "$seqnum" "$tc_status"
 
 			# Unmount the scratch fs so that we can wipe the scratch
@@ -1074,6 +1075,7 @@ function run_section()
 		if [ ! -f $seq.out ]; then
 			_dump_err "no qualified output"
 			tc_status="fail"
+			rm -f "$seqres.mountfail?"
 			_stash_test_status "$seqnum" "$tc_status"
 			continue;
 		fi
@@ -1110,6 +1112,24 @@ function run_section()
 				rm -f $seqres.hints
 			fi
 		fi
+
+		if [ -f "$seqres.mountfail?" ]; then
+			if [ "$tc_status" = "fail" ]; then
+				# Let the user know if there were mount
+				# failures on a test that failed because that
+				# could be interesting.
+				mv "$seqres.mountfail?" "$seqres.mountfail"
+				_dump_err "check: possible mount failures (see $seqres.mountfail)"
+				test -f $seqres.mountfail && \
+					maybe_compress_logfile $seqres.mountfail $MAX_MOUNTFAIL_SIZE
+			else
+				# Don't retain mount failure logs for tests
+				# that pass or were skipped because some tests
+				# intentionally drive mount failures.
+				rm -f "$seqres.mountfail?"
+			fi
+		fi
+
 		_stash_test_status "$seqnum" "$tc_status"
 	done
 
