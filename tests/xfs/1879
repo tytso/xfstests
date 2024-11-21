@@ -1,0 +1,89 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (c) 2024-2025 Oracle.  All Rights Reserved.
+#
+# FS QA Test No. 1879
+#
+# Corrupt some metadata and try to access it with the health monitoring program
+# running.  Check that healthmon observes a metadata error.
+#
+. ./common/preamble
+_begin_fstest auto quick eio
+
+_cleanup()
+{
+	cd /
+	rm -rf $tmp.* $testdir
+}
+
+. ./common/filter
+
+_require_scratch_nocheck
+_require_xfs_io_command healthmon
+
+# Disable the scratch rt device to avoid test failures relating to the rt
+# bitmap consuming all the free space in our small data device.
+unset SCRATCH_RTDEV
+
+echo "Format and mount"
+_scratch_mkfs -d agcount=1 | _filter_mkfs 2> $tmp.mkfs >> $seqres.full
+. $tmp.mkfs
+_scratch_mount
+mkdir $SCRATCH_MNT/a/
+# Enough entries to get to a single block directory
+for ((i = 0; i < ( (isize + 255) / 256); i++)); do
+	path="$(printf "%s/a/%0255d" "$SCRATCH_MNT" "$i")"
+	touch "$path"
+done
+inum="$(stat -c %i "$SCRATCH_MNT/a")"
+_scratch_unmount
+
+# Fuzz the directory block so that the touch below will be guaranteed to trip
+# a runtime sickness report in exactly the manner we desire.
+_scratch_xfs_db -x -c "inode $inum" -c "dblock 0" -c 'fuzz bhdr.hdr.owner add' -c print &>> $seqres.full
+
+# Try to allocate space to trigger a metadata corruption event
+echo "Runtime corruption detection"
+_scratch_mount
+$XFS_IO_PROG -c 'healthmon -c -v' $SCRATCH_MNT > $tmp.healthmon &
+sleep 1	# wait for python program to start up
+touch $SCRATCH_MNT/a/farts &>> $seqres.full
+_scratch_unmount
+
+wait	# for healthmon to finish
+
+# Did we get errors?
+filter_healthmon()
+{
+	cat $tmp.healthmon >> $seqres.full
+	grep -A2 -E '(sick|corrupt)' $tmp.healthmon | grep -v -- '--' | sort | uniq
+}
+filter_healthmon
+
+# Run scrub to trigger a health event from there too.
+echo "Scrub corruption detection"
+_scratch_mount
+if _supports_xfs_scrub $SCRATCH_MNT $SCRATCH_DEV; then
+	$XFS_IO_PROG -c 'healthmon -c -v' $SCRATCH_MNT > $tmp.healthmon &
+	sleep 1	# wait for python program to start up
+	$XFS_SCRUB_PROG -n $SCRATCH_MNT &>> $seqres.full
+	_scratch_unmount
+
+	wait	# for healthmon to finish
+
+	# Did we get errors?
+	filter_healthmon
+else
+	# mock the output since we don't support scrub
+	_scratch_unmount
+	cat << ENDL
+  "domain":     "inode",
+  "structures":  ["directory"],
+  "structures":  ["parent"],
+  "type":       "corrupt",
+  "type":       "sick",
+ENDL
+fi
+
+status=0
+exit
