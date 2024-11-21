@@ -2,4 +2,56 @@ QA output created by 485
 Format and populate
 Find blockdev inode
 Fuzz inode
+core.mode = middlebit: offline scrub didn't fail.
+core.mode = middlebit: online scrub didn't fail.
+core.mode = lastbit: offline scrub didn't fail.
+core.mode = lastbit: online scrub didn't fail.
+core.mode = add: offline scrub didn't fail.
+core.mode = add: online scrub didn't fail.
+core.size = middlebit: online scrub didn't fail.
+core.size = lastbit: online scrub didn't fail.
+core.size = add: online scrub didn't fail.
+next_unlinked = add: online scrub didn't fail.
+v3.change_count = zeroes: offline scrub didn't fail.
+v3.change_count = zeroes: online scrub didn't fail.
+v3.change_count = ones: offline scrub didn't fail.
+v3.change_count = ones: online scrub didn't fail.
+v3.change_count = firstbit: offline scrub didn't fail.
+v3.change_count = firstbit: online scrub didn't fail.
+v3.change_count = middlebit: offline scrub didn't fail.
+v3.change_count = middlebit: online scrub didn't fail.
+v3.change_count = lastbit: offline scrub didn't fail.
+v3.change_count = lastbit: online scrub didn't fail.
+v3.change_count = add: offline scrub didn't fail.
+v3.change_count = add: online scrub didn't fail.
+v3.change_count = sub: offline scrub didn't fail.
+v3.change_count = sub: online scrub didn't fail.
+v3.flags2 = firstbit: online scrub didn't fail.
+v3.flags2 = middlebit: online scrub didn't fail.
+v3.nrext64 = zeroes: offline scrub didn't fail.
+v3.nrext64 = zeroes: online scrub didn't fail.
+v3.nrext64 = firstbit: offline scrub didn't fail.
+v3.nrext64 = firstbit: online scrub didn't fail.
+v3.nrext64 = middlebit: offline scrub didn't fail.
+v3.nrext64 = middlebit: online scrub didn't fail.
+v3.nrext64 = lastbit: offline scrub didn't fail.
+v3.nrext64 = lastbit: online scrub didn't fail.
+v3.nrext64 = add: offline scrub didn't fail.
+v3.nrext64 = add: online scrub didn't fail.
+v3.nrext64 = sub: offline scrub didn't fail.
+v3.nrext64 = sub: online scrub didn't fail.
+u3.dev = zeroes: offline scrub didn't fail.
+u3.dev = zeroes: online scrub didn't fail.
+u3.dev = ones: offline scrub didn't fail.
+u3.dev = ones: online scrub didn't fail.
+u3.dev = firstbit: offline scrub didn't fail.
+u3.dev = firstbit: online scrub didn't fail.
+u3.dev = middlebit: offline scrub didn't fail.
+u3.dev = middlebit: online scrub didn't fail.
+u3.dev = lastbit: offline scrub didn't fail.
+u3.dev = lastbit: online scrub didn't fail.
+u3.dev = add: offline scrub didn't fail.
+u3.dev = add: online scrub didn't fail.
+u3.dev = sub: offline scrub didn't fail.
+u3.dev = sub: online scrub didn't fail.
 Done fuzzing inode

@@ -1,4 +1,10 @@
 QA output created by 460
 Format and populate
 Fuzz inobt
+leftsib = add: offline scrub didn't fail.
+rightsib = ones: offline scrub didn't fail.
+rightsib = middlebit: offline scrub didn't fail.
+rightsib = lastbit: offline scrub didn't fail.
+rightsib = add: offline scrub didn't fail.
+rightsib = sub: offline scrub didn't fail.
 Done fuzzing inobt

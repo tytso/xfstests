@@ -2,11 +2,4 @@ QA output created by 402
 Format and populate
 Find node-format attr block
 Fuzz node-format attr block
-hdr.info.crc = zeroes: offline scrub didn't fail.
-hdr.info.crc = ones: offline scrub didn't fail.
-hdr.info.crc = firstbit: offline scrub didn't fail.
-hdr.info.crc = middlebit: offline scrub didn't fail.
-hdr.info.crc = lastbit: offline scrub didn't fail.
-hdr.info.crc = add: offline scrub didn't fail.
-hdr.info.crc = sub: offline scrub didn't fail.
 Done fuzzing node-format attr block
