@@ -16,6 +16,7 @@ _create_scratch()
 {
 	echo "*** mkfs"
 	_scratch_mkfs_xfs $@ | tee -a $seqres.full | _filter_mkfs 2>$tmp.mkfs
+	test "${PIPESTATUS[0]}" -eq 0 || _notrun "formatting small scratch fs failed"
 	. $tmp.mkfs
 
 	echo "*** mount"
