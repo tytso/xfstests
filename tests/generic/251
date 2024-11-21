@@ -141,7 +141,7 @@ function check_sums() {
 	find -P . -xdev -type f -print0 | xargs -0 md5sum | sort -o $tmp/stress.$$.$p
 	)
 
-	diff $tmp/content.sums $tmp/stress.$$.$p
+	diff -Naurp $tmp/content.sums $tmp/stress.$$.$p
 	if [ $? -ne 0 ]; then
 		_fail "!!!Checksums has changed - Filesystem possibly corrupted!!!\n"
 	fi
