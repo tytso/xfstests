@@ -59,6 +59,35 @@ _require_log_writes_dax_mountopt()
 	fi
 }
 
+_log_writes_check_bdev()
+{
+	local sysfs="/sys/block/$(_short_dev $1)"
+
+	# Some filesystems (e.g. XFS) optimize log recovery by assuming that
+	# they can elide replay of metadata blocks if the block has a higher
+	# log serial number than the transaction being recovered.  This is a
+	# problem if the filesystem log contents can go back in time, which is
+	# what the logwrites replay program does.
+	#
+	# The logwrites replay program begins by erasing the block device's
+	# contents.  This can be done very quickly with DISCARD provided the
+	# device guarantees that all reads after a DISCARD return zeroes, or
+	# very slowly by writing zeroes to the device.  Fast is preferable, but
+	# there's no longer any way to detect that DISCARD actually unmaps
+	# zeroes, so warn the user about this requirement if the test happens
+	# to fail.
+
+	# No discard support means the logwrites will do its own zeroing
+	test "$(cat "$sysfs/queue/discard_max_bytes")" -eq 0 && return
+
+	# dm-thinp guarantees that reads after discards return zeroes
+	dmsetup status "$blkdev" 2>/dev/null | grep -q '^0.* thin ' && return
+
+	echo "HINT: $blkdev doesn't guarantee that reads after DISCARD will return zeroes" >> $seqres.hints
+	echo "      This is required for correct journal replay on some filesystems (e.g. xfs)" >> $seqres.hints
+	echo >> $seqres.hints
+}
+
 # Set up a dm-log-writes device
 #
 # blkdev: the specified target device
@@ -84,6 +113,8 @@ _log_writes_init()
 	LOGWRITES_NAME=logwrites-test
 	LOGWRITES_DMDEV=/dev/mapper/$LOGWRITES_NAME
 	LOGWRITES_TABLE="0 $BLK_DEV_SIZE log-writes $blkdev $LOGWRITES_DEV"
+
+	_log_writes_check_bdev "$blkdev"
 	_dmsetup_create $LOGWRITES_NAME --table "$LOGWRITES_TABLE" || \
 		_fail "failed to create log-writes device"
 }
