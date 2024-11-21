@@ -1,0 +1,164 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (c) 2021-2025 Oracle.  All Rights Reserved.
+#
+# FS QA Test No. 1921
+#
+# Populate filesystem, check that fsrefcounts -n10000 matches fsrefcounts -n1,
+# then verify that the refcount information is consistent with the fsmap info.
+#
+. ./common/preamble
+_begin_fstest auto clone fsrefcounts fsmap
+
+_cleanup()
+{
+	cd /
+	rm -rf $tmp.* $TEST_DIR/a $TEST_DIR/b
+}
+
+. ./common/filter
+
+_require_scratch
+_require_xfs_io_command "fsmap"
+_require_xfs_io_command "fsrefcounts"
+
+echo "Format and mount"
+_scratch_mkfs > $seqres.full 2>&1
+_scratch_mount >> $seqres.full 2>&1
+
+cpus=$(( $(src/feature -o) * 4))
+
+# Use fsstress to create a directory tree with some variability
+args=$(_scale_fsstress_args -p 4 -d $SCRATCH_MNT -n 4000)
+_run_fsstress $args >> $seqres.full
+
+_scratch_cycle_mount	# flush all the background gc
+
+echo "Compare fsrefcounts" | tee -a $seqres.full
+$XFS_IO_PROG -c 'fsrefcounts -m -n 65536' $SCRATCH_MNT | grep -v 'EXT:' > $TEST_DIR/a
+$XFS_IO_PROG -c 'fsrefcounts -m -n 1' $SCRATCH_MNT | grep -v 'EXT:' > $TEST_DIR/b
+cat $TEST_DIR/a $TEST_DIR/b >> $seqres.full
+
+diff -uw $TEST_DIR/a $TEST_DIR/b
+
+echo "Compare fsrefcounts to fsmap" | tee -a $seqres.full
+$XFS_IO_PROG -c 'fsmap -m -n 65536' $SCRATCH_MNT | grep -v 'EXT:' > $TEST_DIR/b
+cat $TEST_DIR/b >> $seqres.full
+
+while IFS=',' read ext major minor pstart pend owners length crap; do
+	test "$ext" = "EXT" && continue
+
+	awk_args=(-'F' ',' '-v' "major=$major" '-v' "minor=$minor" \
+		  '-v' "pstart=$pstart" '-v' "pend=$pend" '-v' "owners=$owners")
+
+	if [ "$owners" -eq 1 ]; then
+		$AWK_PROG "${awk_args[@]}" \
+'
+BEGIN {
+	printf("Q:%s:%s:%s:%s:%s:\n", major, minor, pstart, pend, owners) > "/dev/stderr";
+	next_map = -1;
+}
+{
+	if ($2 != major || $3 != minor) {
+		next;
+	}
+	if ($5 <= pstart) {
+		next;
+	}
+
+	printf(" A:%s:%s:%s:%s\n", $2, $3, $4, $5) > "/dev/stderr";
+	if (next_map < 0) {
+		if ($4 > pstart) {
+			exit 1
+		}
+		next_map = $5 + 1;
+	} else {
+		if ($4 != next_map) {
+			exit 1
+		}
+		next_map = $5 + 1;
+	}
+	if (next_map >= pend) {
+		nextfile;
+	}
+}
+END {
+	exit 0;
+}
+' $TEST_DIR/b 2> $tmp.debug
+		res=$?
+	else
+		$AWK_PROG "${awk_args[@]}" \
+'
+function max(a, b) {
+	return a > b ? a : b;
+}
+function min(a, b) {
+	return a < b ? a : b;
+}
+BEGIN {
+	printf("Q:%s:%s:%s:%s:%s:\n", major, minor, pstart, pend, owners) > "/dev/stderr";
+	refcount_whole = 0;
+	aborted = 0;
+}
+{
+	if ($2 != major || $3 != minor) {
+		next;
+	}
+	if ($4 > pend) {
+		nextfile;
+	}
+	if ($5 < pstart) {
+		next;
+	}
+	if ($6 == "special_0:2") {
+		/* unknown owner means we cannot distinguish separate owners */
+		aborted = 1;
+		exit 0;
+	}
+
+	printf(" A:%s:%s:%s:%s -> %d\n", $2, $3, $4, $5, refcount_whole) > "/dev/stderr";
+	if ($4 <= pstart && $5 >= pend) {
+		/* Account for extents that span the whole range */
+		refcount_whole++;
+	} else {
+		/* Otherwise track refcounts per-block as we find them */
+		for (block = max($4, pstart); block <= min($5, pend); block++) {
+			refcounts[block]++;
+		}
+	}
+}
+END {
+	if (aborted) {
+		exit 0;
+	}
+	deficit = owners - refcount_whole;
+	printf(" W:%d:%d\n", owners, refcount_whole, deficit) > "/dev/stderr";
+	if (deficit == 0) {
+		exit 0;
+	}
+
+	refcount_slivers = deficit;
+	for (block in refcounts) {
+		printf(" X:%s:%d\n", block, refcounts[block]) > "/dev/stderr";
+		if (refcounts[block] != deficit) {
+			refcount_slivers = 0;
+		}
+	}
+
+	refcount_whole += refcount_slivers;
+	exit owners == refcount_whole ? 0 : 1;
+}
+' $TEST_DIR/b 2> $tmp.debug
+		res=$?
+	fi
+	if [ $res -ne 0 ]; then
+		echo "$major,$minor,$pstart,$pend,$owners not found in fsmap"
+		cat $tmp.debug >> $seqres.full
+		break
+	fi
+done < $TEST_DIR/a
+
+# success, all done
+status=0
+exit

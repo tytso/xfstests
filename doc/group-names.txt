@@ -50,6 +50,7 @@ freeze			filesystem freeze tests
 fsck			general fsck tests
 fsmap			FS_IOC_GETFSMAP ioctl
 fsproperties		Filesystem properties
+fsrefcounts		FS_IOC_GETFSREFCOUNTS ioctl
 fsr			XFS free space reorganizer
 fsstress_online_repair	race fsstress and xfs_scrub online repair
 fsstress_scrub		race fsstress and xfs_scrub checking
