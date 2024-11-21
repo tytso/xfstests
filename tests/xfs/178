@@ -20,10 +20,16 @@ filter_repair() {
 # dd the 1st sector then repair
 _dd_repair_check()
 {
+	$XFS_INFO_PROG $SCRATCH_DEV >> $seqres.full
 	#dd first sector
 	dd if=/dev/zero of=$1 bs=$2 count=1 2>&1 | _filter_dd
 	#xfs_repair
-	_scratch_xfs_repair 2>&1 | filter_repair
+	#_scratch_xfs_repair 2>&1 | filter_repair
+	rm -f $tmp.repair
+	_scratch_xfs_repair > $tmp.repair 2>&1
+	cat $tmp.repair >> $seqres.full
+	filter_repair < $tmp.repair
+	rm -f $tmp.repair
 	#check repair
 	if _check_scratch_fs; then
         	echo "repair passed"
