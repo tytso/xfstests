@@ -3004,6 +3004,16 @@ _require_xfs_io_command()
 		echo $testio | grep -q "Inappropriate ioctl" && \
 			_notrun "xfs_io $command support is missing"
 		;;
+	"healthmon")
+		testio=`$XFS_IO_PROG -c "$command -p $param" $TEST_DIR 2>&1`
+		echo $testio | grep -q "bad argument count" && \
+			_notrun "xfs_io $command $param support is missing"
+		echo $testio | grep -q "Inappropriate ioctl" && \
+			_notrun "xfs_io $command $param ioctl support is missing"
+		echo $testio | grep -q "Operation not supported" && \
+			_notrun "xfs_io $command $param kernel support is missing"
+		param_checked="$param"
+		;;
 	"label")
 		testio=`$XFS_IO_PROG -c "label" $TEST_DIR 2>&1`
 		;;
