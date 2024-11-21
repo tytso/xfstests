@@ -25,6 +25,8 @@ _supported_fs ^nfs
 _require_aiodio aio-dio-append-write-read-race
 _require_test_program "feature"
 
+$XFS_IO_PROG -c 'stat -v' -c 'statx -v' $TEST_DIR >> $seqres.full
+
 testfile=$TEST_DIR/$seq.$$
 min_dio_align=`$here/src/min_dio_alignment $TEST_DIR $TEST_DEV`
 page_size=`$here/src/feature -s`
@@ -34,6 +36,10 @@ align=$min_dio_align
 while [ $align -le $page_size ]; do
 	echo "$AIO_TEST -a $align -d $testfile.$align" >> $seqres.full
 	$AIO_TEST -a $align -d $testfile.$align 2>&1 | tee -a $seqres.full
+	if [ "${PIPESTATUS[0]}" -ne 0 ]; then
+	       $XFS_IO_PROG -c 'bmap -elpv' -c 'bmap -celpv' $testfile.$align
+	       filefrag -v $testfile.$align
+	fi
 	align=$((align * 2))
 done
 
@@ -42,6 +48,10 @@ align=$min_dio_align
 while [ $align -le $page_size ]; do
 	echo "$AIO_TEST -a $align $testfile.$align" >> $seqres.full
 	$AIO_TEST -a $align $testfile.$align 2>&1 | tee -a $seqres.full
+	if [ "${PIPESTATUS[0]}" -ne 0 ]; then
+	       $XFS_IO_PROG -c 'bmap -elpv' -c 'bmap -celpv' $testfile.$align
+	       filefrag -v $testfile.$align
+	fi
 	align=$((align * 2))
 done
 
