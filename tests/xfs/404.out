@@ -2,4 +2,37 @@ QA output created by 404
 Format and populate
 Find external attr block
 Fuzz external attr block
+hdr.offset = ones: offline scrub didn't fail.
+hdr.offset = ones: online post-mod scrub failed (1).
+hdr.offset = middlebit: offline scrub didn't fail.
+hdr.offset = middlebit: online post-mod scrub failed (1).
+hdr.offset = lastbit: offline scrub didn't fail.
+hdr.offset = lastbit: online post-mod scrub failed (1).
+hdr.offset = add: offline scrub didn't fail.
+hdr.offset = add: online post-mod scrub failed (1).
+hdr.offset = sub: offline scrub didn't fail.
+hdr.offset = sub: online post-mod scrub failed (1).
+hdr.bytes = zeroes: offline scrub didn't fail.
+hdr.bytes = zeroes: online post-mod scrub failed (1).
+hdr.bytes = lastbit: offline scrub didn't fail.
+hdr.bytes = lastbit: online post-mod scrub failed (1).
+hdr.bytes = sub: offline scrub didn't fail.
+hdr.bytes = sub: online post-mod scrub failed (1).
+hdr.owner = ones: offline scrub didn't fail.
+hdr.owner = ones: online post-mod scrub failed (1).
+hdr.owner = firstbit: offline scrub didn't fail.
+hdr.owner = firstbit: online post-mod scrub failed (1).
+hdr.owner = middlebit: offline scrub didn't fail.
+hdr.owner = middlebit: online post-mod scrub failed (1).
+hdr.owner = lastbit: offline scrub didn't fail.
+hdr.owner = lastbit: online post-mod scrub failed (1).
+hdr.owner = add: offline scrub didn't fail.
+hdr.owner = add: online post-mod scrub failed (1).
+hdr.owner = sub: offline scrub didn't fail.
+hdr.owner = sub: online post-mod scrub failed (1).
+data = zeroes: offline scrub didn't fail.
+data = ones: offline scrub didn't fail.
+data = firstbit: offline scrub didn't fail.
+data = middlebit: offline scrub didn't fail.
+data = lastbit: offline scrub didn't fail.
 Done fuzzing external attr block

@@ -3,8 +3,26 @@ Format and populate
 Fuzz block map for BLOCK
 Done fuzzing dir map BLOCK
 Fuzz block map for LEAF
+u3.bmx[0].startblock = add: offline repair failed (1).
+u3.bmx[0].startblock = add: offline re-scrub failed (1).
+u3.bmx[0].startblock = add: pre-mod mount failed (32).
+u3.bmx[2].startoff = ones: offline repair failed (1).
+u3.bmx[2].startoff = ones: offline re-scrub failed (1).
+u3.bmx[2].startoff = ones: pre-mod mount failed (32).
+u3.bmx[2].startoff = firstbit: offline repair failed (1).
+u3.bmx[2].startoff = firstbit: offline re-scrub failed (1).
+u3.bmx[2].startoff = firstbit: pre-mod mount failed (32).
 Done fuzzing dir map LEAF
 Fuzz block map for LEAFN
+u3.bmx[0].startblock = add: offline re-scrub failed (1).
+u3.bmx[0].startblock = add: online post-mod scrub failed (1).
+u3.bmx[0].startblock = add: offline post-mod scrub failed (1).
+u3.bmx[4].startoff = ones: offline repair failed (1).
+u3.bmx[4].startoff = ones: offline re-scrub failed (1).
+u3.bmx[4].startoff = ones: pre-mod mount failed (32).
+u3.bmx[4].startoff = firstbit: offline repair failed (1).
+u3.bmx[4].startoff = firstbit: offline re-scrub failed (1).
+u3.bmx[4].startoff = firstbit: pre-mod mount failed (32).
 Done fuzzing dir map LEAFN
 Fuzz block map for NODE
 Done fuzzing dir map NODE

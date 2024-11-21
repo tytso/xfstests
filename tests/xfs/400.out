@@ -2,4 +2,23 @@ QA output created by 400
 Format and populate
 Find leaf-format attr block
 Fuzz leaf-format attr block
+hdr.holes = ones: offline scrub didn't fail.
+hdr.holes = firstbit: offline scrub didn't fail.
+hdr.holes = middlebit: offline scrub didn't fail.
+hdr.holes = lastbit: offline scrub didn't fail.
+hdr.holes = add: offline scrub didn't fail.
+hdr.holes = sub: offline scrub didn't fail.
+hdr.freemap[0].base = zeroes: offline scrub didn't fail.
+hdr.freemap[0].base = zeroes: online post-mod scrub failed (1).
+hdr.freemap[0].base = middlebit: offline scrub didn't fail.
+hdr.freemap[0].base = middlebit: online post-mod scrub failed (1).
+hdr.freemap[0].size = zeroes: offline scrub didn't fail.
+hdr.freemap[0].size = middlebit: offline scrub didn't fail.
+hdr.freemap[0].size = middlebit: online post-mod scrub failed (1).
+hdr.freemap[1].base = middlebit: offline scrub didn't fail.
+hdr.freemap[1].size = middlebit: offline scrub didn't fail.
+hdr.freemap[1].size = middlebit: online post-mod scrub failed (1).
+hdr.freemap[2].base = middlebit: offline scrub didn't fail.
+hdr.freemap[2].size = middlebit: offline scrub didn't fail.
+hdr.freemap[2].size = middlebit: online post-mod scrub failed (1).
 Done fuzzing leaf-format attr block
