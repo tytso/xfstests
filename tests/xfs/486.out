@@ -2,4 +2,51 @@ QA output created by 486
 Format and populate
 Find local-format symlink inode
 Fuzz inode
+core.mode = middlebit: offline scrub didn't fail.
+core.mode = middlebit: online scrub didn't fail.
+core.mode = lastbit: offline scrub didn't fail.
+core.mode = lastbit: online scrub didn't fail.
+core.mode = add: offline scrub didn't fail.
+core.mode = add: online scrub didn't fail.
+next_unlinked = add: online scrub didn't fail.
+v3.change_count = zeroes: offline scrub didn't fail.
+v3.change_count = zeroes: online scrub didn't fail.
+v3.change_count = ones: offline scrub didn't fail.
+v3.change_count = ones: online scrub didn't fail.
+v3.change_count = firstbit: offline scrub didn't fail.
+v3.change_count = firstbit: online scrub didn't fail.
+v3.change_count = middlebit: offline scrub didn't fail.
+v3.change_count = middlebit: online scrub didn't fail.
+v3.change_count = lastbit: offline scrub didn't fail.
+v3.change_count = lastbit: online scrub didn't fail.
+v3.change_count = add: offline scrub didn't fail.
+v3.change_count = add: online scrub didn't fail.
+v3.change_count = sub: offline scrub didn't fail.
+v3.change_count = sub: online scrub didn't fail.
+v3.flags2 = firstbit: online scrub didn't fail.
+v3.flags2 = middlebit: online scrub didn't fail.
+v3.nrext64 = zeroes: offline scrub didn't fail.
+v3.nrext64 = zeroes: online scrub didn't fail.
+v3.nrext64 = firstbit: offline scrub didn't fail.
+v3.nrext64 = firstbit: online scrub didn't fail.
+v3.nrext64 = middlebit: offline scrub didn't fail.
+v3.nrext64 = middlebit: online scrub didn't fail.
+v3.nrext64 = lastbit: offline scrub didn't fail.
+v3.nrext64 = lastbit: online scrub didn't fail.
+v3.nrext64 = add: offline scrub didn't fail.
+v3.nrext64 = add: online scrub didn't fail.
+v3.nrext64 = sub: offline scrub didn't fail.
+v3.nrext64 = sub: online scrub didn't fail.
+u3.symlink = ones: offline scrub didn't fail.
+u3.symlink = ones: online scrub didn't fail.
+u3.symlink = firstbit: offline scrub didn't fail.
+u3.symlink = firstbit: online scrub didn't fail.
+u3.symlink = middlebit: offline scrub didn't fail.
+u3.symlink = middlebit: online scrub didn't fail.
+u3.symlink = lastbit: offline scrub didn't fail.
+u3.symlink = lastbit: online scrub didn't fail.
+u3.symlink = add: offline scrub didn't fail.
+u3.symlink = add: online scrub didn't fail.
+u3.symlink = sub: offline scrub didn't fail.
+u3.symlink = sub: online scrub didn't fail.
 Done fuzzing inode

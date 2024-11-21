@@ -1,4 +1,12 @@
 QA output created by 462
 Format and populate
 Fuzz rmapbt recs
+leftsib = add: offline scrub didn't fail.
+rightsib = ones: offline scrub didn't fail.
+rightsib = middlebit: offline scrub didn't fail.
+rightsib = lastbit: offline scrub didn't fail.
+rightsib = add: offline scrub didn't fail.
+recs[3].startblock = lastbit: offline scrub didn't fail.
+recs[3].blockcount = lastbit: offline scrub didn't fail.
+recs[6].owner = lastbit: offline scrub didn't fail.
 Done fuzzing rmapbt recs
