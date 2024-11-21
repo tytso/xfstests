@@ -135,6 +135,8 @@ echo "Scrub Everything"
 run_scrub_service "$new_scruball_svc"
 
 sleep 2 # give systemd a chance to tear down the service container mount tree
+ps auxfww >> $seqres.full
+df -t xfs >> $seqres.full
 
 find_scrub_trace "$SCRATCH_MNT"
 
