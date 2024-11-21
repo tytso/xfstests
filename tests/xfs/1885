@@ -1,0 +1,53 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (c) 2024-2025 Oracle.  All Rights Reserved.
+#
+# FS QA Test 1885
+#
+# Make sure that healthmon handles module refcount correctly.
+#
+. ./common/preamble
+_begin_fstest auto selfhealing
+
+. ./common/filter
+. ./common/module
+
+refcount_file="/sys/module/xfs/refcnt"
+test -e "$refcount_file" || _notrun "cannot find xfs module refcount"
+
+_require_test
+_require_xfs_io_command healthmon
+
+# Capture mod refcount without the test fs mounted
+_test_unmount
+init_refcount="$(cat "$refcount_file")"
+
+# Capture mod refcount with the test fs mounted
+_test_mount
+nomon_mount_refcount="$(cat "$refcount_file")"
+
+# Capture mod refcount with test fs mounted and the healthmon fd open.
+# Pause the xfs_io process so that it doesn't actually respond to events.
+$XFS_IO_PROG -c 'healthmon -c -v' $TEST_DIR &
+sleep 0.5
+kill -STOP %1
+mon_mount_refcount="$(cat "$refcount_file")"
+
+# Capture mod refcount with only the healthmon fd open.
+_test_unmount
+mon_nomount_refcount="$(cat "$refcount_file")"
+
+# Capture mod refcount after continuing healthmon (which should exit due to the
+# unmount) and killing it.
+kill -CONT %1
+kill %1
+wait
+nomon_nomount_refcount="$(cat "$refcount_file")"
+
+_within_tolerance "mount refcount" "$nomon_mount_refcount" "$((init_refcount + 1))" 0 -v
+_within_tolerance "mount + healthmon refcount" "$mon_mount_refcount" "$((init_refcount + 2))" 0 -v
+_within_tolerance "healthmon refcount" "$mon_nomount_refcount" "$((init_refcount + 1))" 0 -v
+_within_tolerance "end refcount" "$nomon_nomount_refcount" "$init_refcount" 0 -v
+
+status=0
+exit
