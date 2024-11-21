@@ -1,0 +1,160 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (c) 2022-2025 Oracle.  All Rights Reserved.
+#
+# FS QA Test No. 1919
+#
+# Make sure that copy on write actually does the intended write-around when we
+# stage a tiny modification to a large shared realtime extent.  We should never
+# end up with multiple rt extents mapped to the same region.
+#
+. ./common/preamble
+_begin_fstest auto quick clone realtime
+
+. ./common/filter
+. ./common/reflink
+
+_require_xfs_io_command "fpunch"
+_require_xfs_io_command "fzero"
+_require_xfs_io_command "fcollapse"
+_require_xfs_io_command "finsert"
+_require_xfs_io_command "funshare"
+_require_realtime
+_require_scratch_reflink
+
+rtextsz=262144
+filesz=$((rtextsz * 3))
+
+echo "Format filesystem and populate"
+_scratch_mkfs -m reflink=1 -r extsize=$rtextsz > $seqres.full
+_scratch_mount >> $seqres.full
+
+# Force all our files to be on the realtime device
+_xfs_force_bdev realtime $SCRATCH_MNT
+
+check_file() {
+	$XFS_IO_PROG -c fsync -c 'bmap -elpv' $1 >> $seqres.full
+	md5sum $SCRATCH_MNT/a | _filter_scratch
+	md5sum $1 | _filter_scratch
+}
+
+rtextsz_got=$(_xfs_get_rtextsize "$SCRATCH_MNT")
+test $rtextsz_got -eq $rtextsz || \
+	_notrun "got rtextsize $rtextsz_got, wanted $rtextsz"
+
+_pwrite_byte 0x59 0 $filesz $SCRATCH_MNT/a >> $seqres.full
+_scratch_sync
+md5sum $SCRATCH_MNT/a | _filter_scratch
+$XFS_IO_PROG -c 'bmap -elpv' $SCRATCH_MNT/a >> $seqres.full
+
+echo "pwrite 1 byte in the middle" | tee -a $seqres.full
+_cp_reflink $SCRATCH_MNT/a $SCRATCH_MNT/b
+_pwrite_byte 0x00 345678 1 $SCRATCH_MNT/b >> $seqres.full
+check_file $SCRATCH_MNT/b
+
+echo "mwrite 1 byte in the middle" | tee -a $seqres.full
+_cp_reflink $SCRATCH_MNT/a $SCRATCH_MNT/c
+$XFS_IO_PROG -c "mmap -rw 0 $filesz" -c "mwrite -S 0x00 345678 1" -c msync $SCRATCH_MNT/c
+check_file $SCRATCH_MNT/c
+
+echo "fzero 1 byte in the middle" | tee -a $seqres.full
+_cp_reflink $SCRATCH_MNT/a $SCRATCH_MNT/d
+$XFS_IO_PROG -c "fzero 345678 1" $SCRATCH_MNT/d
+check_file $SCRATCH_MNT/d
+
+echo "fpunch 1 byte in the middle" | tee -a $seqres.full
+_cp_reflink $SCRATCH_MNT/a $SCRATCH_MNT/e
+$XFS_IO_PROG -c "fpunch 345678 1" $SCRATCH_MNT/e
+check_file $SCRATCH_MNT/e
+
+echo "funshare 1 byte in the middle" | tee -a $seqres.full
+_cp_reflink $SCRATCH_MNT/a $SCRATCH_MNT/f
+$XFS_IO_PROG -c "funshare 345678 1" $SCRATCH_MNT/f
+check_file $SCRATCH_MNT/f
+
+echo "pwrite 1 block in the middle" | tee -a $seqres.full
+_cp_reflink $SCRATCH_MNT/a $SCRATCH_MNT/g
+_pwrite_byte 0x00 327680 65536 $SCRATCH_MNT/g >> $seqres.full
+check_file $SCRATCH_MNT/g
+
+echo "mwrite 1 block in the middle" | tee -a $seqres.full
+_cp_reflink $SCRATCH_MNT/a $SCRATCH_MNT/h
+$XFS_IO_PROG -c "mmap -rw 0 $filesz" -c "mwrite -S 0x00 327680 65536" -c msync $SCRATCH_MNT/h
+check_file $SCRATCH_MNT/h
+
+echo "fzero 1 block in the middle" | tee -a $seqres.full
+_cp_reflink $SCRATCH_MNT/a $SCRATCH_MNT/i
+$XFS_IO_PROG -c "fzero 327680 65536" $SCRATCH_MNT/i
+check_file $SCRATCH_MNT/i
+
+echo "fpunch 1 block in the middle" | tee -a $seqres.full
+_cp_reflink $SCRATCH_MNT/a $SCRATCH_MNT/j
+$XFS_IO_PROG -c "fpunch 327680 65536" $SCRATCH_MNT/j
+check_file $SCRATCH_MNT/j
+
+echo "funshare 1 block in the middle" | tee -a $seqres.full
+_cp_reflink $SCRATCH_MNT/a $SCRATCH_MNT/k
+$XFS_IO_PROG -c "funshare 327680 65536" $SCRATCH_MNT/k
+check_file $SCRATCH_MNT/k
+
+echo "pwrite 1 extent in the middle" | tee -a $seqres.full
+_cp_reflink $SCRATCH_MNT/a $SCRATCH_MNT/l
+_pwrite_byte 0x00 262144 262144 $SCRATCH_MNT/l >> $seqres.full
+check_file $SCRATCH_MNT/l
+
+echo "mwrite 1 extent in the middle" | tee -a $seqres.full
+_cp_reflink $SCRATCH_MNT/a $SCRATCH_MNT/m
+$XFS_IO_PROG -c "mmap -rw 0 $filesz" -c "mwrite -S 0x00 262144 262144" -c msync $SCRATCH_MNT/m
+check_file $SCRATCH_MNT/m
+
+echo "fzero 1 extent in the middle" | tee -a $seqres.full
+_cp_reflink $SCRATCH_MNT/a $SCRATCH_MNT/n
+$XFS_IO_PROG -c "fzero 262144 262144" $SCRATCH_MNT/n
+check_file $SCRATCH_MNT/n
+
+echo "fpunch 1 extent in the middle" | tee -a $seqres.full
+_cp_reflink $SCRATCH_MNT/a $SCRATCH_MNT/o
+$XFS_IO_PROG -c "fpunch 262144 262144" $SCRATCH_MNT/o
+check_file $SCRATCH_MNT/o
+
+echo "funshare 1 extent in the middle" | tee -a $seqres.full
+_cp_reflink $SCRATCH_MNT/a $SCRATCH_MNT/p
+$XFS_IO_PROG -c "funshare 262144 262144" $SCRATCH_MNT/p
+check_file $SCRATCH_MNT/p
+
+echo "fcollapse 1 extent in the middle" | tee -a $seqres.full
+_cp_reflink $SCRATCH_MNT/a $SCRATCH_MNT/q
+$XFS_IO_PROG -c "fcollapse 262144 262144" $SCRATCH_MNT/q
+check_file $SCRATCH_MNT/q
+
+echo "finsert 1 extent in the middle" | tee -a $seqres.full
+_cp_reflink $SCRATCH_MNT/a $SCRATCH_MNT/r
+$XFS_IO_PROG -c "finsert 262144 262144" $SCRATCH_MNT/r
+check_file $SCRATCH_MNT/r
+
+echo "copy unwritten blocks in large rtext" | tee -a $seqres.full
+$XFS_IO_PROG -f -c "falloc 0 $filesz" -c 'pwrite -S 0x59 345678 1' $SCRATCH_MNT/s >> $seqres.full
+$XFS_IO_PROG -c 'bmap -elpv' $SCRATCH_MNT/s >> $seqres.full
+_cp_reflink $SCRATCH_MNT/s $SCRATCH_MNT/t
+$XFS_IO_PROG -c 'bmap -elpv' $SCRATCH_MNT/s >> $seqres.full
+$XFS_IO_PROG -f -c 'pwrite -S 0x59 1048576 1' $SCRATCH_MNT/s >> $seqres.full
+$XFS_IO_PROG -f -c 'pwrite -S 0x59 1048576 1' $SCRATCH_MNT/t >> $seqres.full
+check_file $SCRATCH_MNT/s
+check_file $SCRATCH_MNT/t
+
+echo "test writing to shared unwritten extent" | tee -a $seqres.full
+$XFS_IO_PROG -c 'bmap -elpv' $SCRATCH_MNT/s >> $seqres.full
+_cp_reflink $SCRATCH_MNT/s $SCRATCH_MNT/u
+$XFS_IO_PROG -c 'bmap -elpv' $SCRATCH_MNT/s >> $seqres.full
+$XFS_IO_PROG -f -c 'pwrite -S 0x59 345678 1' $SCRATCH_MNT/u >> $seqres.full
+check_file $SCRATCH_MNT/u
+
+echo "Remount and recheck" | tee -a $seqres.full
+md5sum $SCRATCH_MNT/a | _filter_scratch
+for i in b c d e f g h i j k l m n o p q r s t u; do
+	check_file $SCRATCH_MNT/$i | grep -v SCRATCH_MNT.a
+done
+
+# success, all done
+status=0
+exit
