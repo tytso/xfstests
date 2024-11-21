@@ -19,6 +19,7 @@ _require_scratch_dedupe
 
 _scratch_mkfs >>$seqres.full 2>&1
 _scratch_mount
+_require_congruent_file_oplen $SCRATCH_MNT 65536
 
 # The first byte with a value of 0xae starts at an offset (512Kb + 100) which is
 # not a multiple of the block size.
