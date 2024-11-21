@@ -3,6 +3,25 @@ Format and populate
 Fuzz block map for BLOCK
 Done fuzzing dir map BLOCK
 Fuzz block map for LEAF
+u3.bmx[0].startblock = lastbit: online repair failed (1).
+u3.bmx[0].startblock = lastbit: online re-scrub failed (5).
+u3.bmx[0].startblock = lastbit: offline re-scrub failed (1).
+u3.bmx[0].startblock = lastbit: online post-mod scrub failed (1).
+u3.bmx[0].startblock = lastbit: offline post-mod scrub failed (1).
+u3.bmx[0].blockcount = middlebit: online repair failed (1).
+u3.bmx[0].blockcount = middlebit: online re-scrub failed (5).
+u3.bmx[0].blockcount = middlebit: offline re-scrub failed (1).
+u3.bmx[0].blockcount = middlebit: online post-mod scrub failed (1).
+u3.bmx[0].blockcount = middlebit: offline post-mod scrub failed (1).
+u3.bmx[0].blockcount = add: online repair failed (1).
+u3.bmx[0].blockcount = add: online re-scrub failed (5).
+u3.bmx[0].blockcount = add: offline re-scrub failed (1).
+u3.bmx[0].blockcount = add: online post-mod scrub failed (1).
+u3.bmx[0].blockcount = add: offline post-mod scrub failed (1).
+u3.bmx[2].startblock = add: online re-scrub failed (5).
+u3.bmx[2].startblock = add: offline re-scrub failed (1).
+u3.bmx[2].startblock = add: online post-mod scrub failed (1).
+u3.bmx[2].startblock = add: offline post-mod scrub failed (1).
 Done fuzzing dir map LEAF
 Fuzz block map for LEAFN
 Done fuzzing dir map LEAFN

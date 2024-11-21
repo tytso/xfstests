@@ -2,4 +2,9 @@ QA output created by 405
 Format and populate
 Find external attr block
 Fuzz external attr block
+data = zeroes: online scrub didn't fail.
+data = ones: online scrub didn't fail.
+data = firstbit: online scrub didn't fail.
+data = middlebit: online scrub didn't fail.
+data = lastbit: online scrub didn't fail.
 Done fuzzing external attr block
