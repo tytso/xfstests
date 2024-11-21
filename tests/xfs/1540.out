@@ -1,4 +1,11 @@
 QA output created by 1540
 Format and populate
 Fuzz rtrefcountbt recs
+numrecs = lastbit: offline scrub didn't fail.
+leftsib = add: offline scrub didn't fail.
+rightsib = ones: offline scrub didn't fail.
+rightsib = firstbit: offline scrub didn't fail.
+rightsib = lastbit: offline scrub didn't fail.
+rightsib = add: offline scrub didn't fail.
+rightsib = sub: offline scrub didn't fail.
 Done fuzzing rtrefcountbt recs
