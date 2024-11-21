@@ -1,0 +1,87 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (c) 2024-2025 Oracle.  All Rights Reserved.
+#
+# FS QA Test 1884
+#
+# Ensure that autonomous self healing works fixes the filesystem correctly.
+#
+. ./common/preamble
+_begin_fstest auto selfhealing
+
+. ./common/filter
+. ./common/fuzzy
+. ./common/systemd
+
+_require_scrub
+_require_xfs_io_command "repair"	# online repair support
+_require_xfs_db_command "blocktrash"
+_require_command "$XFS_SCRUBBED_PROG" "xfs_scrubbed"
+_require_scratch
+
+_scratch_mkfs >> $seqres.full
+_scratch_mount
+
+_xfs_has_feature $SCRATCH_MNT parent || \
+	_notrun "parent pointers required to test directory auto-repair"
+_scratch_xfs_scrubbed --repair --check || \
+	_notrun "health monitoring with repair not supported on this kernel"
+
+# Create a largeish directory
+dblksz=$(_xfs_get_dir_blocksize "$SCRATCH_MNT")
+echo testdata > $SCRATCH_MNT/a
+mkdir -p "$SCRATCH_MNT/some/victimdir"
+for ((i = 0; i < (dblksz / 255); i++)); do
+	fname="$(printf "%0255d" "$i")"
+	ln $SCRATCH_MNT/a $SCRATCH_MNT/some/victimdir/$fname
+done
+
+# Did we get at least two dir blocks?
+dirsize=$(stat -c '%s' $SCRATCH_MNT/some/victimdir)
+test "$dirsize" -gt "$dblksz" || echo "failed to create two-block directory"
+
+# Break the directory, remount filesystem
+_scratch_unmount
+_scratch_xfs_db -x \
+	-c 'path /some/victimdir' \
+	-c 'bmap' \
+	-c 'dblock 1' \
+	-c 'blocktrash -z -0 -o 0 -x 2048 -y 2048 -n 2048' >> $seqres.full
+_scratch_mount
+
+# If the system xfsprogs has self healing enabled, we need to shut down the
+# daemon before we try to capture things.
+if _systemd_is_running; then
+	svcname="xfs_scrubbed@$(systemd-escape --path "$SCRATCH_MNT")"
+	echo "$svcname: $(systemctl is-active "$svcname")" >> $seqres.full
+	_systemd_unit_stop "$svcname" &>> $seqres.full
+fi
+
+# Start the health monitor, have it repair everything reported corrupt
+_scratch_xfs_scrubbed --repair --log > $tmp.scrubbed &
+scrubbed_pid=$!
+sleep 1
+
+# Access the broken directory to trigger a repair, then poll the directory
+# for 5 seconds to see if it gets fixed without us needing to intervene.
+ls $SCRATCH_MNT/some/victimdir > /dev/null 2> $tmp.err
+_filter_scratch < $tmp.err
+try=0
+while [ $try -lt 50 ] && grep -q 'Structure needs cleaning' $tmp.err; do
+	echo "try $try saw corruption" >> $seqres.full
+	sleep 0.1
+	ls $SCRATCH_MNT/some/victimdir > /dev/null 2> $tmp.err
+	try=$((try + 1))
+done
+_filter_scratch < $tmp.err
+
+# Unmount fs to kill scrubbed, then wait for it to finish.
+while ! _scratch_unmount &>/dev/null; do
+	sleep 0.5
+done
+kill $scrubbed_pid
+wait
+cat $tmp.scrubbed >> $seqres.full
+
+status=0
+exit

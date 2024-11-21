@@ -166,6 +166,12 @@ export XFS_ADMIN_PROG="$(type -P xfs_admin)"
 export XFS_GROWFS_PROG=$(type -P xfs_growfs)
 export XFS_SPACEMAN_PROG="$(type -P xfs_spaceman)"
 export XFS_SCRUB_PROG="$(type -P xfs_scrub)"
+XFS_SCRUBBED_PROG="$(type -P xfs_scrubbed)"
+# Normally the scrubbed daemon is installed in libexec
+if [ -n "$XFS_SCRUBBED_PROG" ] && [ -e /usr/libexec/xfs_scrubbed ]; then
+	XFS_SCRUBBED_PROG=/usr/libexec/xfs_scrubbed
+fi
+export XFS_SCRUBBED_PROG
 export XFS_PARALLEL_REPAIR_PROG="$(type -P xfs_prepair)"
 export XFS_PARALLEL_REPAIR64_PROG="$(type -P xfs_prepair64)"
 export __XFSDUMP_PROG="$(type -P xfsdump)"

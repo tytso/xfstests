@@ -1,0 +1,64 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (c) 2024-2025 Oracle.  All Rights Reserved.
+#
+# FS QA Test 1882
+#
+# Make sure that xfs_scrubbed correctly handles all the reports that it gets
+# from the kernel.  We simulate this by using the --everything mode so we get
+# all the events, not just the sickness reports.
+#
+. ./common/preamble
+_begin_fstest auto selfhealing
+
+. ./common/filter
+. ./common/fuzzy
+. ./common/systemd
+. ./common/populate
+
+_require_scrub
+_require_xfs_io_command "scrub"		# online check support
+_require_command "$XFS_SCRUBBED_PROG" "xfs_scrubbed"
+_require_scratch
+
+# Does this fs support health monitoring?
+_scratch_mkfs >> $seqres.full
+_scratch_mount
+
+_scratch_xfs_scrubbed --check || \
+	_notrun "health monitoring not supported on this kernel"
+_scratch_xfs_scrubbed --require-validation --check && \
+	_notrun "skipping this test in favor of the one that does json validation"
+_scratch_unmount
+
+# Create a sample fs with all the goodies
+_scratch_populate_cached nofill &>> $seqres.full
+_scratch_mount
+
+# If the system xfsprogs has self healing enabled, we need to shut down the
+# daemon before we try to capture things.
+if _systemd_is_running; then
+	scratch_path=$(systemd-escape --path "$SCRATCH_MNT")
+	_systemd_unit_stop "xfs_scrubbed@${scratch_path}" &>> $seqres.full
+fi
+
+# Start the health monitor, have it log everything
+_scratch_xfs_scrubbed --everything --log > $tmp.scrubbed &
+scrubbed_pid=$!
+sleep 1
+
+# Run scrub to make some noise
+_scratch_scrub -b -n >> $seqres.full
+
+# Unmount fs to kill scrubbed, then wait for it to finish
+while ! _scratch_unmount &>/dev/null; do
+	sleep 0.5
+done
+kill $scrubbed_pid
+wait
+
+cat $tmp.scrubbed >> $seqres.full
+
+echo Silence is golden
+status=0
+exit

@@ -71,3 +71,12 @@ _systemd_unit_status() {
 	_systemd_installed || return 1
 	systemctl status "$1"
 }
+
+# Start a running systemd unit
+_systemd_unit_start() {
+	systemctl start "$1"
+}
+# Stop a running systemd unit
+_systemd_unit_stop() {
+	systemctl stop "$1"
+}
