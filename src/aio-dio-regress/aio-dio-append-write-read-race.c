@@ -108,6 +108,7 @@ int main(int argc, char *argv[])
 	char *rbuf = NULL, *wbuf = NULL;
 	int rfd = 0, wfd = 0;
 	int i, j, c;
+	int bad_i = -1;
 	int use_aio = 1;
 	int ret = 0;
 	int io_align = 4096;
@@ -170,6 +171,8 @@ int main(int argc, char *argv[])
 	rdata.buf = rbuf;
 
 	for (i = 0; i < max_blocks; i++) {
+		int corrupt = 0;
+
 		wdata.offset = rdata.offset = i * blksize;
 
 		/* reset reader_ready, it will be set in reader thread */
@@ -192,12 +195,19 @@ int main(int argc, char *argv[])
 
 		for (j = 0; j < rdata.read_sz; j++) {
 			if (rdata.buf[j] != 'a' && rdata.buf[j] != 0) {
-				fail("encounter an error: "
-					"block %d offset %d, content %x\n",
-					i, j, rbuf[j]);
-				ret = 1;
-				goto err;
+				if (bad_i < 0 || i != bad_i) {
+					fprintf(stderr, "encounter an error: "
+						"block %d offset %d, pos %zu, content %x\n",
+						i, j, (i * blksize) + j, rbuf[j]);
+				}
+				bad_i = i;
+				corrupt = 1;
 			}
+		}
+
+		if (corrupt) {
+			ret = 1;
+			goto err;
 		}
 	}
 
