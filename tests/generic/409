@@ -88,7 +88,7 @@ start_test()
 
 	_scratch_mkfs >$seqres.full 2>&1
 	_get_mount -t $FSTYP $SCRATCH_DEV $MNTHEAD
-	$MOUNT_PROG --make-"${type}" $MNTHEAD
+	_mount --make-"${type}" $MNTHEAD
 	mkdir $mpA $mpB $mpC $mpD
 }
 
@@ -108,9 +108,9 @@ bind_run()
 	echo "bind $source on $dest"
 	_get_mount -t $FSTYP $SCRATCH_DEV $mpA
 	mkdir -p $mpA/dir 2>/dev/null
-	$MOUNT_PROG --make-shared $mpA
+	_mount --make-shared $mpA
 	_get_mount --bind $mpA $mpB
-	$MOUNT_PROG --make-"$source" $mpB
+	_mount --make-"$source" $mpB
 	# maybe unbindable at here
 	_get_mount --bind $mpB $mpC 2>/dev/null
 	if [ $? -ne 0 ]; then

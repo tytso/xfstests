@@ -81,12 +81,12 @@ start_test()
 
 	_get_mount -t $FSTYP $SCRATCH_DEV $SRCHEAD
 	# make sure $SRCHEAD is private
-	$MOUNT_PROG --make-private $SRCHEAD
+	_mount --make-private $SRCHEAD
 
 	_get_mount -t $FSTYP $SCRATCH_DEV $DSTHEAD
 	# test start with a bind, then make-shared $DSTHEAD
 	_get_mount --bind $DSTHEAD $DSTHEAD
-	$MOUNT_PROG --make-"${type}" $DSTHEAD
+	_mount --make-"${type}" $DSTHEAD
 	mkdir $mpA $mpB $mpC $mpD
 }
 
@@ -106,10 +106,10 @@ move_run()
 	echo "move $source to $dest"
 	_get_mount -t $FSTYP $SCRATCH_DEV $mpA
 	mkdir -p $mpA/dir 2>/dev/null
-	$MOUNT_PROG --make-shared $mpA
+	_mount --make-shared $mpA
 	# need a peer for slave later
 	_get_mount --bind $mpA $mpB
-	$MOUNT_PROG --make-"$source" $mpB
+	_mount --make-"$source" $mpB
 	# maybe unbindable at here
 	_get_mount --move $mpB $mpC 2>/dev/null
 	if [ $? -ne 0 ]; then

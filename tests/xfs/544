@@ -35,7 +35,7 @@ mkdir $TEST_DIR/dest.$seq
 # Test
 echo "*** dump with bind-mounted test ***" >> $seqres.full
 
-$MOUNT_PROG --bind $TEST_DIR/src.$seq $TEST_DIR/dest.$seq || _fail "Bind mount failed"
+_mount --bind $TEST_DIR/src.$seq $TEST_DIR/dest.$seq || _fail "Bind mount failed"
 
 $XFSDUMP_PROG -L session -M test -f $tmp.dump $TEST_DIR/dest.$seq \
 	>> $seqres.full 2>&1 && echo "dump with bind-mounted should be failed, but passed."

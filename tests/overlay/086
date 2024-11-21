@@ -33,21 +33,21 @@ mkdir -p "$lowerdir_spaces" "$lowerdir_colons"
 # _overlay_mount_* helpers do not handle lowerdir+,datadir+, so execute mount directly.
 
 # check illegal combinations and order of lowerdir,lowerdir+,datadir+
-$MOUNT_PROG -t overlay none $SCRATCH_MNT \
+_mount -t overlay none $SCRATCH_MNT \
 	-o"lowerdir=$lowerdir,lowerdir+=$lowerdir_colons" \
 	2>> $seqres.full && \
 	echo "ERROR: invalid combination of lowerdir and lowerdir+ mount options"
 
 $UMOUNT_PROG $SCRATCH_MNT 2>/dev/null
 
-$MOUNT_PROG -t overlay none $SCRATCH_MNT \
+_mount -t overlay none $SCRATCH_MNT \
 	-o"lowerdir=$lowerdir,datadir+=$lowerdir_colons" \
 	-o redirect_dir=follow,metacopy=on 2>> $seqres.full && \
 	echo "ERROR: invalid combination of lowerdir and datadir+ mount options"
 
 $UMOUNT_PROG $SCRATCH_MNT 2>/dev/null
 
-$MOUNT_PROG -t overlay none $SCRATCH_MNT \
+_mount -t overlay none $SCRATCH_MNT \
 	-o"datadir+=$lowerdir,lowerdir+=$lowerdir_colons" \
 	-o redirect_dir=follow,metacopy=on 2>> $seqres.full && \
 	echo "ERROR: invalid order of lowerdir+ and datadir+ mount options"
@@ -55,7 +55,7 @@ $MOUNT_PROG -t overlay none $SCRATCH_MNT \
 $UMOUNT_PROG $SCRATCH_MNT 2>/dev/null
 
 # mount is expected to fail with escaped colons.
-$MOUNT_PROG -t overlay none $SCRATCH_MNT \
+_mount -t overlay none $SCRATCH_MNT \
 	-o"lowerdir+=$lowerdir_colons_esc" \
 	2>> $seqres.full && \
 	echo "ERROR: incorrect parsing of escaped colons in lowerdir+ mount option"
@@ -63,14 +63,14 @@ $MOUNT_PROG -t overlay none $SCRATCH_MNT \
 $UMOUNT_PROG $SCRATCH_MNT 2>/dev/null
 
 # mount is expected to succeed without escaped colons.
-$MOUNT_PROG -t overlay ovl_esc_test $SCRATCH_MNT \
+_mount -t overlay ovl_esc_test $SCRATCH_MNT \
 	-o"lowerdir+=$lowerdir_colons,datadir+=$lowerdir_spaces" \
 	-o redirect_dir=follow,metacopy=on \
 	2>&1 | tee -a $seqres.full
 
 # if spaces are not escaped when showing mount options,
 # mount command will not show the word 'spaces' after the spaces
-$MOUNT_PROG -t overlay | grep ovl_esc_test | tee -a $seqres.full | \
+_mount -t overlay | grep ovl_esc_test | tee -a $seqres.full | \
 	grep -q 'datadir+'.*spaces || \
 	echo "ERROR: escaped spaces truncated from datadir+ mount option"
 

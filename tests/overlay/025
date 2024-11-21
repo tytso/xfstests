@@ -36,7 +36,7 @@ _require_extra_fs tmpfs
 # create a tmpfs in $TEST_DIR
 tmpfsdir=$TEST_DIR/tmpfs
 mkdir -p $tmpfsdir
-$MOUNT_PROG -t tmpfs tmpfs $tmpfsdir
+_mount -t tmpfs tmpfs $tmpfsdir
 
 mkdir -p $tmpfsdir/{lower,upper,work,mnt}
 mkdir -p -m 0 $tmpfsdir/upper/testd

@@ -64,7 +64,7 @@ $XFS_GROWFS_PROG $loop_symlink 2>&1 | sed -e s:$loop_symlink:LOOPSYMLINK:
 # These mounted operations should pass
 
 echo "=== mount ==="
-$MOUNT_PROG $loop_dev $mntdir || _fail "!!! failed to loopback mount"
+_mount $loop_dev $mntdir || _fail "!!! failed to loopback mount"
 
 echo "=== xfs_growfs - check device node ==="
 $XFS_GROWFS_PROG -D 8192 $loop_dev > /dev/null
@@ -76,7 +76,7 @@ echo "=== unmount ==="
 _unmount $mntdir || _fail "!!! failed to unmount"
 
 echo "=== mount device symlink ==="
-$MOUNT_PROG $loop_symlink $mntdir || _fail "!!! failed to loopback mount"
+_mount $loop_symlink $mntdir || _fail "!!! failed to loopback mount"
 
 echo "=== xfs_growfs - check device symlink ==="
 $XFS_GROWFS_PROG -D 16384 $loop_symlink > /dev/null

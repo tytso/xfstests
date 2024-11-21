@@ -37,7 +37,7 @@ _scratch_mount
 subvol_mnt=$TEST_DIR/$seq.mnt
 mkdir -p $subvol_mnt
 $BTRFS_UTIL_PROG subvolume create $SCRATCH_MNT/subvol >>$seqres.full 2>&1
-$MOUNT_PROG -o subvol=subvol $SELINUX_MOUNT_OPTIONS $SCRATCH_DEV $subvol_mnt
+_mount -o subvol=subvol $SELINUX_MOUNT_OPTIONS $SCRATCH_DEV $subvol_mnt
 status=$?
 
 exit

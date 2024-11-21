@@ -77,7 +77,7 @@ start_test()
 
 	_scratch_mkfs >$seqres.full 2>&1
 	_get_mount -t $FSTYP $SCRATCH_DEV $MNTHEAD
-	$MOUNT_PROG --make-"${type}" $MNTHEAD
+	_mount --make-"${type}" $MNTHEAD
 	mkdir $mpA $mpB $mpC
 }
 
@@ -100,11 +100,11 @@ crash_test()
 
 	_get_mount -t $FSTYP $SCRATCH_DEV $mpA
 	mkdir $mpA/mnt1
-	$MOUNT_PROG --make-shared $mpA
+	_mount --make-shared $mpA
 	_get_mount --bind $mpA $mpB
 	_get_mount --bind $mpA $mpC
-	$MOUNT_PROG --make-slave $mpB
-	$MOUNT_PROG --make-slave $mpC
+	_mount --make-slave $mpB
+	_mount --make-slave $mpC
 	_get_mount -t $FSTYP $SCRATCH_DEV $mpA/mnt1
 	mkdir $mpA/mnt1/mnt2
 
