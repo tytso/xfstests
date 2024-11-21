@@ -127,6 +127,10 @@ _require_pagecache_access $SCRATCH_MNT
 
 min_blksz=65536
 file_blksz=$(_get_file_block_size "$SCRATCH_MNT")
+huge_pagesize=$(_get_hugepagesize)
+base_pagesize=$(_get_page_size)
+((huge_pagesize > base_pagesize)) && base_pagesize=$huge_pagesize
+((base_pagesize > file_blksz)) && file_blksz=$base_pagesize
 blksz=$(( 8 * $file_blksz ))
 
 blksz=$(( blksz > min_blksz ? blksz : min_blksz ))
@@ -136,6 +140,10 @@ _require_congruent_file_oplen $SCRATCH_MNT $blksz
 # Make sure we have sufficient extent size to create speculative CoW
 # preallocations.
 $XFS_IO_PROG -c 'cowextsize 1m' $SCRATCH_MNT
+
+freespace="$(( $(stat -f $SCRATCH_MNT -c '%a * %S') ))"
+test $freespace -ge $((200 * blksz)) || \
+	_notrun "not enough space: wanted $((200 * blksz)), saw $freespace"
 
 # Write out a file with the first two blocks unshared and the rest shared.
 _pwrite_byte 0x59 0 $((160 * blksz)) $SCRATCH_MNT/file >> $seqres.full
@@ -175,16 +183,26 @@ sleep 1
 # test has been successful, so turn off the delay.
 sentryfile=$TEST_DIR/$seq.sentry
 tracefile=$TEST_DIR/$seq.ftrace
+
+finish_wait_for_errortag() {
+	_scratch_inject_error "wb_delay_ms" 0
+	_ftrace_ignore_events
+}
+
 wait_for_errortag() {
-	while [ -e "$sentryfile" ]; do
+	local i
+	# Wait 2 minutes for an invalidation or give up
+	for ((i = 0; i < 240; i++)); do
 		_ftrace_dump | grep iomap_invalid >> "$tracefile"
-		if grep -q iomap_invalid "$tracefile"; then
-			_scratch_inject_error "wb_delay_ms" 0
-			_ftrace_ignore_events
-			break;
+		if grep -q iomap_invalid "$tracefile" || [ ! -e "$sentryfile" ]; then
+			finish_wait_for_errortag
+			return
 		fi
 		sleep 0.5
 	done
+
+	echo "Did not finish in 60 seconds?"
+	finish_wait_for_errortag
 }
 touch $sentryfile
 wait_for_errortag &
