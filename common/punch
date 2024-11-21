@@ -401,7 +401,10 @@ _test_generic_punch()
 			-c "pwrite $_8k $_8k" $sync_cmd \
 			-c "$zero_cmd $_4k $_8k" \
 			-c "$map_cmd -v" $testfile | $filter_cmd
-		[ $? -ne 0 ] && die_now
+		if [ $? -ne 0 ]; then
+			$XFS_IO_PROG -f -c "$map_cmd -v" $testfile >> $seqres.full
+			die_now
+		fi
 		_md5_checksum $testfile
 	fi
 
@@ -440,7 +443,10 @@ _test_generic_punch()
 			-c "pwrite $_8k $_4k" $sync_cmd \
 			-c "$zero_cmd $_4k $_12k" \
 			-c "$map_cmd -v" $testfile | $filter_cmd
-		[ $? -ne 0 ] && die_now
+		if [ $? -ne 0 ]; then
+			$XFS_IO_PROG -f -c "$map_cmd -v" $testfile >> $seqres.full
+			die_now
+		fi
 		_md5_checksum $testfile
 
 		echo "	13. data -> unwritten -> data"
