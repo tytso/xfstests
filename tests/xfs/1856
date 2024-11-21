@@ -30,11 +30,47 @@ rt_configured()
 	test "$USE_EXTERNAL" = "yes" && test -n "$SCRATCH_RTDEV"
 }
 
+# Does mkfs support metadir?
+supports_metadir()
+{
+	$MKFS_XFS_PROG 2>&1 | grep -q 'metadir='
+}
+
+# Do we need to enable metadir at mkfs time to support a feature upgrade test?
+need_metadir()
+{
+	local feat="$1"
+
+	# if realtime isn't configured, we don't need metadir
+	rt_configured || return 1
+
+	# If we don't even know what realtime rmap is, we don't need rt groups
+	# and hence don't need metadir.
+	test -z "${FEATURE_STATE["rmapbt"]}" && return 1
+
+	# rt rmap btrees require metadir, but metadir cannot be added to an
+	# existing rt filesystem.  Force it on at mkfs time.
+	test "${FEATURE_STATE["rmapbt"]}" -eq 1 && return 0
+	test "$feat" = "rmapbt" && return 0
+
+	return 1
+}
+
 # Compute the MKFS_OPTIONS string for a particular feature upgrade test
 compute_mkfs_options()
 {
+	local feat="$1"
 	local m_opts=""
 	local caller_options="$MKFS_OPTIONS"
+	local metadir
+
+	need_metadir "$feat" && metadir=1
+	if echo "$caller_options" | grep -q 'metadir='; then
+		test -z "$metadir" && metadir=0
+		caller_options="$(echo "$caller_options" | sed -e 's/metadir=*[0-9]*/metadir='$metadir'/g')"
+	elif [ -n "$metadir" ]; then
+		caller_options="$caller_options -m metadir=$metadir"
+	fi
 
 	for feat in "${FEATURES[@]}"; do
 		local feat_state="${FEATURE_STATE["${feat}"]}"
@@ -179,9 +215,11 @@ MKFS_OPTIONS="$(qerase_mkfs_options)"
 # upgrade don't spread failure to the rest of the tests.
 FEATURES=()
 if rt_configured; then
+	# rmap wasn't added to rt devices until after metadir
 	check_repair_upgrade finobt && FEATURES+=("finobt")
 	check_repair_upgrade inobtcount && FEATURES+=("inobtcount")
 	check_repair_upgrade bigtime && FEATURES+=("bigtime")
+	supports_metadir && check_repair_upgrade rmapbt && FEATURES+=("rmapbt")
 else
 	check_repair_upgrade finobt && FEATURES+=("finobt")
 	check_repair_upgrade rmapbt && FEATURES+=("rmapbt")
@@ -204,7 +242,7 @@ for feat in "${FEATURES[@]}"; do
 
 	upgrade_start_message "$feat" | _tee_kernlog $seqres.full > /dev/null
 
-	opts="$(compute_mkfs_options)"
+	opts="$(compute_mkfs_options "$feat")"
 	echo "mkfs.xfs $opts" >> $seqres.full
 
 	# Format filesystem
