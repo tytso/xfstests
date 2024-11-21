@@ -1,0 +1,52 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (c) 2022-2025 Oracle.  All Rights Reserved.
+#
+# FS QA Test 1400
+#
+# Basic functionality testing for FALLOC_FL_MAP_FREE
+#
+. ./common/preamble
+_begin_fstest auto prealloc
+
+. ./common/filter
+
+_require_scratch
+_require_xfs_io_command "fmapfree"
+
+_scratch_mkfs | _filter_mkfs 2> $tmp.mkfs > /dev/null
+_scratch_mount >> $seqres.full
+. $tmp.mkfs
+
+testfile="$SCRATCH_MNT/$seq.txt"
+touch $testfile
+if $XFS_IO_PROG -c 'stat -v' $testfile | grep -q 'realtime'; then
+	# realtime
+	increment=$((dbsize * rtblocks / 100))
+	length=$((dbsize * rtblocks))
+else
+	# data
+	increment=$((dbsize * dblocks / 100))
+	length=$((dbsize * dblocks))
+fi
+
+free_bytes=$(stat -f -c '%f * %S' $testfile | bc)
+
+echo "free space: $free_bytes; increment: $increment; length: $length" >> $seqres.full
+
+# Map all the free space on that device, 10% at a time
+for ((start = 0; start < length; start += increment)); do
+	$XFS_IO_PROG -f -c "fmapfree $start $increment" $testfile
+done
+
+space_used=$(stat -c '%b * %B' $testfile | bc)
+
+echo "space captured: $space_used" >> $seqres.full
+$FILEFRAG_PROG -v $testfile >> $seqres.full
+
+# Did we get within 10% of the free space?
+_within_tolerance "mapfree space used" $space_used $free_bytes 10% -v
+
+# success, all done
+status=0
+exit
