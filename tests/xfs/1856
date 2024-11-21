@@ -215,11 +215,12 @@ MKFS_OPTIONS="$(qerase_mkfs_options)"
 # upgrade don't spread failure to the rest of the tests.
 FEATURES=()
 if rt_configured; then
-	# rmap wasn't added to rt devices until after metadir
+	# rmap & reflink weren't added to rt devices until after metadir
 	check_repair_upgrade finobt && FEATURES+=("finobt")
 	check_repair_upgrade inobtcount && FEATURES+=("inobtcount")
 	check_repair_upgrade bigtime && FEATURES+=("bigtime")
 	supports_metadir && check_repair_upgrade rmapbt && FEATURES+=("rmapbt")
+	supports_metadir && check_repair_upgrade reflink && FEATURES+=("reflink")
 else
 	check_repair_upgrade finobt && FEATURES+=("finobt")
 	check_repair_upgrade rmapbt && FEATURES+=("rmapbt")
