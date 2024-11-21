@@ -53,6 +53,12 @@ $XFS_IO_PROG -c "cowextsize $sz" $SCRATCH_MNT
 # staging extent for an unshared extent and trips over the injected error.
 _require_no_xfs_always_cow
 
+# This test uses a very large cowextszhint to manipulate the COW fork to
+# contain a large unwritten extent before injecting the error.  XFS ignores
+# cowextsize when the realtime extent size is greater than 1FSB, so this test
+# cannot set up the preconditions for the test.
+_require_scratch_cowextsize_useful $sz
+
 echo "Create files"
 _pwrite_byte 0x66 0 $sz $SCRATCH_MNT/file1 >> $seqres.full
 _cp_reflink $SCRATCH_MNT/file1 $SCRATCH_MNT/file2
