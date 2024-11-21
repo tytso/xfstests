@@ -2,4 +2,42 @@ QA output created by 384
 Format and populate
 Find inline-format dir inode
 Fuzz inline-format dir inode
+core.mode = middlebit: offline scrub didn't fail.
+core.mode = lastbit: offline scrub didn't fail.
+core.mode = add: offline scrub didn't fail.
+core.rtinherit = ones: offline scrub didn't fail.
+core.rtinherit = firstbit: offline scrub didn't fail.
+core.rtinherit = middlebit: offline scrub didn't fail.
+core.rtinherit = lastbit: offline scrub didn't fail.
+core.rtinherit = add: offline scrub didn't fail.
+core.rtinherit = sub: offline scrub didn't fail.
+core.projinherit = ones: offline scrub didn't fail.
+core.projinherit = firstbit: offline scrub didn't fail.
+core.projinherit = middlebit: offline scrub didn't fail.
+core.projinherit = lastbit: offline scrub didn't fail.
+core.projinherit = add: offline scrub didn't fail.
+core.projinherit = sub: offline scrub didn't fail.
+core.nosymlinks = ones: offline scrub didn't fail.
+core.nosymlinks = firstbit: offline scrub didn't fail.
+core.nosymlinks = middlebit: offline scrub didn't fail.
+core.nosymlinks = lastbit: offline scrub didn't fail.
+core.nosymlinks = add: offline scrub didn't fail.
+core.nosymlinks = sub: offline scrub didn't fail.
+v3.change_count = zeroes: offline scrub didn't fail.
+v3.change_count = ones: offline scrub didn't fail.
+v3.change_count = firstbit: offline scrub didn't fail.
+v3.change_count = middlebit: offline scrub didn't fail.
+v3.change_count = lastbit: offline scrub didn't fail.
+v3.change_count = add: offline scrub didn't fail.
+v3.change_count = sub: offline scrub didn't fail.
+v3.flags2 = lastbit: offline scrub didn't fail.
+v3.nrext64 = zeroes: offline scrub didn't fail.
+v3.nrext64 = firstbit: offline scrub didn't fail.
+v3.nrext64 = middlebit: offline scrub didn't fail.
+v3.nrext64 = lastbit: offline scrub didn't fail.
+v3.nrext64 = add: offline scrub didn't fail.
+v3.nrext64 = sub: offline scrub didn't fail.
+u3.sfdir3.list[1].offset = middlebit: offline scrub didn't fail.
+u3.sfdir3.list[1].offset = lastbit: offline scrub didn't fail.
+u3.sfdir3.list[1].offset = add: offline scrub didn't fail.
 Done fuzzing inline-format dir inode

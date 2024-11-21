@@ -1,10 +1,30 @@
 QA output created by 737
 Format and populate
 Fuzz block map for EXTENTS_REMOTE3K
+a.bmx[0].blockcount = middlebit: online post-mod scrub failed (1).
+a.bmx[0].blockcount = lastbit: online post-mod scrub failed (1).
+a.bmx[0].blockcount = add: online post-mod scrub failed (1).
 Done fuzzing attr map EXTENTS_REMOTE3K
 Fuzz block map for EXTENTS_REMOTE4K
+a.bmx[0].blockcount = middlebit: offline repair failed (1).
+a.bmx[0].blockcount = middlebit: offline re-scrub failed (1).
+a.bmx[0].blockcount = middlebit: online post-mod scrub failed (1).
+a.bmx[0].blockcount = middlebit: offline post-mod scrub failed (1).
+a.bmx[0].blockcount = add: offline repair failed (1).
+a.bmx[0].blockcount = add: offline re-scrub failed (1).
+a.bmx[0].blockcount = add: online post-mod scrub failed (1).
+a.bmx[0].blockcount = add: offline post-mod scrub failed (1).
 Done fuzzing attr map EXTENTS_REMOTE4K
 Fuzz block map for LEAF
 Done fuzzing attr map LEAF
 Fuzz block map for NODE
+a.bmx[2].blockcount = middlebit: offline repair failed (1).
+a.bmx[2].blockcount = middlebit: offline re-scrub failed (1).
+a.bmx[2].blockcount = middlebit: online post-mod scrub failed (1).
+a.bmx[2].blockcount = middlebit: offline post-mod scrub failed (1).
+a.bmx[2].blockcount = lastbit: online post-mod scrub failed (1).
+a.bmx[2].blockcount = add: offline repair failed (1).
+a.bmx[2].blockcount = add: offline re-scrub failed (1).
+a.bmx[2].blockcount = add: online post-mod scrub failed (1).
+a.bmx[2].blockcount = add: offline post-mod scrub failed (1).
 Done fuzzing attr map NODE

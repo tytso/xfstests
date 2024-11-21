@@ -2,4 +2,25 @@ QA output created by 386
 Format and populate
 Find data-format dir block
 Fuzz data-format dir block
+bhdr.hdr.owner = zeroes: offline re-scrub failed (1).
+bhdr.hdr.owner = zeroes: online post-mod scrub failed (1).
+bhdr.hdr.owner = zeroes: offline post-mod scrub failed (1).
+bhdr.hdr.owner = ones: offline re-scrub failed (1).
+bhdr.hdr.owner = ones: online post-mod scrub failed (1).
+bhdr.hdr.owner = ones: offline post-mod scrub failed (1).
+bhdr.hdr.owner = firstbit: offline re-scrub failed (1).
+bhdr.hdr.owner = firstbit: online post-mod scrub failed (1).
+bhdr.hdr.owner = firstbit: offline post-mod scrub failed (1).
+bhdr.hdr.owner = middlebit: offline re-scrub failed (1).
+bhdr.hdr.owner = middlebit: online post-mod scrub failed (1).
+bhdr.hdr.owner = middlebit: offline post-mod scrub failed (1).
+bhdr.hdr.owner = lastbit: offline re-scrub failed (1).
+bhdr.hdr.owner = lastbit: online post-mod scrub failed (1).
+bhdr.hdr.owner = lastbit: offline post-mod scrub failed (1).
+bhdr.hdr.owner = add: offline re-scrub failed (1).
+bhdr.hdr.owner = add: online post-mod scrub failed (1).
+bhdr.hdr.owner = add: offline post-mod scrub failed (1).
+bhdr.hdr.owner = sub: offline re-scrub failed (1).
+bhdr.hdr.owner = sub: online post-mod scrub failed (1).
+bhdr.hdr.owner = sub: offline post-mod scrub failed (1).
 Done fuzzing data-format dir block

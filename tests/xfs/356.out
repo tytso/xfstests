@@ -1,4 +1,41 @@
 QA output created by 356
 Format and populate
 Fuzz AGI
+root = sub: offline repair failed (1).
+root = sub: offline re-scrub failed (1).
+root = sub: pre-mod mount failed (32).
+level = zeroes: offline repair failed (1).
+level = zeroes: offline re-scrub failed (1).
+level = zeroes: pre-mod mount failed (32).
+level = ones: offline repair failed (1).
+level = ones: offline re-scrub failed (1).
+level = ones: pre-mod mount failed (32).
+level = firstbit: offline repair failed (1).
+level = firstbit: offline re-scrub failed (1).
+level = firstbit: pre-mod mount failed (32).
+level = middlebit: offline repair failed (1).
+level = middlebit: offline re-scrub failed (1).
+level = middlebit: pre-mod mount failed (32).
+level = lastbit: offline repair failed (1).
+level = lastbit: offline re-scrub failed (1).
+level = lastbit: pre-mod mount failed (32).
+level = add: offline repair failed (1).
+level = add: offline re-scrub failed (1).
+level = add: pre-mod mount failed (32).
+level = sub: offline repair failed (1).
+level = sub: offline re-scrub failed (1).
+level = sub: pre-mod mount failed (32).
+newino = zeroes: offline scrub didn't fail.
+newino = ones: offline scrub didn't fail.
+newino = firstbit: offline scrub didn't fail.
+newino = middlebit: offline scrub didn't fail.
+newino = lastbit: offline scrub didn't fail.
+newino = add: offline scrub didn't fail.
+newino = sub: offline scrub didn't fail.
+dirino = zeroes: offline scrub didn't fail.
+dirino = firstbit: offline scrub didn't fail.
+dirino = middlebit: offline scrub didn't fail.
+dirino = lastbit: offline scrub didn't fail.
+dirino = add: offline scrub didn't fail.
+dirino = sub: offline scrub didn't fail.
 Done fuzzing AGI

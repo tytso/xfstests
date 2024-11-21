@@ -2,4 +2,42 @@ QA output created by 398
 Format and populate
 Find inline-format attr inode
 Fuzz inline-format attr inode
+core.mode = middlebit: offline scrub didn't fail.
+core.mode = lastbit: offline scrub didn't fail.
+core.mode = add: offline scrub didn't fail.
+core.size = middlebit: offline scrub didn't fail.
+core.size = lastbit: offline scrub didn't fail.
+core.size = add: offline scrub didn't fail.
+v3.change_count = zeroes: offline scrub didn't fail.
+v3.change_count = ones: offline scrub didn't fail.
+v3.change_count = firstbit: offline scrub didn't fail.
+v3.change_count = middlebit: offline scrub didn't fail.
+v3.change_count = lastbit: offline scrub didn't fail.
+v3.change_count = add: offline scrub didn't fail.
+v3.change_count = sub: offline scrub didn't fail.
+v3.flags2 = lastbit: offline scrub didn't fail.
+v3.reflink = ones: offline scrub didn't fail.
+v3.reflink = firstbit: offline scrub didn't fail.
+v3.reflink = middlebit: offline scrub didn't fail.
+v3.reflink = lastbit: offline scrub didn't fail.
+v3.reflink = add: offline scrub didn't fail.
+v3.reflink = sub: offline scrub didn't fail.
+v3.nrext64 = zeroes: offline scrub didn't fail.
+v3.nrext64 = firstbit: offline scrub didn't fail.
+v3.nrext64 = middlebit: offline scrub didn't fail.
+v3.nrext64 = lastbit: offline scrub didn't fail.
+v3.nrext64 = add: offline scrub didn't fail.
+v3.nrext64 = sub: offline scrub didn't fail.
+a.sfattr.list[1].name = ones: offline scrub didn't fail.
+a.sfattr.list[1].name = firstbit: offline scrub didn't fail.
+a.sfattr.list[1].name = middlebit: offline scrub didn't fail.
+a.sfattr.list[1].name = lastbit: offline scrub didn't fail.
+a.sfattr.list[1].name = add: offline scrub didn't fail.
+a.sfattr.list[1].name = sub: offline scrub didn't fail.
+a.sfattr.list[2].name = ones: offline scrub didn't fail.
+a.sfattr.list[2].name = firstbit: offline scrub didn't fail.
+a.sfattr.list[2].name = middlebit: offline scrub didn't fail.
+a.sfattr.list[2].name = lastbit: offline scrub didn't fail.
+a.sfattr.list[2].name = add: offline scrub didn't fail.
+a.sfattr.list[2].name = sub: offline scrub didn't fail.
 Done fuzzing inline-format attr inode
