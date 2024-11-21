@@ -2945,6 +2945,11 @@ _require_xfs_io_command()
 			-c "fsync" -c "$command $blocksize $((2 * $blocksize))" \
 			$testfile 2>&1`
 		;;
+	"fmapfree")
+		local blocksize=$(_get_file_block_size $TEST_DIR)
+		testio=`$XFS_IO_PROG -F -f -c "$command $blocksize $((2 * $blocksize))" \
+			$testfile 2>&1`
+		;;
 	"fiemap")
 		# If 'ranged' is passed as argument then we check to see if fiemap supports
 		# ranged query params

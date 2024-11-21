@@ -1,0 +1,70 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (c) 2022-2025 Oracle.  All Rights Reserved.
+#
+# FS QA Test No. 1401
+#
+# Basic functionality testing for the free space defragmenter.
+#
+. ./common/preamble
+_begin_fstest auto defrag shrinkfs
+
+. ./common/filter
+
+_notrun "XXX test is not ready yet; you need to deal with eof blocks"
+_notrun "XXX clearfree cannot move unwritten extents; does fiexchange work for this?"
+_notrun "XXX csp_buffercopy never returns if we hit eof"
+
+_require_scratch
+_require_xfs_spaceman_command "clearfree"
+
+_scratch_mkfs | _filter_mkfs 2> $tmp.mkfs > /dev/null
+cat $tmp.mkfs >> $seqres.full
+. $tmp.mkfs
+_scratch_mount >> $seqres.full
+
+cpus=$(( $(src/feature -o) * 4))
+
+# Use fsstress to create a directory tree with some variability
+args=$(_scale_fsstress_args -p 4 -d $SCRATCH_MNT -n 4000)
+_run_fsstress $args >> $seqres.full
+
+$XFS_IO_PROG -c 'stat -v' $SCRATCH_MNT >> $seqres.full
+
+if $XFS_IO_PROG -c 'stat -v' $SCRATCH_MNT | grep -q 'rt-inherit'; then
+	# realtime
+	increment=$((dbsize * rtblocks / agcount))
+	length=$((dbsize * rtblocks))
+	fsmap_devarg="-r"
+else
+	# data
+	increment=$((dbsize * agsize))
+	length=$((dbsize * dblocks))
+	fsmap_devarg="-d"
+fi
+
+echo "start: $start; increment: $increment; length: $length" >> $seqres.full
+$DF_PROG $SCRATCH_MNT >> $seqres.full
+
+TRACE_PROG="strace -s99 -e fallocate,ioctl,openat -o $tmp.strace"
+
+for ((start = 0; start < length; start += increment)); do
+	echo "---------------------------" >> $seqres.full
+	echo "start: $start end: $((start + increment))" >> $seqres.full
+	echo "---------------------------" >> $seqres.full
+
+	fsmap_args="-vvvv $fsmap_devarg $((start / 512)) $((increment / 512))"
+	clearfree_args="-v all $start $increment"
+
+	$XFS_IO_PROG -c "fsmap $fsmap_args" $SCRATCH_MNT > $tmp.before
+	$TRACE_PROG $XFS_SPACEMAN_PROG -c "clearfree $clearfree_args" $SCRATCH_MNT &>> $seqres.full || break
+	cat $tmp.strace >> $seqres.full
+	$XFS_IO_PROG -c "fsmap $fsmap_args" $SCRATCH_MNT > $tmp.after
+	cat $tmp.before >> $seqres.full
+	cat $tmp.after >> $seqres.full
+done
+
+# success, all done
+echo Silence is golden
+status=0
+exit
