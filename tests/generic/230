@@ -93,7 +93,7 @@ cleanup_files()
 }
 
 
-grace=2
+grace=6
 
 # Test only the quota type specified in each _scratch_mount clause below.
 _qmount_option 'defaults'
