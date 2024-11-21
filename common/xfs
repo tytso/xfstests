@@ -2230,3 +2230,19 @@ _scratch_find_rt_metadir_entry() {
 
 	return 1
 }
+
+# Run the xfs_scrubbed self healing daemon
+_scratch_xfs_scrubbed() {
+	local scrubbed_args=()
+	local daemon_dir
+	daemon_dir=$(dirname "$XFS_SCRUBBED_PROG")
+
+	# If we're being run from a development branch, we might need to find
+	# the schema file on our own.
+	local maybe_schema="$daemon_dir/../libxfs/xfs_healthmon.schema.json"
+	if [ -f "$maybe_schema" ]; then
+		scrubbed_args+=(--event-schema "$maybe_schema")
+	fi
+
+	$XFS_SCRUBBED_PROG "${scrubbed_args[@]}" "$@" $SCRATCH_MNT
+}
