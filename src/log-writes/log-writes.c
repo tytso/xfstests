@@ -42,6 +42,7 @@ static int discard_range(struct log *log, u64 start, u64 len)
 
 static int zero_range(struct log *log, u64 start, u64 len)
 {
+	u64 range[2] = { start, len };
 	u64 bufsize = len;
 	ssize_t ret;
 	char *buf = NULL;
@@ -52,6 +53,15 @@ static int zero_range(struct log *log, u64 start, u64 len)
 			       (unsigned long long)len,
 			       (unsigned long long)log->max_zero_size);
 		return 0;
+	}
+
+	if (!(log->flags & LOG_ZEROOUT_NOT_SUPP)) {
+		if (ioctl(log->replayfd, BLKZEROOUT, &range) < 0) {
+			if (log_writes_verbose)
+				printf(
+ "replay device doesn't support zeroout, switching to writing zeros\n");
+			log->flags |= LOG_ZEROOUT_NOT_SUPP;
+		}
 	}
 
 	while (!buf) {
