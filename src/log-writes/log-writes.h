@@ -63,6 +63,7 @@ struct log_write_entry {
 
 #define LOG_IGNORE_DISCARD (1 << 0)
 #define LOG_DISCARD_NOT_SUPP (1 << 1)
+#define LOG_ZEROOUT_NOT_SUPP (1 << 2)
 
 struct log {
 	int logfd;
