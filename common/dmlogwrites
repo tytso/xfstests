@@ -81,7 +81,10 @@ _log_writes_check_bdev()
 	test "$(cat "$sysfs/queue/discard_max_bytes")" -eq 0 && return
 
 	# dm-thinp guarantees that reads after discards return zeroes
-	dmsetup status "$blkdev" 2>/dev/null | grep -q '^0.* thin ' && return
+	if dmsetup status "$blkdev" 2>/dev/null | grep -q '^0.* thin '; then
+		LOGWRITES_REPLAY_ARGS+=(--discard-zeroes-data)
+		return
+	fi
 
 	echo "HINT: $blkdev doesn't guarantee that reads after DISCARD will return zeroes" >> $seqres.hints
 	echo "      This is required for correct journal replay on some filesystems (e.g. xfs)" >> $seqres.hints
@@ -110,6 +113,7 @@ _log_writes_init()
 		BLK_DEV_SIZE=$((length / blksz))
 	fi
 
+	LOGWRITES_REPLAY_ARGS=()
 	LOGWRITES_NAME=logwrites-test
 	LOGWRITES_DMDEV=/dev/mapper/$LOGWRITES_NAME
 	LOGWRITES_TABLE="0 $BLK_DEV_SIZE log-writes $blkdev $LOGWRITES_DEV"
@@ -161,7 +165,8 @@ _log_writes_replay_log()
 	[ $? -ne 0 ] && _fail "mark '$_mark' does not exist"
 
 	$here/src/log-writes/replay-log --log $LOGWRITES_DEV --replay $_blkdev \
-		--end-mark $_mark >> $seqres.full 2>&1
+		--end-mark $_mark "${LOGWRITES_REPLAY_ARGS[@]}" \
+		>> $seqres.full 2>&1
 	[ $? -ne 0 ] && _fail "replay failed"
 }
 
@@ -231,6 +236,7 @@ _log_writes_replay_log_range()
 	echo "=== replay to $end ===" >> $seqres.full
 	$here/src/log-writes/replay-log -vv --log $LOGWRITES_DEV \
 		--replay $blkdev --limit $(($end + 1)) \
+		"${LOGWRITES_REPLAY_ARGS[@]}" \
 		>> $seqres.full 2>&1
 	[ $? -ne 0 ] && _fail "replay failed"
 }
