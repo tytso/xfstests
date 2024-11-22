@@ -18,6 +18,7 @@ enum option_indexes {
 	FIND,
 	NUM_ENTRIES,
 	NO_DISCARD,
+	DISCARD_ZEROES_DATA,
 	FSCK,
 	CHECK,
 	START_MARK,
@@ -37,6 +38,7 @@ static struct option long_options[] = {
 	{"find", no_argument, NULL, 0},
 	{"num-entries", no_argument, NULL, 0},
 	{"no-discard", no_argument, NULL, 0},
+	{"discard-zeroes-data", no_argument, NULL, 0},
 	{"fsck", required_argument, NULL, 0},
 	{"check", required_argument, NULL, 0},
 	{"start-mark", required_argument, NULL, 0},
@@ -155,6 +157,7 @@ int main(int argc, char **argv)
 	int ret;
 	int print_num_entries = 0;
 	int discard = 1;
+	int use_kernel_discard = 0;
 	enum log_replay_check_mode check_mode = 0;
 
 	while ((c = getopt_long(argc, argv, "v", long_options,
@@ -242,6 +245,9 @@ int main(int argc, char **argv)
 		case NO_DISCARD:
 			discard = 0;
 			break;
+		case DISCARD_ZEROES_DATA:
+			use_kernel_discard = 1;
+			break;
 		case FSCK:
 			fsck_command = strdup(optarg);
 			if (!fsck_command) {
@@ -299,6 +305,8 @@ int main(int argc, char **argv)
 
 	if (!discard)
 		log->flags |= LOG_IGNORE_DISCARD;
+	if (!use_kernel_discard)
+		log->flags |= LOG_DISCARD_NOT_SUPP;
 
 	log->start_sector = start_sector;
 	log->end_sector = end_sector;
