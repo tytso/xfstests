@@ -68,7 +68,6 @@ lowspace=$((1024*1024 / 512))		# 1m low space threshold
 
 # Use a thin device to provide deterministic discard behavior. Discards are used
 # by the log replay tool for fast zeroing to prevent out-of-order replay issues.
-_test_unmount
 _dmthin_init $devsize $devsize $csize $lowspace
 _log_writes_init $DMTHIN_VOL_DEV
 _log_writes_mkfs >> $seqres.full 2>&1
