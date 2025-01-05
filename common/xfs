@@ -1110,6 +1110,12 @@ _xfs_prepare_for_eio_shutdown()
 	local dev="$1"
 	local ctlfile="error/fail_at_unmount"
 
+	# Is this a regular file?  Check if there's a loop device somewhere.
+	# Hopefully that lines up with a mounted filesystem.
+	if [ ! -b "$dev" ]; then
+		dev=$(_find_loop_device "$1" | tail -n 1)
+	fi
+
 	# Once we enable IO errors, it's possible that a writer thread will
 	# trip over EIO, cancel the transaction, and shut down the system.
 	# This is expected behavior, so we need to remove the "Internal error"
