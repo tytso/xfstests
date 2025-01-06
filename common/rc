@@ -480,11 +480,22 @@ _scratch_mount_idmapped()
 }
 
 # Unmount the filesystem based on the directory or device passed.
+# Log everything that happens to seqres.full, and use BASHPID because
+# background subshells have the same $$ as the parent but not the same
+# $BASHPID.
 _unmount()
 {
-	local args="$*"
+	local errlog="$tmp.$BASHPID.umount.err"
 
-	$UMOUNT_PROG $args >> $seqres.full 2>&1
+	rm -f "$errlog"
+	$UMOUNT_PROG "$@" 2> "$errlog" | tee -a $seqres.full
+	local res="${PIPESTATUS[0]}"
+	if [ -f "$errlog" ]; then
+		cat "$errlog" >> $seqres.full
+		>&2 cat "$errlog"
+		rm -f "$errlog"
+	fi
+	return $res
 }
 
 _scratch_unmount()
