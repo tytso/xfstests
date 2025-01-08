@@ -36,6 +36,12 @@ _pkill()
 	pkill --session 0 "$@"
 }
 
+# Find only the test processes started by this test
+_pgrep()
+{
+	pgrep --session 0 "$@"
+}
+
 # Common execution handling for fsstress invocation.
 #
 # We need per-test fsstress binaries because of the way fsstress forks and
