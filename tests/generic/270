@@ -17,6 +17,7 @@ _begin_fstest auto quota rw prealloc ioctl enospc stress
 
 # Disable all sync operations to get higher load
 FSSTRESS_AVOID="$FSSTRESS_AVOID -ffsync=0 -fsync=0 -ffdatasync=0"
+_FSSTRESS_PROG=$tmp.fsstress
 _workout()
 {
 	echo ""
