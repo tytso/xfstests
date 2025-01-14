@@ -3345,6 +3345,7 @@ main(int argc, char **argv)
 	if (recordops)
 		logdump();
 
+	fclose(fsxlogf);
 	exit(0);
 	return 0;
 }
