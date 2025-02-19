@@ -1,0 +1,60 @@
+#! /bin/bash
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (c) 2006 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# FSQA Test No. 766
+#
+# Run fsstress ; umount to check for EBUSY errors when io_uring is enabled
+# For more information see:
+#    https://lore.kernel.org/fstests/20230831151837.qexyqjgvrllqaz26@zlang-mailbox/
+#
+#
+. ./common/preamble
+_begin_fstest auto rw io_uring stress
+
+# Import common functions.
+. ./common/filter
+# Disable all sync operations to get higher load
+FSSTRESS_AVOID="$FSSTRESS_AVOID -ffsync=0 -fsync=0 -ffdatasync=0"
+
+_workout()
+{
+	num_iterations=30
+	out=$SCRATCH_MNT/fsstress.$$
+	args=`_scale_fsstress_args -p128 -n1000 -f setattr=1 $FSSTRESS_AVOID -d $out`
+	for ((i=0; i < num_iterations; i++))
+	do
+	    $FSSTRESS_PROG $args &>> $seqres.full &
+	    pid=$!
+	    sleep 1
+	    kill $pid >> $seqres.full 2>&1
+	    wait $pid
+	    if ! _scratch_unmount; then
+		echo "failed to umount"
+		status=1
+		exit
+	    fi
+	    _scratch_mount
+	done
+}
+
+# real QA test starts here
+_require_scratch
+_require_io_uring
+
+_scratch_mkfs_sized $((512 * 1024 * 1024)) >> $seqres.full 2>&1
+_scratch_mount
+
+if ! _workout; then
+	_scratch_unmount 2>/dev/null
+	exit
+fi
+
+if ! _scratch_unmount; then
+	echo "failed to umount"
+	status=1
+	exit
+fi
+status=0
+echo "Silence is golden"
+exit
