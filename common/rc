@@ -3323,27 +3323,10 @@ _require_scratch_swapfile()
 	# Minimum size for mkswap is 10 pages
 	_format_swapfile "$SCRATCH_MNT/swap" $(($(_get_page_size) * 10)) > /dev/null
 
-	# ext* has supported all variants of swap files since their
-	# introduction, so swapon should not fail.
-	case "$FSTYP" in
-	ext2|ext3|ext4)
-		if ! swapon "$SCRATCH_MNT/swap" >/dev/null 2>&1; then
-			if _check_s_dax "$SCRATCH_MNT/swap" 1 >/dev/null; then
-				_scratch_unmount
-				_notrun "swapfiles are not supported"
-			else
-				_scratch_unmount
-				_fail "swapon failed for $FSTYP"
-			fi
-		fi
-		;;
-	*)
-		if ! swapon "$SCRATCH_MNT/swap" >/dev/null 2>&1; then
-			_scratch_unmount
-			_notrun "swapfiles are not supported"
-		fi
-		;;
-	esac
+	if ! swapon "$SCRATCH_MNT/swap" >/dev/null 2>&1; then
+		_scratch_unmount
+		_notrun "swapon failed for $FSTYP"
+	fi
 
 	swapoff "$SCRATCH_MNT/swap" >/dev/null 2>&1
 	_scratch_unmount
