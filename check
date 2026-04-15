@@ -27,6 +27,8 @@ DUMP_OUTPUT=false
 iterations=1
 istop=false
 loop_on_fail=0
+loop_always=0
+loop_count=0
 exclude_tests=()
 
 # This is a global variable used to pass test failure text to reporting gunk
@@ -81,6 +83,7 @@ General options:
                               nfs, afs, glusterfs, cifs, 9p, fuse, virtiofs,
                               overlay, pvfs2, tmpfs, ubifs
     --large-fs              optimise scratch device for large filesystems
+    --loop=<n>              run tests <n> times, measuring aggregate pass/fail metrics
     --udiff                 show unified diff (default)
 
 Test selection options:
@@ -499,7 +502,14 @@ parse_check_args()
 		-L)
 			[[ $2 =~ ^[0-9]+$ ]] || usage
 			loop_on_fail=$2
+			loop_count=$loop_on_fail
 			shift
+			;;
+		--loop=*)
+			loop_always=${1#*=}
+			[[ "$loop_always" =~ ^[0-9]+$ ]] || usage
+			[ "$loop_always" -gt 0 ] || usage
+			loop_count=$(( loop_always - 1))
 			;;
 		-h|--help)
 			usage
@@ -742,7 +752,7 @@ _expunge_test()
 }
 
 # retain files which would be overwritten in subsequent reruns of the same test
-_stash_fail_loop_files() {
+_stash_loop_files() {
 	local seq_prefix="${REPORT_DIR}/${1}"
 	local cp_suffix="$2"
 
@@ -767,9 +777,9 @@ _stash_test_status() {
 
 	if ((${#loop_status[*]} > 0)); then
 		# continuing or completing rerun-on-failure loop
-		_stash_fail_loop_files "$test_seq" ".rerun${#loop_status[*]}"
+		_stash_loop_files "$test_seq" ".rerun${#loop_status[*]}"
 		loop_status+=("$test_status")
-		if ((${#loop_status[*]} > loop_on_fail)); then
+		if ((${#loop_status[*]} > loop_count)); then
 			printf "%s aggregate results across %d runs: " \
 				"$test_seq" "${#loop_status[*]}"
 			awk "BEGIN {
@@ -789,9 +799,9 @@ _stash_test_status() {
 
 	case "$test_status" in
 	fail)
-		if ((loop_on_fail > 0)); then
+		if ((loop_on_fail > 0 || loop_always > 0 )); then
 			# initial failure, start rerun-on-failure loop
-			_stash_fail_loop_files "$test_seq" ".rerun0"
+			_stash_loop_files "$test_seq" ".rerun0"
 			loop_status+=("$test_status")
 		fi
 		bad+=("$test_seq")
@@ -799,7 +809,14 @@ _stash_test_status() {
 	list|notrun)
 		notrun+=("$test_seq")
 		;;
-	pass|expunge)
+	pass)
+		if (( loop_always > 0 )); then
+			# start rerun loop
+			_stash_loop_files "$test_seq" ".rerun0"
+			loop_status+=("$test_status")
+		fi
+	        ;;
+	expunge)
 		;;
 	*)
 		echo "Unexpected test $test_seq status: $test_status"
